@@ -1,0 +1,107 @@
+// Sunduza Prisma Schema v1.0
+// Built with: Prisma + SQLite (dev) · PostgreSQL (prod)
+// Constitution-compliant: Database Constitution D1-D22
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================
+// GROUP 1: Core tables — booking leads and contact messages
+// ============================================================
+
+/// Booking represents a consultation request from a visitor.
+/// Status flow: new → contacted → consultation_scheduled → in_progress → completed
+/// Soft-delete via deletedAt — never hard delete in production (Database FP03)
+model Booking {
+  id          String   @id @default(cuid())
+  name        String
+  email       String
+  phone       String
+  service     String   // House Planning | Architectural Drawings | Drafting Services | Development Projects
+  location    String
+  description  String
+  meetingDate DateTime
+  budget      String?
+  status      String   @default("new") // new | contacted | consultation_scheduled | in_progress | completed
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+
+  @@index([status])
+  @@index([createdAt])
+}
+
+/// ContactMessage represents a message from the contact form.
+model ContactMessage {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  phone     String
+  message   String
+  createdAt DateTime @default(now())
+  deletedAt DateTime?
+
+  @@index([createdAt])
+}
+
+// ============================================================
+// GROUP 2: Content tables — projects and testimonials
+// ============================================================
+
+/// Project represents a portfolio item showcasing Sunduza's work.
+model Project {
+  id              String   @id @default(cuid())
+  title           String
+  shortDescription String
+  imageUrl        String
+  category        String   // House Plan | Architectural Drawing | Drafting Services | Development Projects
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  deletedAt       DateTime?
+
+  @@index([category])
+  @@index([createdAt])
+}
+
+/// Testimonial represents a client review/rating.
+model Testimonial {
+  id         String   @id @default(cuid())
+  clientName String
+  review     String
+  rating     Int      // 1–5 integer
+  createdAt  DateTime @default(now())
+  deletedAt  DateTime?
+
+  @@index([rating])
+  @@index([createdAt])
+}
+
+// ============================================================
+// GROUP 3+: Admin and system tables — deferred to v2
+// ============================================================
+
+/// Admin represents the site administrator (owner).
+/// Auth: NextAuth with Prisma adapter + database sessions (Auth A5)
+model Admin {
+  id        String    @id @default(cuid())
+  email     String    @unique
+  name      String?
+  password  String    // bcrypt-hashed only — never plain text (Auth FP07)
+  role      String    @default("admin")
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+// ============================================================
+// ENUMS (SQLite compat — stored as String, enforced in app layer)
+// ============================================================
+
+// BookingStatus: new | contacted | consultation_scheduled | in_progress | completed
+// ServiceType: "House Planning" | "Architectural Drawings" | "Drafting Services" | "Development Projects"
+// ProjectCategory: "House Plan" | "Architectural Drawing" | "Drafting Services" | "Development Projects"
