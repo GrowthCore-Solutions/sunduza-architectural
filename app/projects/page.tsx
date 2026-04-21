@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 export default async function ProjectsPage() {
   const projects = await db.project.findMany({
-    where: { deletedAt: null },
+    where: {},
     orderBy: { createdAt: "desc" },
     select: { id: true, title: true, shortDescription: true, imageUrl: true, category: true, createdAt: true },
   });

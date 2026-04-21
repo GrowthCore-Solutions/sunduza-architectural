@@ -4,35 +4,12 @@ import { apiSuccess, apiError, ErrorCode } from "@/lib/api-response";
 import { auth } from "@/lib/auth";
 import { z } from "zod";
 
-const ProjectUpdateSchema = z.object({
-  title: z.string().min(1).max(200).optional(),
-  shortDescription: z.string().min(1).max(500).optional(),
-  imageUrl: z.string().min(1).max(500).optional(),
-  category: z
-    .enum([
-      "House Plan",
-      "Architectural Drawing",
-      "Drafting Services",
-      "Development Projects",
-    ])
-    .optional(),
+const TestimonialUpdateSchema = z.object({
+  clientName: z.string().min(1).max(200).optional(),
+  review: z.string().min(1).max(1000).optional(),
+  rating: z.number().int().min(1).max(5).optional(),
   featured: z.boolean().optional(),
 });
-
-export async function GET(
-  _req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  const { id } = await params;
-  const project = await db.project.findUnique({ where: { id } });
-  if (!project) {
-    return NextResponse.json(
-      apiError("Project not found", ErrorCode.NOT_FOUND, 404),
-      { status: 404 }
-    );
-  }
-  return NextResponse.json(apiSuccess(project));
-}
 
 export async function PATCH(
   req: NextRequest,
@@ -48,12 +25,12 @@ export async function PATCH(
 
   const { id } = await params;
   const body = await req.json();
-  const parsed = ProjectUpdateSchema.safeParse(body);
+  const parsed = TestimonialUpdateSchema.safeParse(body);
 
   if (!parsed.success) {
     return NextResponse.json(
       apiError(
-        parsed.error.issues.map((e) => e.message).join(", "),
+        parsed.error.issues.map((e: { message: string }) => e.message).join(", "),
         ErrorCode.VALIDATION_ERROR,
         400
       ),
@@ -61,11 +38,11 @@ export async function PATCH(
     );
   }
 
-  const project = await db.project.update({
+  const testimonial = await db.testimonial.update({
     where: { id },
     data: parsed.data,
   });
-  return NextResponse.json(apiSuccess(project));
+  return NextResponse.json(apiSuccess(testimonial));
 }
 
 export async function DELETE(
@@ -81,6 +58,6 @@ export async function DELETE(
   }
 
   const { id } = await params;
-  await db.project.delete({ where: { id } });
+  await db.testimonial.delete({ where: { id } });
   return NextResponse.json(apiSuccess({ deleted: true }));
 }

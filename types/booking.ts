@@ -14,9 +14,7 @@ export const BookingSchema = z.object({
   ]),
   location: z.string().min(2, "Location is required"),
   description: z.string().min(10, "Description must be at least 10 characters"),
-  meetingDate: z.string().refine((val) => !isNaN(Date.parse(val)), {
-    message: "Invalid date format",
-  }),
+  meetingDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Must be YYYY-MM-DD"),
   budget: z.string().optional(),
 });
 
