@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
         service: parsed.data.service,
         location: parsed.data.location,
         description: parsed.data.description,
-        meetingDate: new Date(parsed.data.meetingDate),
+        meetingDate: parsed.data.meetingDate,
         budget: parsed.data.budget,
         status: "new",
       },

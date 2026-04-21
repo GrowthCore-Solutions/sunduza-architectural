@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 export default async function TestimonialsPage() {
   const testimonials = await db.testimonial.findMany({
-    where: { deletedAt: null },
+    where: {},
     orderBy: { createdAt: "desc" },
     select: { id: true, clientName: true, review: true, rating: true, createdAt: true },
   });
