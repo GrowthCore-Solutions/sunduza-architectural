@@ -3,7 +3,7 @@
 import * as React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { CheckCircle2, AlertCircle } from "lucide-react";
 import { Button } from "@/src/client/components/ui/button";
@@ -11,27 +11,8 @@ import { Input } from "@/src/client/components/ui/input";
 import { Label } from "@/src/client/components/ui/label";
 import { Textarea } from "@/src/client/components/ui/textarea";
 import { SERVICES } from "@/src/shared/constants/services";
-
-// ── Validation schema ────────────────────────────────────────────────────────
-// Full form validation — API submission wired in Sprint 4
-const BookingFormSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  email: z.string().email("Enter a valid email address"),
-  phone: z.string().min(10, "Enter a valid South African phone number"),
-  service: z.enum(
-    ["house_planning", "arch_drawings", "drafting_services", "dev_project_planning"],
-    { error: "Please select a service" }
-  ),
-  location: z.string().min(2, "Please enter your project location"),
-  description: z.string().min(20, "Please describe your project in at least 20 characters"),
-  meetingDate: z.string().optional(),
-  budget: z.string().optional(),
-  consentGiven: z.literal(true, {
-    error: "You must accept the privacy policy to submit your request",
-  }),
-});
-
-type BookingFormValues = z.infer<typeof BookingFormSchema>;
+import { CreateBookingSchema, type CreateBookingInput } from "@/src/shared/schemas/booking.schema";
+import { useBookingMutation } from "@/src/client/hooks/use-booking-mutation";
 
 // ── Dynamic description prompts per service ──────────────────────────────────
 const SERVICE_PROMPTS: Record<string, string> = {
@@ -48,33 +29,47 @@ const SERVICE_PROMPTS: Record<string, string> = {
 const DEFAULT_PROMPT =
   "Describe your project, goals, and any specific requirements you have in mind.";
 
-// ── Form component ────────────────────────────────────────────────────────────
 export function BookingForm() {
-  const [submitted, setSubmitted] = React.useState(false);
+  const searchParams = useSearchParams();
+  const { mutateAsync, isPending, error: mutationError, isSuccess } = useBookingMutation();
   const [serverError, setServerError] = React.useState<string | null>(null);
 
   const {
     register,
     handleSubmit,
     watch,
-    formState: { errors, isSubmitting },
-  } = useForm<BookingFormValues>({
-    resolver: zodResolver(BookingFormSchema),
+    formState: { errors },
+  } = useForm<CreateBookingInput>({
+    resolver: zodResolver(CreateBookingSchema),
+    defaultValues: {
+      utmSource: searchParams.get("utm_source") ?? undefined,
+      utmMedium: searchParams.get("utm_medium") ?? undefined,
+      utmCampaign: searchParams.get("utm_campaign") ?? undefined,
+      utmTerm: searchParams.get("utm_term") ?? undefined,
+      utmContent: searchParams.get("utm_content") ?? undefined,
+    },
   });
 
   const selectedService = watch("service");
   const descriptionPrompt = SERVICE_PROMPTS[selectedService] ?? DEFAULT_PROMPT;
 
-  // Sprint 4: full submission with UTM capture, lead scoring, POPIA recording
-  const onSubmit = async (_data: BookingFormValues) => {
+  const onSubmit = async (data: CreateBookingInput) => {
     setServerError(null);
-    // TODO Sprint 4: POST to /api/v1/bookings with UTM params
-    await new Promise((r) => setTimeout(r, 400));
-    setSubmitted(true);
+    try {
+      await mutateAsync({
+        ...data,
+        referrerUrl:
+          typeof document !== "undefined" ? document.referrer || undefined : undefined,
+        landingPage:
+          typeof window !== "undefined" ? window.location.href : undefined,
+      });
+    } catch (err) {
+      setServerError(err instanceof Error ? err.message : "Something went wrong.");
+    }
   };
 
   // ── Success state ────────────────────────────────────────────────────────
-  if (submitted) {
+  if (isSuccess) {
     return (
       <div className="mx-auto max-w-2xl px-4">
         <div className="rounded-sm border border-[--color-rule] bg-white p-10 text-center shadow-sm">
@@ -85,8 +80,8 @@ export function BookingForm() {
             Request Received
           </h2>
           <p className="text-[--color-muted] max-w-sm mx-auto leading-relaxed">
-            Thank you. We have received your consultation request and will
-            contact you within 24 hours to confirm your appointment.
+            Thank you. We have received your consultation request and will contact
+            you within 24 hours to confirm your appointment.
           </p>
           <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
             <Button variant="outline" asChild>
@@ -101,13 +96,14 @@ export function BookingForm() {
     );
   }
 
-  // ── Form ─────────────────────────────────────────────────────────────────
+  const displayError = serverError ?? (mutationError instanceof Error ? mutationError.message : null);
+
   return (
     <div className="mx-auto max-w-2xl px-4">
-      {serverError && (
+      {displayError && (
         <div className="mb-6 flex items-start gap-3 rounded-sm border border-red-200 bg-red-50 p-4">
           <AlertCircle className="h-5 w-5 text-red-600 shrink-0 mt-0.5" />
-          <p className="text-sm text-red-700">{serverError}</p>
+          <p className="text-sm text-red-700">{displayError}</p>
         </div>
       )}
 
@@ -116,6 +112,23 @@ export function BookingForm() {
         noValidate
         className="space-y-6 rounded-sm border border-[--color-rule] bg-white p-8 shadow-sm"
       >
+        {/* Honeypot — hidden from humans, bots fill it (S3.4) */}
+        <input
+          type="text"
+          tabIndex={-1}
+          autoComplete="off"
+          aria-hidden="true"
+          className="absolute opacity-0 pointer-events-none h-0 w-0 overflow-hidden"
+          {...register("website")}
+        />
+
+        {/* Hidden UTM fields */}
+        <input type="hidden" {...register("utmSource")} />
+        <input type="hidden" {...register("utmMedium")} />
+        <input type="hidden" {...register("utmCampaign")} />
+        <input type="hidden" {...register("utmTerm")} />
+        <input type="hidden" {...register("utmContent")} />
+
         {/* Row 1: Name + Email */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div className="space-y-1.5">
@@ -165,13 +178,11 @@ export function BookingForm() {
             <select
               id="service"
               {...register("service")}
-              className="flex h-10 w-full rounded-sm border border-[--color-rule] bg-white px-3 py-2 text-sm text-[--color-ink] transition-colors focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]/20 disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex h-10 w-full rounded-sm border border-[--color-rule] bg-white px-3 py-2 text-sm text-[--color-ink] transition-colors focus:border-[--color-primary] focus:outline-none focus:ring-2 focus:ring-[--color-primary]/20"
             >
               <option value="">Select a service</option>
               {SERVICES.map((s) => (
-                <option key={s.key} value={s.key}>
-                  {s.title}
-                </option>
+                <option key={s.key} value={s.key}>{s.title}</option>
               ))}
             </select>
             {errors.service && (
@@ -193,7 +204,7 @@ export function BookingForm() {
           )}
         </div>
 
-        {/* Description — dynamic prompt based on selected service */}
+        {/* Description — prompt changes per service */}
         <div className="space-y-1.5">
           <Label htmlFor="description" required>Project Description</Label>
           <Textarea
@@ -217,9 +228,6 @@ export function BookingForm() {
               min={new Date().toISOString().split("T")[0]}
               {...register("meetingDate")}
             />
-            {errors.meetingDate && (
-              <p className="text-xs text-red-600">{errors.meetingDate.message}</p>
-            )}
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="budget">Estimated Budget (Optional)</Label>
@@ -228,9 +236,6 @@ export function BookingForm() {
               placeholder="e.g. R50,000 – R150,000"
               {...register("budget")}
             />
-            {errors.budget && (
-              <p className="text-xs text-red-600">{errors.budget.message}</p>
-            )}
           </div>
         </div>
 
@@ -264,14 +269,8 @@ export function BookingForm() {
           )}
         </div>
 
-        {/* Submit */}
-        <Button
-          type="submit"
-          size="lg"
-          className="w-full"
-          disabled={isSubmitting}
-        >
-          {isSubmitting ? "Submitting…" : "Submit Consultation Request"}
+        <Button type="submit" size="lg" className="w-full" disabled={isPending}>
+          {isPending ? "Submitting…" : "Submit Consultation Request"}
         </Button>
 
         <p className="text-xs text-center text-[--color-muted]">
