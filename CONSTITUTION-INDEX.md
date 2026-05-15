@@ -11,12 +11,12 @@
 | **System**       | Sunduza Architectural & Projects |
 | **Client**       | Xivutiso Kevin Sunduza |
 | **Stack**        | Next.js (App Router) |
-| **Build Phase**  | Phase 1 — Sprint 1 (Foundation) |
-| **Active Group** | G1 — Foundation |
+| **Build Phase**  | Phase 1 — Sprint 4 (Lead Capture) |
+| **Active Group** | G2 — Public Experience |
 | **Operating Mode** | SOLO |
 | **Overlay**      | `system-design-template/overlays/solo-dev-overlay.md` |
 | **Last Updated** | 2026-05-15 |
-| **Sprint**       | Sprint 1 — Foundation: DB, Auth, Infra |
+| **Sprint**       | Sprint 4 — Lead Capture: Booking API, Contact API, rate limiting, POPIA, UTM, lead scoring |
 
 ---
 
@@ -29,142 +29,170 @@
 | `system-design-template/overlays/solo-dev-overlay.md` | Every session — operating mode is SOLO |
 | **`design-docs/SUNDUZA_LOCKED_DESIGN.md`** | **Every build session — this is the authoritative build reference** |
 | `system-design-template/adrs/ADR-005-sunduza-stack.md` | Stack or auth decisions |
-| `design-docs/SUNDUZA_PHYSICAL_SCHEMA.md` | Database schema details |
-| `design-docs/SUNDUZA_API_DESIGN.md` | API contract details |
+| `design-docs/SUNDUZA_API_DESIGN.md` | API contract details — Sprint 4 primary reference |
 | `design-docs/SUNDUZA_COMPONENT_ARCHITECTURE.md` | Component spec details |
 
 ---
 
-## Active Feature — Sprint 1
+## Active Feature — Sprint 4
 
-**Feature:** Foundation — Database + Auth + Infrastructure
-**Sprint Goal:** All 9 database tables migrated to PostgreSQL, NextAuth v5 with database sessions operational, server-only layer established, security headers configured, Sentry wired.
-**Layers in progress:** Interface (types) → Service (repositories/use-cases) → Component → UI
-**Branch:** `cursor/database-schema-v2-b55c`
+**Feature:** Lead Capture — Booking API + Contact API
+**Sprint Goal:** A visitor can submit a consultation booking and it lands in the database with lead score, UTM attribution, POPIA consent recorded, and audit trail written — all in a single transaction.
+**Layers in progress (S4.79):** Interface → Repository → Use-case → API route → Client hook
+**Branch:** `ks/sprint-4-lead-capture`
 
 ---
 
-## Critical Standards for This System
+## Sprint History
 
-> Sunduza is a **Next.js** system. Angular standards (`S4.53`, `S4.55`, `S4.30`) do not apply.
+| Sprint | Status | Branch | Key Deliverable |
+|--------|--------|--------|-----------------|
+| Sprint 1 — Foundation | ✅ Merged | `ks/sprint-1-database` | PostgreSQL schema (12 models), NextAuth database sessions, Prisma middleware |
+| Sprint 2 — Layout + Auth | ✅ Merged | `ks/sprint-2-layout-auth` | Header, Footer, Admin shell, Login page, Health endpoint |
+| Sprint 3 — Public Pages | 🔀 PR #8 open | `ks/sprint-3-public-pages` | Homepage, Services, Projects, Testimonials, Contact, Booking UI, Sitemap |
+| Sprint 4 — Lead Capture | 🔨 In progress | `ks/sprint-4-lead-capture` | Booking API, Contact API, lead scoring, UTM, POPIA |
+| Sprint 5 — Admin Operations | ⬜ Pending | — | Admin dashboard, bookings table, project/testimonial CRUD |
+| Sprint 6 — Marketing | ⬜ Pending | — | GA4, GTM, cookie consent |
+| Sprint 7 — Polish + Launch | ⬜ Pending | — | Lighthouse ≥90, visual regression, accessibility |
+
+---
+
+## Structure Audit — 2026-05-15
+
+### Aligned with locked design ✅
+
+| Path | Standard |
+|------|---------|
+| `src/client/components/ui/` | S4.1, S4.13 |
+| `src/client/components/layout/` | S4.4 |
+| `src/client/components/admin/` | S4.4 |
+| `src/client/components/features/` | S4.4 |
+| `src/client/components/sections/` | S4.4 |
+| `src/client/stores/admin-ui.ts` | S4.29 |
+| `src/shared/constants/services.ts` | S2.3 |
+| `app/admin/(dashboard)/` — route groups | S3.7 |
+| `app/api/v1/health/` | S6.23 |
+| `prisma/schema.prisma` — PostgreSQL, 12 models | S5.1, S5.9 |
+| `lib/auth.ts` — database sessions + PrismaAdapter | S3.5 |
+| `lib/db.ts` — Prisma singleton + deleted_at middleware | S5.9, S5.12 |
+| `middleware.ts` — route protection at /admin/* | S3.7 |
+
+### Structural debt (cleanup sprint) ⚠️
+
+| Gap | Standard | Priority |
+|-----|---------|----------|
+| `lib/` → `src/server/` migration (auth, db, api-response, api-client, utils) | S5.7 | Low — working, not violating |
+| `types/` → `src/shared/types/` migration | S2.3 | Low — working, not violating |
+| Old `/api/*` routes → `/api/v1/*` (admin/bookings, contact, projects, testimonials) | S2.76 | Medium — Sprint 5 |
+| `src/client/hooks/` — empty, TanStack Query hooks not yet written | S4.28 | Sprint 4 (booking mutation) |
+
+### Sprint 4 must-build ❌→✅
+
+| Path | Standard | Sprint |
+|------|---------|--------|
+| `src/server/repositories/booking.repository.ts` | S2.1, S5.9, S5.11 | Sprint 4 |
+| `src/server/repositories/contact.repository.ts` | S2.1, S5.9 | Sprint 4 |
+| `src/server/repositories/audit.repository.ts` | S2.62 | Sprint 4 |
+| `src/server/use-cases/booking/create-booking.ts` | S2.1 | Sprint 4 — lead scoring, UTM, POPIA |
+| `src/server/use-cases/contact/create-contact.ts` | S2.1 | Sprint 4 |
+| `app/api/v1/bookings/route.ts` | S2.76, S2.19 | Sprint 4 |
+| `app/api/v1/contact/route.ts` | S2.76, S2.19 | Sprint 4 |
+| `src/client/hooks/use-booking-mutation.ts` | S4.28 | Sprint 4 |
+
+---
+
+## Critical Standards — Sprint 4 Focus
 
 ### Security — Always Active (C3)
 
-| Standard | What It Governs | Why Critical for Sunduza |
-|----------|----------------|--------------------------|
-| `S3.1` | One auth strategy per system — stack determines strategy | Stack is Next.js → database sessions only |
-| `S3.5` | **NextAuth database sessions — NEVER JWT strategy** | Sessions must be revocable (account lockout, device logout) |
-| `S3.6` | No token in localStorage — HttpOnly cookies only | CF-01 if violated |
-| `S3.22` | Ownership + role verification on every admin endpoint | Every `/api/admin/*` route |
-| `S3.35` | On password change — invalidate ALL sessions | Admin password change must purge session table |
+| Standard | What It Governs | Sprint 4 Application |
+|----------|----------------|---------------------|
+| `S3.5` | Database sessions — ✅ Fixed in Sprint 1 | Sessions working |
+| `S3.6` | HttpOnly cookies | NextAuth handles — no action |
+| `S3.7` | Middleware + double layer auth | Admin routes protected |
+| `S3.22` | Role verification on admin endpoints | All admin API routes check role |
 
-### Database — Always Active (C5)
+### Database — Sprint 4 Critical (C5)
 
-| Standard | What It Governs | Why Critical for Sunduza |
-|----------|----------------|--------------------------|
-| `S5.5` | PostgreSQL only in production — never SQLite | Existing SQLite must be replaced in Sprint 1 |
-| `S5.8` | **Soft delete only — never hard delete in production** | POPIA erasure handled at app layer, not DB DELETE |
-| `S5.9` | Prisma is the primary ORM | All standard CRUD through Prisma |
-| `S5.10` | Every table: `id` (cuid), `created_at`, `updated_at`, `deleted_at` | All 9 tables must follow this — audit_logs excepted (no updated_at/deleted_at) |
-| `S5.11` | **Explicit `select` on every Prisma query — never `findMany()` without select** | Prevents password hash leaking on User queries |
-| `S5.12` | `deleted_at: null` filter on every active-data query | Ghost records break admin counts and public listings |
-| `S5.15` | Prisma transactions for multi-step writes | Booking create touches: bookings + audit_logs + notifications (3 tables) |
-| `S5.19` | Raw SQL for complex aggregates — UTM attribution, lead score analytics | `prisma.$queryRaw` for GROUP BY + CTEs — not expressible cleanly in Prisma |
-| `S5.21` | **Raw SQL always parameterised — never string-interpolated** | SQL injection — CF-06 if violated |
+| Standard | What It Governs | Sprint 4 Application |
+|----------|----------------|---------------------|
+| `S5.11` | Explicit `select` on every query | Every Prisma call in repositories |
+| `S5.12` | `deleted_at: null` filter | Auto-applied via db.ts middleware |
+| `S5.15` | **Transactions for multi-step writes** | Booking create: bookings + audit_logs + notifications in one transaction |
+| `S5.19` | Raw SQL for complex aggregates | Lead score calculation stays in TypeScript (not SQL) |
+| `S5.21` | Parameterised raw SQL | Any raw SQL must use tagged template literals |
 
-### Backend — Always Active (C2)
+### Backend — Sprint 4 Critical (C2)
 
-| Standard | What It Governs | Why Critical for Sunduza |
-|----------|----------------|--------------------------|
-| `S2.1` | Business logic in use-case layer only — not in API routes | Lead scoring, status transition validation, UTM capture all in use-cases |
-| `S2.7` | **OpenAPI contract before any endpoint code** | All 18 endpoints defined in `design-docs/SUNDUZA_API_DESIGN.md` |
-| `S2.19` | Standard response shape `{ success, data?, error? }` | Every API response — already in `lib/api-response.ts` |
-| `S2.23` | Zod validation on every API boundary | Booking form: 8 fields. Contact form: 4 fields. All validated. |
-| `S2.76` | `/api/v1/` prefix + versioning | All new endpoints under `/api/v1/` — Sprint 1 |
+| Standard | What It Governs | Sprint 4 Application |
+|----------|----------------|---------------------|
+| `S2.1` | **Business logic in use-cases only** | Lead scoring, UTM capture, POPIA recording in `src/server/use-cases/booking/` |
+| `S2.19` | Standard response shape | `apiSuccess()` / `apiError()` from `lib/api-response.ts` |
+| `S2.23` | Zod validation on every boundary | `BookingSchema` from `types/booking.ts` at API route entry |
+| `S2.76` | `/api/v1/` prefix | New routes at `/api/v1/bookings` and `/api/v1/contact` |
 
-### Frontend — Active from Sprint 2 (C4)
+### Frontend — Sprint 4 (C4)
 
-| Standard | What It Governs | Why Critical for Sunduza |
-|----------|----------------|--------------------------|
-| `S4.2` | **320px mobile-first** | Kevin manages bookings from his phone. SA market is mobile-primary. |
-| `S4.10` | Visual regression at 320px, 375px, 390px | Sprint 7 launch gate |
-| `S4.11` | Every async state: loading + error + success | All admin pages, booking form, contact form |
-| `S4.13` | Tailwind for layout and responsive utilities | All spacing, responsive breakpoints |
-| `S4.14` | Custom CSS (`globals.css @theme`) for brand identity | `--color-primary: #b88b4a`, `--font-serif`, `--font-sans` |
-| `S4.28` | TanStack Query for all admin server state | Bookings list, projects list, messages list — all cached |
-| `S4.29` | Zustand for client state — admin UI only | Status filter, search, modal open/close state |
-| `S4.46` | React Hook Form + Zod for all forms | Booking form, contact form, admin project/testimonial forms |
-| `S4.69` | **Lighthouse mobile score ≥ 90** (launch gate) | Above constitutional minimum of 80 — Sunduza-specific requirement |
-| `S4.79` | Layer build order: Interface → Service → Component → UI | Every feature in every sprint |
-| `S4.80` | One commit per layer | Git discipline — Sprint 1 onwards |
-
-### Testing — Active from Sprint 1 (C7)
-
-| Standard | What It Governs | Why Critical for Sunduza |
-|----------|----------------|--------------------------|
-| `S7.1` | Tests written alongside code — same PR | No deferred test debt |
-| `S7.2` | Jest + RTL (unit/integration), Playwright (E2E) | Stack is Next.js |
-| `S7.7` | Every use-case function has unit tests | Lead scoring, status transitions, UTM capture |
-| `S7.11` | Auth tests: 200, 401, 403 for every protected endpoint | All 12 admin endpoints |
-| `S7.25` | Coverage minimum: 70% for Next.js | Sprint 7 gate |
+| Standard | What It Governs | Sprint 4 Application |
+|----------|----------------|---------------------|
+| `S4.11` | Loading + error + success states | BookingForm: isSubmitting, serverError, submitted states |
+| `S4.28` | TanStack Query for server data | `use-booking-mutation.ts` — mutation hook |
+| `S4.46` | React Hook Form + Zod | BookingForm already uses RHF + Zod |
 
 ---
 
-## Approved Deviations (ADRs)
+## Approved Deviations
 
-| Standard | Deviation | ADR Reference | Approved Alternative | Remediation |
-|----------|-----------|---------------|---------------------|-------------|
-| `S3.5a` | Current `lib/auth.ts` uses `strategy: 'jwt'` | ADR-005 | `strategy: 'database'` with Session model | **Sprint 1 — required before any protected routes** |
-| `S5.5` | Current `prisma/schema.prisma` uses SQLite provider | ADR-005 | PostgreSQL on Neon | **Sprint 1 — before first migration** |
-
----
-
-## Open Issues — Requires Founder Attention
-
-| Issue | Type | Status | Sprint |
-|-------|------|--------|--------|
-| `S3.5` violation — `lib/auth.ts` uses JWT strategy | Security — must fix | 🔴 Open | Sprint 1 |
-| `S5.5` violation — Prisma schema uses SQLite provider | Database — must fix | 🔴 Open | Sprint 1 |
-| `prisma/schema.prisma` — 5-table schema vs 9-table design | Schema gap | 🔴 Open | Sprint 1 |
-| `design-docs/` API routes use `/api/*` not `/api/v1/*` | API versioning `S2.76` | 🟡 Decision needed | Sprint 1 |
-| Image strategy — `/images/projects/` local path vs Cloudinary | Pending client input | 🟡 Open | Sprint 3 |
-| Real testimonials — placeholder text in current seed | Content | 🟡 Open | Sprint 3 |
-| Kevin's GA4 property ID — not yet provided | Config | 🟡 Open | Sprint 6 |
+| Standard | Deviation | ADR Reference | Status |
+|----------|-----------|---------------|--------|
+| `S3.5a` | Was JWT strategy | ADR-005 | ✅ **Fixed Sprint 1** — database sessions active |
+| `S5.5` | Was SQLite | ADR-005 | ✅ **Fixed Sprint 1** — PostgreSQL on Neon |
+| `lib/` structure | Should be `src/server/` | Architecture debt | 🟡 **Cleanup sprint** — working correctly |
+| Old `/api/*` routes | Should be `/api/v1/*` | S2.76 | 🟡 **Sprint 5 cleanup** |
 
 ---
 
-## Current Sprint — Sprint 1 Commit Log
+## Sprint 4 Layer Build Order (S4.79)
 
-> Track layer commits for Sprint 1. Update as each layer is committed.
-
-| Layer | Commit Hash | Commit Message | Status |
-|-------|-------------|----------------|--------|
-| Schema + enums | — | `feat(db): migrate prisma schema to 9-table postgresql design` | ⬜ |
-| Seed data | — | `feat(db): update seed for new schema (admin + settings + projects + testimonials)` | ⬜ |
-| Repository layer | — | `feat(server): add repository layer for all 9 models` | ⬜ |
-| Auth (S3.5 fix) | — | `fix(auth): migrate nextauth to database session strategy` | ⬜ |
-| Security headers | — | `feat(server): add security headers middleware` | ⬜ |
-| Env validation | — | `feat(infra): add zod env validation` | ⬜ |
-| Health endpoint | — | `feat(api): add /api/health endpoint` | ⬜ |
-| Tests — Sprint 1 | — | `test(sprint1): unit tests for use-cases and repositories` | ⬜ |
+```
+1. Interface / Types    src/shared/schemas/booking.schema.ts (align with DB enums)
+2. Repository          src/server/repositories/booking.repository.ts
+                       src/server/repositories/audit.repository.ts
+                       src/server/repositories/contact.repository.ts
+3. Use-case            src/server/use-cases/booking/create-booking.ts
+                          → calculateLeadScore()
+                          → captureUTM()
+                          → writeAuditLog()
+                          → prisma.$transaction()
+                       src/server/use-cases/contact/create-contact.ts
+4. API routes          app/api/v1/bookings/route.ts  (POST)
+                       app/api/v1/contact/route.ts   (POST)
+5. Client hook         src/client/hooks/use-booking-mutation.ts
+6. Wire to form        src/client/components/features/BookingForm.tsx (connect onSubmit)
+```
 
 ---
 
-## Critical Anti-Patterns for This System
-
-> Sunduza is a **Next.js** system. These are the most dangerous anti-patterns for this stack.
+## Critical Anti-Patterns — Sprint 4
 
 | AP | What It Looks Like | Consequence |
 |----|-------------------|-------------|
-| `AP-S3.5a` | `session: { strategy: 'jwt' }` in NextAuth config | Unrevocable sessions — account lockout fails — CF-01 |
-| `AP-S3.6a` | `localStorage.setItem('session', token)` | XSS vulnerability — CF-01 |
-| `AP-S5.5a` | `provider = "sqlite"` in `schema.prisma` (production) | No concurrent write safety, no ENUM types, no JSONB |
-| `AP-S5.11a` | `prisma.user.findMany()` without `select` | Exposes `password` hash to API response |
-| `AP-S5.12a` | `prisma.booking.findMany()` without `where: { deletedAt: null }` | Soft-deleted records appear in public listings |
-| `AP-S5.15a` | Sequential writes without `prisma.$transaction()` | Partial write: booking created but audit_log missing |
-| `AP-S5.21a` | `` `SELECT * FROM bookings WHERE id = '${id}'` `` | SQL injection — CF-06 |
-| `AP-S4.28a` | `useState(null) + useEffect(() => fetch(...))` in admin | No loading state, no error recovery, no cache — admin broken on slow network |
-| `AP-S2.7a` | Endpoint coded before API contract written | Frontend blocked — CF-11 — all 18 endpoints already specified in design-docs/ |
+| `AP-S2.1a` | Lead scoring logic inside `route.ts` handler | Untestable, not in service layer — violates S2.1 |
+| `AP-S5.15a` | `db.booking.create()` then `db.auditLog.create()` sequentially | Partial write if second call fails — use `prisma.$transaction()` |
+| `AP-S5.21a` | String-interpolated raw SQL | SQL injection — CF-06 |
+| `AP-S5.11a` | `db.booking.findMany()` without `select` | Exposes all fields unnecessarily |
+| `AP-S4.28a` | `useState + useEffect + fetch` in BookingForm | No loading state, no error recovery — use mutation hook |
+
+---
+
+## Open Issues
+
+| Issue | Type | Status | Sprint |
+|-------|------|--------|--------|
+| Image strategy — `/images/projects/` local path vs Cloudinary | Content | 🟡 Pending client input | Sprint 5 |
+| Real testimonials — placeholder reviews in seed | Content | 🟡 Pending Kevin's real clients | Sprint 5 |
+| Kevin's GA4 property ID — not yet provided | Config | 🟡 Pending | Sprint 6 |
+| IP address hashing — SHA-256 not yet implemented | Security | 🟡 Sprint 4 | Sprint 4 |
 
 ---
 
@@ -174,13 +202,16 @@
 |------|----------|--------|-------|
 | Design (Phase 0) | Claude | ✅ Complete | 7 design documents in `design-docs/` |
 | Constitutional mapping | Claude Code (Cursor) | ✅ Complete | This file + system context + ADR-005 |
-| Build — Sprint 1 | Claude Code (Cursor) | ⬜ Ready | Awaiting Founder start signal |
-| Debug/Style | ChatGPT | ⬜ Pending | After Sprint 2 layout complete |
-| Logic (if needed) | DeepSeek | N/A | No complex algorithm work identified in v1 |
-| Experiment (if needed) | Kimi | N/A | No experimental features in v1 |
+| Sprint 1 — Foundation | Claude Code (Cursor) | ✅ Complete | DB, Auth, Prisma, migrations |
+| Sprint 2 — Layout + Auth | Claude Code (Cursor) | ✅ Complete | Header, Footer, Admin shell |
+| Sprint 3 — Public Pages | Claude Code (Cursor) | ✅ Complete | All 6 public pages, sitemap, robots |
+| Sprint 4 — Lead Capture | Claude Code (Cursor) | 🔨 In progress | This sprint |
+| Sprint 5 — Admin Operations | Claude Code (Cursor) | ⬜ Pending | — |
+| Sprint 6 — Marketing | Claude Code (Cursor) | ⬜ Pending | — |
+| Sprint 7 — Polish + Launch | Claude Code (Cursor) | ⬜ Pending | — |
 
 ---
 
-> *Update this file at the start of every sprint and every session.*
+> *Updated: 2026-05-15 — Sprint 4 active*
 > *Per S10.21 — Claude Code does not begin a build session without this file loaded in Cursor.*
 > *Per S10.23 — A stale index is equivalent to no index.*
