@@ -172,6 +172,7 @@ Clusters group every file that belongs together. Read the whole cluster before s
 | `system-contexts/maphophe-context.md` | Maphophe Community | Next.js |
 | `system-contexts/reserve-bank-context.md` | KSDRILL Reserve Bank | Angular + FastAPI |
 | `system-contexts/syncup-context.md` | SyncUp Creator Platform | Next.js |
+| `system-contexts/sunduza-context.md` | Sunduza Architectural & Projects | Next.js |
 
 ---
 
@@ -184,6 +185,7 @@ Clusters group every file that belongs together. Read the whole cluster before s
 | `adrs/ADR-002-maphophe-stack.md` | Maphophe Community stack decision |
 | `adrs/ADR-003-reserve-bank-stack.md` | KSDRILL Reserve Bank stack decision |
 | `adrs/ADR-004-syncup-stack.md` | SyncUp Creator Platform stack decision |
+| `adrs/ADR-005-sunduza-stack.md` | Sunduza Architectural & Projects stack decision |
 
 ---
 
@@ -234,11 +236,13 @@ Every file in this repository. No omissions. Sorted by reading priority.
 | 27 | `system-contexts/maphophe-context.md` | System Context | Maphophe Community build context |
 | 28 | `system-contexts/reserve-bank-context.md` | System Context | KSDRILL Reserve Bank build context |
 | 29 | `system-contexts/syncup-context.md` | System Context | SyncUp Creator Platform build context |
+| 30 | `system-contexts/sunduza-context.md` | System Context | Sunduza Architectural & Projects build context |
 | 30 | `adrs/ADR-000-template.md` | ADR | ADR template |
 | 31 | `adrs/ADR-001-fundslink-stack.md` | ADR | FundsLink stack decision record |
 | 32 | `adrs/ADR-002-maphophe-stack.md` | ADR | Maphophe stack decision record |
 | 33 | `adrs/ADR-003-reserve-bank-stack.md` | ADR | Reserve Bank stack decision record |
 | 34 | `adrs/ADR-004-syncup-stack.md` | ADR | SyncUp stack decision record |
+| 36 | `adrs/ADR-005-sunduza-stack.md` | ADR | Sunduza Architectural & Projects stack decision record |
 | 35 | `templates/feature-proposal-template.md` | Template | Feature proposal (required before build — S1.27) |
 | 36 | `templates/incident-report-template.md` | Template | Incident report document |
 | 37 | `templates/post-mortem-template.md` | Template | Post-mortem document (SEV0/SEV1 — S8.77) |

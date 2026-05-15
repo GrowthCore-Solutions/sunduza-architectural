@@ -233,6 +233,7 @@ C10 AI Collaboration              ← AI governance is terminal
 | Maphophe Community | Next.js | NextAuth database sessions (S3.5) | PostgreSQL only | Vercel |
 | KSDRILL Reserve Bank | Angular + FastAPI | RS256 JWT (S3.13) | PG + MongoDB + Redis | Vercel (FE) + Railway (BE) |
 | SyncUp Creator Platform | Next.js | NextAuth database sessions (S3.5) | PG + Redis | Vercel |
+| **Sunduza Architectural** | **Next.js** | **NextAuth database sessions (S3.5)** | **PostgreSQL on Neon** | **Vercel** |
 
 ---
 
