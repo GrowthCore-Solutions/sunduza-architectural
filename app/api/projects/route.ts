@@ -5,17 +5,33 @@ import { auth } from "@/lib/auth";
 import { z } from "zod";
 
 const ProjectCreateSchema = z.object({
-  title: z.string().min(1).max(200),
-  shortDescription: z.string().min(1).max(500),
-  imageUrl: z.string().min(1).max(500),
-  category: z.enum([
-    "House Plan",
-    "Architectural Drawing",
-    "Drafting Services",
-    "Development Projects",
-  ]),
-  featured: z.boolean().optional().default(false),
+  title: z.string().min(1).max(100),
+  description: z.string().min(1),
+  imagePath: z.string().min(1).max(255),
+  category: z.string().optional(),
+  isFeatured: z.boolean().optional().default(false),
+  sortOrder: z.number().int().min(0).optional().default(0),
 });
+
+export async function GET(_req: NextRequest) {
+  const projects = await db.project.findMany({
+    orderBy: { sortOrder: "asc" },
+    select: {
+      id: true,
+      title: true,
+      description: true,
+      imagePath: true,
+      category: true,
+      sortOrder: true,
+      isFeatured: true,
+      createdAt: true,
+    },
+  });
+
+  return NextResponse.json(
+    apiSuccess({ projects, total: projects.length })
+  );
+}
 
 export async function POST(req: NextRequest) {
   const session = await auth();
@@ -40,6 +56,19 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const project = await db.project.create({ data: parsed.data });
+  const project = await db.project.create({
+    data: parsed.data,
+    select: {
+      id: true,
+      title: true,
+      description: true,
+      imagePath: true,
+      category: true,
+      sortOrder: true,
+      isFeatured: true,
+      createdAt: true,
+    },
+  });
+
   return NextResponse.json(apiSuccess(project), { status: 201 });
 }
