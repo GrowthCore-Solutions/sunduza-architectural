@@ -8,6 +8,18 @@ import { db } from "@/lib/db";
 
 export const revalidate = 300;
 
+// Pre-generate all project detail pages at build time
+export async function generateStaticParams() {
+  try {
+    const projects = await db.project.findMany({
+      select: { id: true },
+    });
+    return projects.map((p) => ({ id: p.id }));
+  } catch {
+    return [];
+  }
+}
+
 interface Props {
   params: Promise<{ id: string }>;
 }
