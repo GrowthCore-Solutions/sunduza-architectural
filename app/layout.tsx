@@ -51,6 +51,24 @@ async function getWhatsAppNumber(): Promise<string> {
   }
 }
 
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "LocalBusiness",
+  name: "Sunduza Architectural & Projects",
+  description:
+    "Professional house planning, architectural drawings, drafting services, and development projects across South Africa.",
+  url: "https://sunduza.co.za",
+  telephone: "+27786723364",
+  email: "xivutisokevinsunduza@gmail.com",
+  address: {
+    "@type": "PostalAddress",
+    addressCountry: "ZA",
+  },
+  priceRange: "$$",
+  areaServed: "South Africa",
+  sameAs: [],
+};
+
 export default async function RootLayout({
   children,
 }: {
@@ -66,6 +84,10 @@ export default async function RootLayout({
       <body
         className={`${playfair.variable} ${ibmPlex.variable} antialiased bg-[--color-paper] text-[--color-ink] flex flex-col min-h-screen`}
       >
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
         <Providers>
           <Header />
           <main className="flex-1">{children}</main>
