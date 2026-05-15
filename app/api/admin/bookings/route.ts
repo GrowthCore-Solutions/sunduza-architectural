@@ -2,12 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { apiSuccess, apiError, ErrorCode } from "@/lib/api-response";
 import { auth } from "@/lib/auth";
+import { BookingStatus } from "@prisma/client";
 import { z } from "zod";
 
-const BookingStatusSchema = z.object({
+const BookingUpdateSchema = z.object({
   id: z.string(),
-  status: z.enum(["new", "contacted", "in_review", "confirmed", "completed", "cancelled"]),
-  notes: z.string().optional(),
+  status: z.nativeEnum(BookingStatus),
+  adminNotes: z.string().optional(),
 });
 
 export async function GET(req: NextRequest) {
@@ -20,10 +21,10 @@ export async function GET(req: NextRequest) {
   }
 
   const { searchParams } = new URL(req.url);
-  const status = searchParams.get("status");
+  const statusParam = searchParams.get("status") as BookingStatus | null;
 
   const bookings = await db.booking.findMany({
-    where: status ? { status } : undefined,
+    where: statusParam ? { status: statusParam } : undefined,
     orderBy: { createdAt: "desc" },
     select: {
       id: true,
@@ -36,7 +37,9 @@ export async function GET(req: NextRequest) {
       meetingDate: true,
       budget: true,
       status: true,
-      notes: true,
+      leadScore: true,
+      adminNotes: true,
+      consentGiven: true,
       createdAt: true,
       updatedAt: true,
     },
@@ -55,12 +58,12 @@ export async function PATCH(req: NextRequest) {
   }
 
   const body = await req.json();
-  const parsed = BookingStatusSchema.safeParse(body);
+  const parsed = BookingUpdateSchema.safeParse(body);
 
   if (!parsed.success) {
     return NextResponse.json(
       apiError(
-        parsed.error.issues.map((e: { message: string }) => e.message).join(", "),
+        parsed.error.issues.map((e) => e.message).join(", "),
         ErrorCode.VALIDATION_ERROR,
         400
       ),
@@ -68,11 +71,14 @@ export async function PATCH(req: NextRequest) {
     );
   }
 
-  const { id, status, notes } = parsed.data;
+  const { id, status, adminNotes } = parsed.data;
 
   const booking = await db.booking.update({
     where: { id },
-    data: { status, ...(notes !== undefined && { notes }) },
+    data: {
+      status,
+      ...(adminNotes !== undefined && { adminNotes }),
+    },
     select: {
       id: true,
       name: true,
@@ -84,7 +90,8 @@ export async function PATCH(req: NextRequest) {
       meetingDate: true,
       budget: true,
       status: true,
-      notes: true,
+      leadScore: true,
+      adminNotes: true,
       createdAt: true,
       updatedAt: true,
     },
