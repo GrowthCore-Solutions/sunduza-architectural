@@ -1,6 +1,11 @@
 import type { Metadata } from "next";
 import { Playfair_Display, IBM_Plex_Sans } from "next/font/google";
 import "./globals.css";
+import { Header } from "@/src/client/components/layout/Header";
+import { Footer } from "@/src/client/components/layout/Footer";
+import { FloatingWhatsApp } from "@/src/client/components/layout/FloatingWhatsApp";
+import { Providers } from "@/src/client/components/providers";
+import { db } from "@/lib/db";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -23,14 +28,50 @@ export const metadata: Metadata = {
   },
   description:
     "Sunduza Architectural & Projects (Pty) Ltd — Professional house planning, architectural drawings, drafting services, and development projects across South Africa.",
-  keywords: ["architectural services", "house planning", "South Africa", "architectural drawings", "drafting"],
+  keywords: [
+    "architectural services",
+    "house planning",
+    "South Africa",
+    "architectural drawings",
+    "drafting services",
+    "development projects",
+    "council submissions",
+  ],
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+async function getWhatsAppNumber(): Promise<string> {
+  try {
+    const setting = await db.siteSettings.findUnique({
+      where: { key: "whatsapp_number" },
+      select: { value: true },
+    });
+    return setting?.value ?? "27786723364";
+  } catch {
+    return "27786723364";
+  }
+}
+
+export default async function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const whatsAppNumber = await getWhatsAppNumber();
+
   return (
-    <html lang="en" className={`${playfair.variable} ${ibmPlex.variable}`}>
-      <body className={`${playfair.variable} ${ibmPlex.variable} antialiased bg-[#fffdf0] text-[#0f172a]`}>
-        {children}
+    <html
+      lang="en"
+      className={`${playfair.variable} ${ibmPlex.variable}`}
+    >
+      <body
+        className={`${playfair.variable} ${ibmPlex.variable} antialiased bg-[--color-paper] text-[--color-ink] flex flex-col min-h-screen`}
+      >
+        <Providers>
+          <Header />
+          <main className="flex-1">{children}</main>
+          <Footer />
+          <FloatingWhatsApp phoneNumber={whatsAppNumber} />
+        </Providers>
       </body>
     </html>
   );
