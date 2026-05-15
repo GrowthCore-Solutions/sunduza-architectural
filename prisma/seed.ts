@@ -3,7 +3,7 @@
 // Idempotent: upsert on all records — safe to run multiple times
 // Run: npm run db:seed
 
-import { PrismaClient, BookingStatus } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { createId } from "@paralleldrive/cuid2";
 
