@@ -27,11 +27,11 @@
 | `system-design-template/AI-INSTRUCTIONS.md` | Every session — first |
 | `system-design-template/system-contexts/sunduza-context.md` | Every build session |
 | `system-design-template/overlays/solo-dev-overlay.md` | Every session — operating mode is SOLO |
+| **`design-docs/SUNDUZA_LOCKED_DESIGN.md`** | **Every build session — this is the authoritative build reference** |
 | `system-design-template/adrs/ADR-005-sunduza-stack.md` | Stack or auth decisions |
-| `design-docs/SUNDUZA_SYSTEM_DESIGN.md` | Architecture decisions |
-| `design-docs/SUNDUZA_PHYSICAL_SCHEMA.md` | Database work |
-| `design-docs/SUNDUZA_API_DESIGN.md` | API endpoint work |
-| `design-docs/SUNDUZA_COMPONENT_ARCHITECTURE.md` | Frontend component work |
+| `design-docs/SUNDUZA_PHYSICAL_SCHEMA.md` | Database schema details |
+| `design-docs/SUNDUZA_API_DESIGN.md` | API contract details |
+| `design-docs/SUNDUZA_COMPONENT_ARCHITECTURE.md` | Component spec details |
 
 ---
 
