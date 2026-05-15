@@ -2,15 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { apiSuccess, apiError, ErrorCode } from "@/lib/api-response";
 import { auth } from "@/lib/auth";
+import { BookingStatus } from "@prisma/client";
 
-const VALID_STATUSES = [
-  "new",
-  "contacted",
-  "in_review",
-  "confirmed",
-  "completed",
-  "cancelled",
-] as const;
+const VALID_STATUSES = Object.values(BookingStatus);
 
 export async function GET(
   _req: NextRequest,
@@ -39,7 +33,9 @@ export async function GET(
       meetingDate: true,
       budget: true,
       status: true,
-      notes: true,
+      leadScore: true,
+      adminNotes: true,
+      consentGiven: true,
       createdAt: true,
       updatedAt: true,
     },
@@ -69,7 +65,10 @@ export async function PATCH(
 
   const { id } = await params;
   const body = await req.json();
-  const { status, notes } = body;
+  const { status, adminNotes } = body as {
+    status?: BookingStatus;
+    adminNotes?: string;
+  };
 
   if (status && !VALID_STATUSES.includes(status)) {
     return NextResponse.json(
@@ -82,8 +81,12 @@ export async function PATCH(
     );
   }
 
-  const booking = await db.booking.findUnique({ where: { id } });
-  if (!booking) {
+  const existing = await db.booking.findUnique({
+    where: { id },
+    select: { id: true },
+  });
+
+  if (!existing) {
     return NextResponse.json(
       apiError("Booking not found", ErrorCode.NOT_FOUND, 404),
       { status: 404 }
@@ -94,7 +97,13 @@ export async function PATCH(
     where: { id },
     data: {
       ...(status !== undefined && { status }),
-      ...(notes !== undefined && { notes }),
+      ...(adminNotes !== undefined && { adminNotes }),
+    },
+    select: {
+      id: true,
+      status: true,
+      adminNotes: true,
+      updatedAt: true,
     },
   });
 
