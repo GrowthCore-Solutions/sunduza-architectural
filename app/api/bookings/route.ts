@@ -2,16 +2,16 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { apiSuccess, apiError, ErrorCode } from "@/lib/api-response";
 import { BookingSchema } from "@/types/booking";
+import { BookingStatus } from "@prisma/client";
 import { generateRequestId, checkRateLimit } from "@/lib/auth";
 
 export async function POST(req: NextRequest) {
   const requestId = generateRequestId();
 
-  // Rate limit: 20 booking submissions per IP per hour (Backend B26)
   const ip = req.headers.get("x-forwarded-for") ?? "default";
-  if (!checkRateLimit(`booking:${ip}`, 20, 60 * 60 * 1000)) {
+  if (!checkRateLimit(`booking:${ip}`, 5, 60 * 60 * 1000)) {
     return NextResponse.json(
-      apiError("Too many requests. Please try again later.", ErrorCode.RATE_LIMITED, 429),
+      apiError("Too many requests. Please try again later.", ErrorCode.RATE_LIMIT_EXCEEDED, 429),
       { status: 429, headers: { "X-Request-ID": requestId } }
     );
   }
@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
     if (!parsed.success) {
       return NextResponse.json(
         apiError(
-          parsed.error.issues.map((e: { message: string }) => e.message).join(", "),
+          parsed.error.issues.map((e) => e.message).join(", "),
           ErrorCode.VALIDATION_ERROR,
           400
         ),
@@ -39,16 +39,21 @@ export async function POST(req: NextRequest) {
         service: parsed.data.service,
         location: parsed.data.location,
         description: parsed.data.description,
-        meetingDate: parsed.data.meetingDate,
+        meetingDate: parsed.data.meetingDate
+          ? new Date(parsed.data.meetingDate)
+          : null,
         budget: parsed.data.budget,
-        status: "new",
+        status: BookingStatus.PENDING,
+        consentGiven: parsed.data.consentGiven ?? false,
+        consentGivenAt: parsed.data.consentGiven ? new Date() : null,
       },
+      select: { id: true, status: true },
     });
 
-    return NextResponse.json(apiSuccess({ id: booking.id, status: booking.status }), {
-      status: 201,
-      headers: { "X-Request-ID": requestId },
-    });
+    return NextResponse.json(
+      apiSuccess({ id: booking.id, status: booking.status }),
+      { status: 201, headers: { "X-Request-ID": requestId } }
+    );
   } catch (err) {
     console.error(`[${requestId}] Booking POST error:`, err);
     return NextResponse.json(

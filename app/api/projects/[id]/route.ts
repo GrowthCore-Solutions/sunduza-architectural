@@ -5,18 +5,12 @@ import { auth } from "@/lib/auth";
 import { z } from "zod";
 
 const ProjectUpdateSchema = z.object({
-  title: z.string().min(1).max(200).optional(),
-  shortDescription: z.string().min(1).max(500).optional(),
-  imageUrl: z.string().min(1).max(500).optional(),
-  category: z
-    .enum([
-      "House Plan",
-      "Architectural Drawing",
-      "Drafting Services",
-      "Development Projects",
-    ])
-    .optional(),
-  featured: z.boolean().optional(),
+  title: z.string().min(1).max(100).optional(),
+  description: z.string().min(1).optional(),
+  imagePath: z.string().min(1).max(255).optional(),
+  category: z.string().optional(),
+  isFeatured: z.boolean().optional(),
+  sortOrder: z.number().int().min(0).optional(),
 });
 
 export async function GET(
@@ -24,14 +18,29 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  const project = await db.project.findUnique({ where: { id } });
+
+  const project = await db.project.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      title: true,
+      description: true,
+      imagePath: true,
+      category: true,
+      sortOrder: true,
+      isFeatured: true,
+      createdAt: true,
+    },
+  });
+
   if (!project) {
     return NextResponse.json(
       apiError("Project not found", ErrorCode.NOT_FOUND, 404),
       { status: 404 }
     );
   }
-  return NextResponse.json(apiSuccess(project));
+
+  return NextResponse.json(apiSuccess({ project }));
 }
 
 export async function PATCH(
@@ -64,7 +73,18 @@ export async function PATCH(
   const project = await db.project.update({
     where: { id },
     data: parsed.data,
+    select: {
+      id: true,
+      title: true,
+      description: true,
+      imagePath: true,
+      category: true,
+      sortOrder: true,
+      isFeatured: true,
+      updatedAt: true,
+    },
   });
+
   return NextResponse.json(apiSuccess(project));
 }
 
@@ -81,6 +101,12 @@ export async function DELETE(
   }
 
   const { id } = await params;
-  await db.project.delete({ where: { id } });
+
+  // Soft delete — never hard delete in production (S5.8)
+  await db.project.update({
+    where: { id },
+    data: { deletedAt: new Date() },
+  });
+
   return NextResponse.json(apiSuccess({ deleted: true }));
 }
