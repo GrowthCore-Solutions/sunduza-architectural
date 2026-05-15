@@ -1,7 +1,5 @@
 import { z } from "zod";
 
-// Booking validation schema — Zod (Code Quality Q1, Backend B11)
-// Matches Database Booking model fields
 export const BookingSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Invalid email address"),

@@ -1,7 +1,3 @@
-// Sunduza Prisma Schema v1.1 — Groups 1+2+3
-// Built with: Prisma 5 + SQLite (dev) · PostgreSQL (prod)
-// Constitution-compliant: Database Constitution D1-D58
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,19 +7,20 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ─── ADMIN ─────────────────────────────────────────────────────────────────
+// ─── ADMIN ────────────────────────────────────────────────────────────────────
 
 model Admin {
   id        String   @id @default(cuid())
   email     String   @unique
-  password  String   // bcrypt hash
+  password  String
   name      String
   role      String   @default("ADMIN")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
-// ─── BOOKING (Lead) ────────────────────────────────────────────────────────
+// ─── BOOKING ──────────────────────────────────────────────────────────────────
+// Status flow: new → contacted → in_review → confirmed → completed | cancelled
 
 model Booking {
   id          String   @id @default(cuid())
@@ -35,13 +32,13 @@ model Booking {
   description String
   meetingDate String
   budget      String?
-  status      String   @default("new") // new | contacted | in_review | confirmed | completed | cancelled
-  notes       String?  // admin notes
+  status      String   @default("new")
+  notes       String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
 
-// ─── CONTACT MESSAGE ──────────────────────────────────────────────────────
+// ─── CONTACT MESSAGE ──────────────────────────────────────────────────────────
 
 model ContactMessage {
   id        String   @id @default(cuid())
@@ -53,26 +50,26 @@ model ContactMessage {
   createdAt DateTime @default(now())
 }
 
-// ─── PROJECT (Portfolio) ──────────────────────────────────────────────────
+// ─── PROJECT (Portfolio) ──────────────────────────────────────────────────────
 
 model Project {
-  id              String   @id @default(cuid())
-  title           String
+  id               String   @id @default(cuid())
+  title            String
   shortDescription String
-  imageUrl        String
-  category        String   // House Plan | Architectural Drawing | Drafting Services | Development Projects
-  featured        Boolean  @default(false)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  imageUrl         String
+  category         String
+  featured         Boolean  @default(false)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 }
 
-// ─── TESTIMONIAL ─────────────────────────────────────────────────────────
+// ─── TESTIMONIAL ──────────────────────────────────────────────────────────────
 
 model Testimonial {
   id         String   @id @default(cuid())
   clientName String
   review     String
-  rating     Int      // 1-5
+  rating     Int
   featured   Boolean  @default(false)
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
