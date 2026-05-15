@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Phone, Mail, MapPin, MessageCircle, Clock, ArrowRight } from "lucide-react";
 import { Button } from "@/src/client/components/ui/button";
 import { PageHero } from "@/src/client/components/sections/PageHero";
+import { ContactForm } from "@/src/client/components/features/ContactForm";
 
 export const metadata: Metadata = {
   title: "Contact Us",
@@ -175,6 +176,17 @@ export default function ContactPage() {
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </Button>
+          </div>
+
+          {/* Live contact form */}
+          <div>
+            <h2 className="font-serif text-2xl font-bold text-[--color-ink] mb-6">
+              Send Us a Message
+            </h2>
+            <p className="text-[--color-muted] text-sm mb-6 leading-relaxed">
+              Prefer to type? Leave us a message and we will respond within 24 hours.
+            </p>
+            <ContactForm />
           </div>
         </div>
       </section>
