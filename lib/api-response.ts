@@ -1,7 +1,3 @@
-// ApiResponse<T> — Standardised API response wrapper
-// Backend Constitution B11: All API responses use this shape
-// Error codes match Backend Constitution B9: 9 error codes only in v1
-
 export type ApiSuccess<T = unknown> = {
   success: true;
   data: T;
@@ -32,17 +28,16 @@ export const apiError = (
   status,
 });
 
-// v1 Error codes (Backend B9) — 9 codes total
 export const ErrorCode = {
-  VALIDATION_ERROR: "VALIDATION_ERROR", // 400 — Zod/validation failure
-  NOT_FOUND: "NOT_FOUND", // 404 — resource not found
-  UNAUTHORIZED: "UNAUTHORIZED", // 401 — not logged in
-  FORBIDDEN: "FORBIDDEN", // 403 — wrong role
-  INTERNAL_ERROR: "INTERNAL_ERROR", // 500 — unexpected server error
-  RATE_LIMITED: "RATE_LIMITED", // 429 — too many requests
-  CONFLICT: "CONFLICT", // 409 — duplicate resource
-  BAD_REQUEST: "BAD_REQUEST", // 400 — malformed request
-  SERVICE_UNAVAILABLE: "SERVICE_UNAVAILABLE", // 503 — DB or external service down
+  VALIDATION_ERROR: "VALIDATION_ERROR",
+  NOT_FOUND: "NOT_FOUND",
+  UNAUTHORIZED: "UNAUTHORIZED",
+  FORBIDDEN: "FORBIDDEN",
+  INTERNAL_ERROR: "INTERNAL_ERROR",
+  RATE_LIMITED: "RATE_LIMITED",
+  CONFLICT: "CONFLICT",
+  BAD_REQUEST: "BAD_REQUEST",
+  SERVICE_UNAVAILABLE: "SERVICE_UNAVAILABLE",
 } as const;
 
 export type ErrorCode = (typeof ErrorCode)[keyof typeof ErrorCode];
