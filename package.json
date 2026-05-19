@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:termux": "env NEXT_TEST_WASM=1 next dev --webpack",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",

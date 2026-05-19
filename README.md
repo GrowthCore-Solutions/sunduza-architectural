@@ -249,6 +249,20 @@ npm run dev
 Open [http://localhost:3000](http://localhost:3000) for the public site.
 Open [http://localhost:3000/admin/login](http://localhost:3000/admin/login) for the admin panel.
 
+### Android (Termux)
+
+Next.js does not ship a native SWC binary for some Android targets (you may see a 404 for `@next/swc-android-arm-eabi` or `@next/swc-android-arm64`). Use the WebAssembly compiler and the webpack dev bundler instead:
+
+```bash
+npm run dev:termux
+```
+
+Then open `http://127.0.0.1:3000` in the phone browser. If you have not pulled this script yet, the equivalent command is:
+
+```bash
+env NEXT_TEST_WASM=1 npx next dev --webpack
+```
+
 **Default admin credentials (dev only):**
 - Email: `admin@sunduza.co.za`
 - Password: set via seed — see `prisma/seed.ts`
