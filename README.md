@@ -251,13 +251,13 @@ Open [http://localhost:3000/admin/login](http://localhost:3000/admin/login) for 
 
 ### Android (Termux)
 
-Next.js does not ship a native SWC binary for some Android targets (you may see a 404 for `@next/swc-android-arm-eabi` or `@next/swc-android-arm64`). Use the WebAssembly compiler and the webpack dev bundler instead:
+Next.js does not ship a native SWC binary for some Android targets (you may see a 404 for `@next/swc-android-arm-eabi` or `@next/swc-android-arm64`). This repo includes **`@next/swc-wasm-nodejs`** and **`@next/swc-wasm-web`** (same version as Next) so the compiler can load in WASM mode. After `npm install`, use the WebAssembly compiler and the webpack dev bundler:
 
 ```bash
 npm run dev:termux
 ```
 
-Then open `http://127.0.0.1:3000` in the phone browser. If you have not pulled this script yet, the equivalent command is:
+Then open `http://127.0.0.1:3000` in the phone browser. If you have an older clone without those packages, run **`npm install`** again, then `npm run dev:termux`. The manual equivalent is:
 
 ```bash
 env NEXT_TEST_WASM=1 npx next dev --webpack
