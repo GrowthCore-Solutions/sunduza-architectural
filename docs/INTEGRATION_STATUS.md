@@ -1,48 +1,54 @@
-# Dev Integration Status
+# Dev branch — integration status
 
-> Last verified: **2026-05-21** on branch `Dev` (commits through #17).
+Last checked: **21 May 2026** on `Dev` (through PR #17).
 
-## Automated checks
+## Automated checks (local)
 
-| Check | Result | Notes |
-|-------|--------|-------|
-| `npm run test` | ✅ Pass | 6 unit tests (lead-score, booking-transitions, api-response) |
-| `npm run build` | ✅ Pass | TypeScript clean; Prisma warnings if `DATABASE_URL` unset at build time |
-| `npm run lint` | ⚠️ Warnings only | 6 warnings (e.g. `<img>` vs `next/image`); 0 errors after settings/input fixes |
+These were run after pulling the latest `Dev`:
 
-## Merged to `Dev`
+| Check | Result |
+|-------|--------|
+| `npm run test` | Passed — 6 unit tests |
+| `npm run build` | Passed |
+| `npm run lint` | Passed with warnings only (no errors) |
 
-| PR | Sprint |
-|----|--------|
-| #13 | Sprint 0 — backend foundations |
-| #14 | Sprint 1 — public site |
-| #15 | Sprint 2 — admin dashboard |
-| #16 | Sprint 3 — notifications + deploy |
-| #17 | Sprint 4 — tests, SEO, Sentry |
+If `DATABASE_URL` is missing at build time, Prisma may log warnings during static generation. The build still completes. That is expected without a local `.env.local`.
 
-## Manual checklist (founder / staging)
+## What is already on Dev
 
-Run on a machine with `.env.local` pointing at PostgreSQL:
+| PR | What it delivered |
+|----|-------------------|
+| #13 | Backend foundations — service layer, APIs, audit log, notifications |
+| #14 | Public website |
+| #15 | Admin dashboard |
+| #16 | Email worker, rate limits, deployment docs |
+| #17 | Tests, SEO metadata, optional Sentry |
 
-- [ ] `npm run dev` — all public URLs render real content
-- [ ] `POST /api/contact` → `contact_messages` + `notifications` + `audit_logs`
-- [ ] `POST /api/bookings` → booking + `leadScore` + notification + audit
-- [ ] Admin login → bookings status machine → projects/testimonials/messages/settings
-- [ ] Settings WhatsApp change reflects on public layout
-- [ ] With Resend + `CRON_SECRET`: cron processes outbox → email received
-- [ ] With Upstash: rate limits survive cold start
-- [ ] `GET /api/v1/health` → `{ status: "ok", database: "connected" }`
+## What you should test manually
 
-## Not yet verified (requires staging env)
+Use a machine with `.env.local` pointed at PostgreSQL:
 
-- [ ] Production Readiness Checklist — `redesign/SUNDUZA_BUILD_PLAN_v2.md` §14
-- [ ] `npm run test:e2e` against running dev server
-- [ ] Lighthouse ≥85 homepage
-- [ ] Sentry test event in production dashboard
+1. Run `npm run dev` and open each public page — content should load, not a blank shell.
+2. Submit the contact form and confirm a row appears in the database (and a notification if Sprint 3 env is set).
+3. Submit a booking and confirm lead score, notification, and audit log are written.
+4. Log into admin and walk through bookings, projects, testimonials, messages, and settings.
+5. Change the WhatsApp number in settings and confirm it updates on the public site.
+6. If Resend and `CRON_SECRET` are configured, confirm the cron job sends email and marks notifications as sent.
+7. If Upstash is configured, confirm rate limiting still works after a restart or cold start.
+8. Call `GET /api/v1/health` and expect a healthy database response.
 
-## Next steps
+## Still to do before production
 
-1. Deploy **Vercel preview** from `Dev` — see `docs/deployment.md`
-2. Complete §14 checklist on staging
-3. Optional hardening PRs: API tests, admin E2E, CI, per-page metadata
-4. Open **`Dev` → `main`** release PR when founder approves (not started)
+These need a staging or preview environment:
+
+- Full pass through the production readiness checklist in `redesign/SUNDUZA_BUILD_PLAN_v2.md` (section 14)
+- Playwright e2e tests with the dev server running
+- Lighthouse score on the homepage (target 85+)
+- A test error in Sentry if you enable monitoring
+
+## Recommended next steps
+
+1. Deploy a Vercel preview from `Dev` — see `docs/deployment.md`.
+2. Work through the staging checks above.
+3. Add more tests or CI later if you want extra confidence.
+4. Open a `Dev` → `main` release PR when you are happy with staging. `main` has not been updated for this work yet.

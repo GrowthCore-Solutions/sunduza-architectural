@@ -1,27 +1,30 @@
-## Summary
+## What this adds
 
-Implements **Sprint 2 — Admin dashboard frontend**.
+This PR delivers the admin dashboard so the business owner can manage leads and content without touching the database.
 
-- Admin React Query hooks (bookings, projects, testimonials, messages, settings)
-- `AdminShell` with mobile sidebar (Zustand)
-- Dashboard home, bookings pipeline with **status state machine**, content CRUD, messages inbox, site settings editor
-- Admin `error.tsx` and section `loading.tsx`
-- Testimonials API returns all rows when admin session is present
+After logging in, you can work through bookings, update projects and testimonials, read contact messages, and edit site settings (including the WhatsApp number shown on the public site).
 
-## Depends on
+## Included work
 
-- #13 — Sprint 0 (backend + APIs)
-- #14 — Sprint 1 public site (merge first for full-stack smoke test on `Dev`)
+- Admin data hooks for bookings, projects, testimonials, messages, and settings
+- Mobile-friendly shell with sidebar (Zustand)
+- Dashboard home and full UI for each admin section
+- Booking status changes that follow the allowed state machine
+- Admin error and loading UI
+- Testimonials API returns inactive items when an admin is logged in
 
-## Test plan
+## Prerequisites
 
-- [ ] `npm run build` passes
-- [ ] Login at `/admin/login` → dashboard loads
-- [ ] Bookings: filter, pagination, status transitions (no invalid jumps)
-- [ ] Projects / testimonials CRUD + featured / `isActive` toggles
-- [ ] Messages: mark read
-- [ ] Settings: WhatsApp number persists and reflects on public layout after refresh
+- #13 (backend)
+- #14 (public site) should be merged first so you can smoke-test the full stack on `Dev`
 
-## Merge note
+## How to test
 
-Merge **after** Sprint 1. Target: **`Dev`**.
+1. Run `npm run build`.
+2. Log in at `/admin/login`.
+3. Walk through each section: bookings (filter, pagination, status updates), projects, testimonials, messages, settings.
+4. Change the WhatsApp number in settings, refresh a public page, and confirm the number updated.
+
+## Merge order
+
+Merge into `Dev` after Sprint 1. Do not target `main` yet.

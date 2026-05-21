@@ -1,26 +1,29 @@
-## Summary
+## What this adds
 
-Implements **Sprint 4 — Tests, SEO, accessibility baseline, monitoring**.
+This PR adds automated tests, basic SEO metadata, and optional error monitoring.
 
-- Vitest unit tests (lead score, booking transitions, API response helpers)
-- Playwright e2e specs (homepage, booking/contact forms visible)
+Unit tests cover lead scoring, booking status rules, and API response helpers. Playwright checks that key pages load and forms are visible. Open Graph tags are set on the root layout. Sentry only activates when `SENTRY_DSN` is present.
+
+## Included work
+
+- Vitest setup and unit tests
+- Playwright config and starter e2e specs
+- `npm run test`, `test:watch`, and `test:e2e` scripts
 - Root layout Open Graph metadata
-- Optional Sentry (`instrumentation.ts`, env-gated `next.config`)
-- `npm run test`, `test:watch`, `test:e2e` scripts
+- Optional Sentry via `instrumentation.ts` and `next.config`
 
-## Depends on
+## Prerequisites
 
-- #13 — Sprint 0
-- #14, #15, #16 — Sprints 1–3 merged to `Dev` (full app surface for e2e)
+- #13 on `Dev`
+- #14, #15, and #16 merged for a meaningful end-to-end surface
 
-## Test plan
+## How to test
 
-- [ ] `npm run test` — all unit tests pass
-- [ ] `npm run build` passes
-- [ ] `npm run test:e2e` (with `npm run dev` + DB)
-- [ ] Lighthouse spot-check on `/` and `/booking` (target ≥85 when content stable)
-- [ ] Optional: `SENTRY_DSN` set → errors reported in Sentry
+1. Run `npm run test` and confirm all unit tests pass.
+2. Run `npm run build`.
+3. With the dev server running, run `npm run test:e2e`.
+4. Optionally set `SENTRY_DSN` and confirm errors appear in Sentry.
 
-## Merge note
+## Merge order
 
-Merge **last** (after Sprint 3). May need to resolve `package.json` / `.env.example` with Sprint 3. Target: **`Dev`**.
+Merge into `Dev` last, after Sprint 3. You may need to resolve `package.json` or `.env.example` conflicts with Sprint 3.
