@@ -2,14 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { apiSuccess, apiError, ErrorCode } from "@/lib/api-response";
 import { ContactMessageSchema } from "@/types/contact";
 import { createContactMessage } from "@/server/contact";
-import { checkRateLimit } from "@/lib/rate-limit";
+import { checkContactRateLimit } from "@/lib/rate-limit";
 import { generateRequestId, getClientIp } from "@/lib/request";
 
 export async function POST(req: NextRequest) {
   const requestId = generateRequestId();
   const ip = getClientIp(req);
 
-  if (!checkRateLimit(`contact:${ip}`, 3, 60 * 60 * 1000)) {
+  if (!(await checkContactRateLimit(ip))) {
     return NextResponse.json(
       apiError("Too many requests. Please try again later.", ErrorCode.RATE_LIMIT_EXCEEDED, 429),
       { status: 429, headers: { "X-Request-ID": requestId } }

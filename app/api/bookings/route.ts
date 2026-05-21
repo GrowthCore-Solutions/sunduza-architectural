@@ -2,14 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { apiSuccess, apiError, ErrorCode } from "@/lib/api-response";
 import { BookingSchema } from "@/types/booking";
 import { createBooking } from "@/server/bookings";
-import { checkRateLimit } from "@/lib/rate-limit";
+import { checkBookingRateLimit } from "@/lib/rate-limit";
 import { generateRequestId, getClientIp } from "@/lib/request";
 
 export async function POST(req: NextRequest) {
   const requestId = generateRequestId();
   const ip = getClientIp(req);
 
-  if (!checkRateLimit(`booking:${ip}`, 5, 60 * 60 * 1000)) {
+  if (!(await checkBookingRateLimit(ip))) {
     return NextResponse.json(
       apiError("Too many requests. Please try again later.", ErrorCode.RATE_LIMIT_EXCEEDED, 429),
       { status: 429, headers: { "X-Request-ID": requestId } }

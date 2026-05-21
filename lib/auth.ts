@@ -11,7 +11,7 @@ import Credentials from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import bcrypt from "bcryptjs";
 import { db } from "@/lib/db";
-import { checkRateLimit } from "@/lib/rate-limit";
+import { checkAuthRateLimit } from "@/lib/rate-limit";
 
 // ── NextAuth configuration ─────────────────────────────────────────────────────
 export const { handlers, signIn, signOut, auth } = NextAuth({
@@ -33,7 +33,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
         // Layer 1: IP-based rate limit — 10 attempts per 15 minutes (S3.4)
         const clientIp = "default";
-        if (!checkRateLimit(`auth:${clientIp}`, 10, 15 * 60 * 1000)) {
+        if (!(await checkAuthRateLimit(clientIp))) {
           return null;
         }
 

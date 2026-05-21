@@ -1,11 +1,10 @@
-// TODO: Testimonials page — grid of client reviews fetched from DB
-import type { Metadata } from "next";
+import { TestimonialsPageContent } from "@/src/client/components/features/TestimonialsPageContent";
 
-export const metadata: Metadata = {
+export const metadata = {
   title: "Testimonials",
-  description: "What our clients say about Sunduza Architectural.",
+  description: "Client reviews for Sunduza Architectural & Projects.",
 };
 
 export default function TestimonialsPage() {
-  return null;
+  return <TestimonialsPageContent />;
 }
