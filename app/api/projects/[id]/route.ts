@@ -1,61 +1,33 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/db";
 import { apiSuccess, apiError, ErrorCode } from "@/lib/api-response";
-import { auth } from "@/lib/auth";
-import { z } from "zod";
-
-const ProjectUpdateSchema = z.object({
-  title: z.string().min(1).max(100).optional(),
-  description: z.string().min(1).optional(),
-  imagePath: z.string().min(1).max(255).optional(),
-  category: z.string().optional(),
-  isFeatured: z.boolean().optional(),
-  sortOrder: z.number().int().min(0).optional(),
-});
+import { ProjectUpdateSchema } from "@/types/project";
+import { getProjectById, updateProject, softDeleteProject } from "@/server/projects";
+import { withAuth } from "@/lib/with-auth";
+import { generateRequestId } from "@/lib/request";
 
 export async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const requestId = generateRequestId();
   const { id } = await params;
 
-  const project = await db.project.findUnique({
-    where: { id },
-    select: {
-      id: true,
-      title: true,
-      description: true,
-      imagePath: true,
-      category: true,
-      sortOrder: true,
-      isFeatured: true,
-      createdAt: true,
-    },
-  });
-
+  const project = await getProjectById(id);
   if (!project) {
     return NextResponse.json(
       apiError("Project not found", ErrorCode.NOT_FOUND, 404),
-      { status: 404 }
+      { status: 404, headers: { "X-Request-ID": requestId } }
     );
   }
 
-  return NextResponse.json(apiSuccess({ project }));
+  return NextResponse.json(apiSuccess({ project }), {
+    headers: { "X-Request-ID": requestId },
+  });
 }
 
-export async function PATCH(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  const session = await auth();
-  if (!session?.user) {
-    return NextResponse.json(
-      apiError("Unauthorized", ErrorCode.UNAUTHORIZED, 401),
-      { status: 401 }
-    );
-  }
-
-  const { id } = await params;
+export const PATCH = withAuth(async (req, session, context) => {
+  const requestId = generateRequestId();
+  const { id } = await context!.params;
   const body = await req.json();
   const parsed = ProjectUpdateSchema.safeParse(body);
 
@@ -66,47 +38,36 @@ export async function PATCH(
         ErrorCode.VALIDATION_ERROR,
         400
       ),
-      { status: 400 }
+      { status: 400, headers: { "X-Request-ID": requestId } }
     );
   }
 
-  const project = await db.project.update({
-    where: { id },
-    data: parsed.data,
-    select: {
-      id: true,
-      title: true,
-      description: true,
-      imagePath: true,
-      category: true,
-      sortOrder: true,
-      isFeatured: true,
-      updatedAt: true,
-    },
-  });
-
-  return NextResponse.json(apiSuccess(project));
-}
-
-export async function DELETE(
-  _req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  const session = await auth();
-  if (!session?.user) {
+  const project = await updateProject(id, parsed.data, { userId: session.user.id });
+  if (!project) {
     return NextResponse.json(
-      apiError("Unauthorized", ErrorCode.UNAUTHORIZED, 401),
-      { status: 401 }
+      apiError("Project not found", ErrorCode.NOT_FOUND, 404),
+      { status: 404, headers: { "X-Request-ID": requestId } }
     );
   }
 
-  const { id } = await params;
-
-  // Soft delete — never hard delete in production (S5.8)
-  await db.project.update({
-    where: { id },
-    data: { deletedAt: new Date() },
+  return NextResponse.json(apiSuccess(project), {
+    headers: { "X-Request-ID": requestId },
   });
+});
 
-  return NextResponse.json(apiSuccess({ deleted: true }));
-}
+export const DELETE = withAuth(async (_req, session, context) => {
+  const requestId = generateRequestId();
+  const { id } = await context!.params;
+
+  const deleted = await softDeleteProject(id, { userId: session.user.id });
+  if (!deleted) {
+    return NextResponse.json(
+      apiError("Project not found", ErrorCode.NOT_FOUND, 404),
+      { status: 404, headers: { "X-Request-ID": requestId } }
+    );
+  }
+
+  return NextResponse.json(apiSuccess({ deleted: true }), {
+    headers: { "X-Request-ID": requestId },
+  });
+});
