@@ -8,4 +8,19 @@ const nextConfig: NextConfig = {
   serverExternalPackages: ["@prisma/client", "bcryptjs"],
 };
 
-export default nextConfig;
+function wrapWithSentry(config: NextConfig): NextConfig {
+  if (!process.env.SENTRY_DSN) return config;
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { withSentryConfig } = require("@sentry/nextjs") as typeof import("@sentry/nextjs");
+    return withSentryConfig(config, {
+      silent: true,
+      org: process.env.SENTRY_ORG,
+      project: process.env.SENTRY_PROJECT,
+    });
+  } catch {
+    return config;
+  }
+}
+
+export default wrapWithSentry(nextConfig);
