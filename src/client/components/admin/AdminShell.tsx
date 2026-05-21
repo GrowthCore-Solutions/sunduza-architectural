@@ -19,7 +19,7 @@ export function AdminShell({
   const { sidebarOpen, setSidebarOpen, toggleSidebar } = useAdminUI();
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[--color-paper]">
+    <div className="flex h-screen overflow-hidden bg-mist">
       <div
         className={cn(
           "fixed inset-y-0 left-0 z-40 w-64 transform transition-transform md:relative md:translate-x-0",
@@ -37,13 +37,13 @@ export function AdminShell({
         />
       )}
       <div className="flex flex-1 flex-col overflow-hidden">
-        <header className="flex h-14 items-center border-b border-[--color-rule] bg-white px-4 md:hidden">
+        <header className="flex h-14 items-center border-b border-rule/80 bg-white/95 px-4 md:hidden">
           <Button variant="ghost" size="icon" onClick={toggleSidebar} aria-label="Open menu">
             <Menu className="h-5 w-5" />
           </Button>
-          <span className="ml-2 font-serif font-bold">Sunduza Admin</span>
+          <span className="ml-2 font-serif font-black">Sunduza Admin</span>
         </header>
-        <main className="flex-1 overflow-y-auto p-6 md:p-8">{children}</main>
+        <main className="flex-1 overflow-y-auto p-4 md:p-8">{children}</main>
       </div>
     </div>
   );

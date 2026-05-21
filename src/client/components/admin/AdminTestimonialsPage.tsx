@@ -28,9 +28,16 @@ export function AdminTestimonialsPage() {
   }
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="font-serif text-2xl font-black">Testimonials</h1>
+    <div className="max-w-6xl">
+      <div className="mb-6 flex items-center justify-between gap-4">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
+            Social proof
+          </p>
+          <h1 className="mt-2 font-serif text-3xl font-black tracking-tight text-ink">
+            Testimonials
+          </h1>
+        </div>
         <Button onClick={() => setShowForm(!showForm)}>
           {showForm ? "Cancel" : "Add testimonial"}
         </Button>
@@ -38,7 +45,7 @@ export function AdminTestimonialsPage() {
       {showForm && (
         <form
           onSubmit={handleCreate}
-          className="mb-8 rounded-sm border border-[--color-rule] bg-white p-6 space-y-3"
+          className="mb-8 space-y-3 rounded-md border border-rule/75 bg-white p-6 shadow-soft"
         >
           <Input
             placeholder="Client name"
@@ -64,20 +71,20 @@ export function AdminTestimonialsPage() {
           </Button>
         </form>
       )}
-      {isLoading && <p className="text-[--color-muted]">Loading…</p>}
+      {isLoading && <p className="text-muted">Loading...</p>}
       <div className="space-y-3">
         {testimonials?.map((t) => (
           <div
             key={t.id}
-            className="rounded-sm border border-[--color-rule] bg-white p-4"
+            className="rounded-md border border-rule/75 bg-white p-4 shadow-sm shadow-ink/5"
           >
-            <div className="flex justify-between items-start">
-              <div>
-                <p className="font-medium">{t.clientName}</p>
+            <div className="flex items-start justify-between gap-4">
+              <div className="min-w-0">
+                <p className="font-semibold text-ink">{t.clientName}</p>
                 {t.rating && <StarRating rating={t.rating} className="my-2" />}
-                <p className="text-sm text-[--color-muted] line-clamp-2">{t.review}</p>
+                <p className="text-sm text-muted line-clamp-2">{t.review}</p>
               </div>
-              <div className="flex gap-2 shrink-0">
+              <div className="flex shrink-0 gap-2">
                 <Button
                   size="sm"
                   variant="outline"

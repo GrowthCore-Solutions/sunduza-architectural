@@ -40,17 +40,17 @@ export function AdminSidebar({ adminEmail, adminName }: AdminSidebarProps) {
   }
 
   return (
-    <aside className="flex h-full w-64 flex-col border-r border-[--color-rule] bg-white">
-
-      {/* Brand */}
-      <div className="flex h-16 items-center border-b border-[--color-rule] px-5">
+    <aside className="flex h-full w-64 flex-col border-r border-rule/80 bg-white">
+      <div className="flex h-18 items-center border-b border-rule/80 px-5">
+        <span className="mr-3 flex h-10 w-10 items-center justify-center rounded-md bg-ink text-sm font-black text-white">
+          SA
+        </span>
         <div>
-          <p className="font-serif text-lg font-bold text-[--color-ink]">Sunduza</p>
-          <p className="text-xs text-[--color-muted]">Admin</p>
+          <p className="font-serif text-lg font-black leading-none text-ink">Sunduza</p>
+          <p className="text-xs text-muted">Admin</p>
         </div>
       </div>
 
-      {/* Navigation */}
       <nav className="flex-1 overflow-y-auto p-3 space-y-0.5" aria-label="Admin navigation">
         {NAV_ITEMS.map((item) => {
           const { label, href, icon: Icon } = item;
@@ -60,10 +60,10 @@ export function AdminSidebar({ adminEmail, adminName }: AdminSidebarProps) {
               key={href}
               href={href}
               className={cn(
-                "flex items-center gap-3 rounded-sm px-3 py-2.5 text-sm font-medium transition-colors duration-200",
+                "flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-semibold transition-colors duration-200",
                 isActive(href, exact)
-                  ? "bg-[--color-paper2] text-[--color-primary]"
-                  : "text-[--color-muted] hover:bg-[--color-paper2] hover:text-[--color-ink]"
+                  ? "bg-paper2 text-primary"
+                  : "text-muted hover:bg-mist hover:text-ink"
               )}
             >
               <Icon className="h-4 w-4 shrink-0" />
@@ -73,18 +73,17 @@ export function AdminSidebar({ adminEmail, adminName }: AdminSidebarProps) {
         })}
       </nav>
 
-      {/* Footer */}
-      <div className="border-t border-[--color-rule] p-3 space-y-1">
+      <div className="border-t border-rule/80 p-3 space-y-1">
         <Link
           href="/"
-          className="flex items-center gap-3 rounded-sm px-3 py-2 text-sm text-[--color-muted] hover:text-[--color-ink] hover:bg-[--color-paper2] transition-colors"
+          className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-muted transition-colors hover:bg-mist hover:text-ink"
         >
           <ExternalLink className="h-4 w-4 shrink-0" />
           View Site
         </Link>
 
         {adminEmail && (
-          <div className="px-3 py-2 text-xs text-[--color-muted] truncate">
+          <div className="px-3 py-2 text-xs text-muted truncate">
             {adminName ?? adminEmail}
           </div>
         )}
@@ -92,7 +91,7 @@ export function AdminSidebar({ adminEmail, adminName }: AdminSidebarProps) {
         <Button
           variant="ghost"
           size="sm"
-          className="w-full justify-start gap-3 text-[--color-muted] hover:text-red-600"
+          className="w-full justify-start gap-3 text-muted hover:text-red-600"
           onClick={() => signOut({ callbackUrl: "/admin/login" })}
         >
           <LogOut className="h-4 w-4 shrink-0" />

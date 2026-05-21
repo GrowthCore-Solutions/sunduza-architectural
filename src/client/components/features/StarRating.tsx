@@ -9,7 +9,7 @@ export function StarRating({ rating, className }: { rating: number; className?: 
           key={i}
           className={cn(
             "h-4 w-4",
-            i < rating ? "fill-[--color-primary] text-[--color-primary]" : "text-[--color-rule]"
+            i < rating ? "fill-primary text-primary" : "text-rule"
           )}
         />
       ))}

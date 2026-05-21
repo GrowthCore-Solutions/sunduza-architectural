@@ -38,9 +38,16 @@ export function AdminProjectsPage() {
   }
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="font-serif text-2xl font-black">Projects</h1>
+    <div className="max-w-6xl">
+      <div className="mb-6 flex items-center justify-between gap-4">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
+            Portfolio manager
+          </p>
+          <h1 className="mt-2 font-serif text-3xl font-black tracking-tight text-ink">
+            Projects
+          </h1>
+        </div>
         <Button onClick={() => setShowForm(!showForm)}>
           {showForm ? "Cancel" : "Add project"}
         </Button>
@@ -48,7 +55,7 @@ export function AdminProjectsPage() {
       {showForm && (
         <form
           onSubmit={handleCreate}
-          className="mb-8 rounded-sm border border-[--color-rule] bg-white p-6 space-y-3"
+          className="mb-8 space-y-3 rounded-md border border-rule/75 bg-white p-6 shadow-soft"
         >
           <Input
             placeholder="Title"
@@ -85,19 +92,19 @@ export function AdminProjectsPage() {
           </Button>
         </form>
       )}
-      {isLoading && <p className="text-[--color-muted]">Loading…</p>}
+      {isLoading && <p className="text-muted">Loading...</p>}
       <div className="space-y-3">
         {projects?.map((p) => (
           <div
             key={p.id}
-            className="flex items-center justify-between rounded-sm border border-[--color-rule] bg-white p-4"
+            className="flex items-center justify-between gap-4 rounded-md border border-rule/75 bg-white p-4 shadow-sm shadow-ink/5"
           >
-            <div>
-              <p className="font-medium">{p.title}</p>
-              <p className="text-sm text-[--color-muted]">{p.category}</p>
+            <div className="min-w-0">
+              <p className="font-semibold text-ink">{p.title}</p>
+              <p className="text-sm text-muted">{p.category}</p>
               {p.isFeatured && <Badge className="mt-1">Featured</Badge>}
             </div>
-            <div className="flex gap-2">
+            <div className="flex shrink-0 flex-wrap justify-end gap-2">
               <Button
                 size="sm"
                 variant="outline"

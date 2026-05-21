@@ -24,14 +24,14 @@ export function FormField({
   const inputId = children.props.id;
 
   return (
-    <div className={cn("space-y-1.5", className)}>
+    <div className={cn("space-y-2", className)}>
       <Label htmlFor={inputId} required={required}>
         {label}
       </Label>
-      {hint && <p className="text-xs text-[--color-muted] -mt-0.5">{hint}</p>}
+      {hint && <p className="-mt-0.5 text-xs leading-relaxed text-muted">{hint}</p>}
       {children}
       {error && (
-        <p className="text-xs text-red-600" role="alert">
+        <p className="text-xs font-medium text-red-700" role="alert" aria-live="polite">
           {error}
         </p>
       )}
