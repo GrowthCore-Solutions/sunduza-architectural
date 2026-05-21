@@ -11,32 +11,7 @@ import Credentials from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import bcrypt from "bcryptjs";
 import { db } from "@/lib/db";
-
-// ── Request ID generator ───────────────────────────────────────────────────────
-// Injected as X-Request-ID header for cross-request tracing (S6.20)
-export function generateRequestId(): string {
-  return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 9)}`;
-}
-
-// ── In-memory IP rate limiter ──────────────────────────────────────────────────
-// Layer 1 rate limiting (S3.4). Resets on serverless cold start — acceptable.
-// Durable protection comes from database-level account lockout (Layer 2).
-// Replace with Redis in v2 for persistent cross-instance rate limiting.
-const requestCounts = new Map<string, { count: number; resetAt: number }>();
-
-export function checkRateLimit(key: string, limit: number, windowMs: number): boolean {
-  const now = Date.now();
-  const record = requestCounts.get(key);
-
-  if (!record || record.resetAt < now) {
-    requestCounts.set(key, { count: 1, resetAt: now + windowMs });
-    return true;
-  }
-
-  if (record.count >= limit) return false;
-  record.count++;
-  return true;
-}
+import { checkRateLimit } from "@/lib/rate-limit";
 
 // ── NextAuth configuration ─────────────────────────────────────────────────────
 export const { handlers, signIn, signOut, auth } = NextAuth({

@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/db";
 import { apiSuccess, apiError, ErrorCode } from "@/lib/api-response";
 import { BookingSchema } from "@/types/booking";
-import { BookingStatus } from "@prisma/client";
-import { generateRequestId, checkRateLimit } from "@/lib/auth";
+import { createBooking } from "@/server/bookings";
+import { checkRateLimit } from "@/lib/rate-limit";
+import { generateRequestId, getClientIp } from "@/lib/request";
 
 export async function POST(req: NextRequest) {
   const requestId = generateRequestId();
+  const ip = getClientIp(req);
 
-  const ip = req.headers.get("x-forwarded-for") ?? "default";
   if (!checkRateLimit(`booking:${ip}`, 5, 60 * 60 * 1000)) {
     return NextResponse.json(
       apiError("Too many requests. Please try again later.", ErrorCode.RATE_LIMIT_EXCEEDED, 429),
@@ -31,29 +31,15 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const booking = await db.booking.create({
-      data: {
-        name: parsed.data.name,
-        email: parsed.data.email,
-        phone: parsed.data.phone,
-        service: parsed.data.service,
-        location: parsed.data.location,
-        description: parsed.data.description,
-        meetingDate: parsed.data.meetingDate
-          ? new Date(parsed.data.meetingDate)
-          : null,
-        budget: parsed.data.budget,
-        status: BookingStatus.PENDING,
-        consentGiven: parsed.data.consentGiven ?? false,
-        consentGivenAt: parsed.data.consentGiven ? new Date() : null,
-      },
-      select: { id: true, status: true },
+    const booking = await createBooking(parsed.data, {
+      ipAddress: ip,
+      userAgent: req.headers.get("user-agent") ?? "unknown",
     });
 
-    return NextResponse.json(
-      apiSuccess({ id: booking.id, status: booking.status }),
-      { status: 201, headers: { "X-Request-ID": requestId } }
-    );
+    return NextResponse.json(apiSuccess(booking), {
+      status: 201,
+      headers: { "X-Request-ID": requestId },
+    });
   } catch (err) {
     console.error(`[${requestId}] Booking POST error:`, err);
     return NextResponse.json(

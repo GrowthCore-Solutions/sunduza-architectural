@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { BookingStatus } from "@prisma/client";
 
 // Booking services — snake_case values match database CHECK constraint
 export const BOOKING_SERVICES = [
@@ -51,5 +52,12 @@ export const BookingListQuerySchema = z.object({
   limit: z.coerce.number().int().min(1).max(100).default(20),
 });
 
+export const BookingUpdateSchema = z.object({
+  id: z.string().cuid().optional(),
+  status: z.nativeEnum(BookingStatus).optional(),
+  adminNotes: z.string().optional(),
+});
+
 export type BookingInput = z.infer<typeof BookingSchema>;
+export type BookingUpdateInput = z.infer<typeof BookingUpdateSchema>;
 export type BookingId = z.infer<typeof BookingIdSchema>;

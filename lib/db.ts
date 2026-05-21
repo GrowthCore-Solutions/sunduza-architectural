@@ -27,27 +27,19 @@ function createPrismaClient() {
         : ["warn", "error"],
   });
 
+  const SOFT_DELETE_READ_ACTIONS = new Set([
+    "findMany",
+    "findFirst",
+    "findUnique",
+    "findUniqueOrThrow",
+  ]);
+
   // S5.12 — Automatic deleted_at: null filter on all active-data queries
-  // To intentionally include soft-deleted records, use prisma.$queryRaw or
-  // pass { where: { deletedAt: { not: null } } } explicitly with a comment.
   client.$use(async (params, next) => {
     if (
       params.model &&
       SOFT_DELETE_MODELS.has(params.model) &&
-      params.action === "findMany"
-    ) {
-      params.args ??= {};
-      params.args.where ??= {};
-
-      if (!("deletedAt" in params.args.where)) {
-        params.args.where.deletedAt = null;
-      }
-    }
-
-    if (
-      params.model &&
-      SOFT_DELETE_MODELS.has(params.model) &&
-      params.action === "findFirst"
+      SOFT_DELETE_READ_ACTIONS.has(params.action)
     ) {
       params.args ??= {};
       params.args.where ??= {};
