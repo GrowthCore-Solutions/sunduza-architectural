@@ -26,6 +26,7 @@ Authoritative pre-build specs (historical names preserved in headings):
 | [design/SYSTEM_DESIGN.md](./design/SYSTEM_DESIGN.md) | Full system design reference |
 | [design/ERD_ANALYSIS.md](./design/ERD_ANALYSIS.md) | Entity relationships |
 | [design/COMPONENT_ARCHITECTURE.md](./design/COMPONENT_ARCHITECTURE.md) | Frontend component tree and rules |
+| [design/UI_STYLING.md](./design/UI_STYLING.md) | Tailwind tokens + semantic CSS layer (surfaces, typography, admin) |
 | [design/PROJECT_SUMMARY.md](./design/PROJECT_SUMMARY.md) | Founder-facing project overview |
 
 ## Outside `docs/`
