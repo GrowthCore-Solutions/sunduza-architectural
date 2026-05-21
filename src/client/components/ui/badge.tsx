@@ -7,9 +7,9 @@ const badgeVariants = cva(
   {
     variants: {
       variant: {
-        default: "border-transparent bg-[--color-primary] text-white",
-        secondary: "border-transparent bg-[--color-paper2] text-[--color-ink]",
-        outline: "border-[--color-rule] text-[--color-ink]",
+        default: "border-transparent bg-primary text-white",
+        secondary: "border-rule/70 bg-paper2 text-ink",
+        outline: "border-rule bg-white/70 text-ink",
         // Booking status variants
         pending: "border-blue-200 bg-blue-50 text-blue-700",
         contacted: "border-amber-200 bg-amber-50 text-amber-700",

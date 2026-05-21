@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
-import { AdminSidebar } from "@/src/client/components/admin/AdminSidebar";
+import { AdminShell } from "@/src/client/components/admin/AdminShell";
 
 export default async function AdminDashboardLayout({
   children,
@@ -14,16 +14,11 @@ export default async function AdminDashboardLayout({
   }
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[--color-paper]">
-      <AdminSidebar
-        adminEmail={session.user.email ?? undefined}
-        adminName={session.user.name ?? undefined}
-      />
-      <div className="flex flex-1 flex-col overflow-hidden">
-        <main className="flex-1 overflow-y-auto p-6 md:p-8">
-          {children}
-        </main>
-      </div>
-    </div>
+    <AdminShell
+      adminEmail={session.user.email ?? undefined}
+      adminName={session.user.name ?? undefined}
+    >
+      {children}
+    </AdminShell>
   );
 }

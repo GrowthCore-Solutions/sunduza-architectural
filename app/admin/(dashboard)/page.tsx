@@ -1,6 +1,5 @@
-// TODO: Admin dashboard — stats (total bookings, new, completed, messages)
-// and quick-nav cards to bookings / projects / testimonials sections
-// Sprint 5 implementation
+import { AdminDashboard } from "@/src/client/components/admin/AdminDashboard";
+
 export default function AdminDashboardPage() {
-  return null;
+  return <AdminDashboard />;
 }

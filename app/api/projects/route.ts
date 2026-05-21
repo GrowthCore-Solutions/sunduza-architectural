@@ -1,47 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/db";
 import { apiSuccess, apiError, ErrorCode } from "@/lib/api-response";
-import { auth } from "@/lib/auth";
-import { z } from "zod";
+import { ProjectCreateSchema } from "@/types/project";
+import { createProject, getProjects } from "@/server/projects";
+import { withAuth } from "@/lib/with-auth";
+import { generateRequestId } from "@/lib/request";
 
-const ProjectCreateSchema = z.object({
-  title: z.string().min(1).max(100),
-  description: z.string().min(1),
-  imagePath: z.string().min(1).max(255),
-  category: z.string().optional(),
-  isFeatured: z.boolean().optional().default(false),
-  sortOrder: z.number().int().min(0).optional().default(0),
-});
+export async function GET(req: NextRequest) {
+  const requestId = generateRequestId();
+  const { searchParams } = new URL(req.url);
+  const featured = searchParams.get("featured") === "true";
 
-export async function GET(_req: NextRequest) {
-  const projects = await db.project.findMany({
-    orderBy: { sortOrder: "asc" },
-    select: {
-      id: true,
-      title: true,
-      description: true,
-      imagePath: true,
-      category: true,
-      sortOrder: true,
-      isFeatured: true,
-      createdAt: true,
-    },
+  const projects = await getProjects(featured);
+
+  return NextResponse.json(apiSuccess({ projects, total: projects.length }), {
+    headers: { "X-Request-ID": requestId },
   });
-
-  return NextResponse.json(
-    apiSuccess({ projects, total: projects.length })
-  );
 }
 
-export async function POST(req: NextRequest) {
-  const session = await auth();
-  if (!session?.user) {
-    return NextResponse.json(
-      apiError("Unauthorized", ErrorCode.UNAUTHORIZED, 401),
-      { status: 401 }
-    );
-  }
-
+export const POST = withAuth(async (req, session) => {
+  const requestId = generateRequestId();
   const body = await req.json();
   const parsed = ProjectCreateSchema.safeParse(body);
 
@@ -52,23 +29,14 @@ export async function POST(req: NextRequest) {
         ErrorCode.VALIDATION_ERROR,
         400
       ),
-      { status: 400 }
+      { status: 400, headers: { "X-Request-ID": requestId } }
     );
   }
 
-  const project = await db.project.create({
-    data: parsed.data,
-    select: {
-      id: true,
-      title: true,
-      description: true,
-      imagePath: true,
-      category: true,
-      sortOrder: true,
-      isFeatured: true,
-      createdAt: true,
-    },
-  });
+  const project = await createProject(parsed.data, { userId: session.user.id });
 
-  return NextResponse.json(apiSuccess(project), { status: 201 });
-}
+  return NextResponse.json(apiSuccess(project), {
+    status: 201,
+    headers: { "X-Request-ID": requestId },
+  });
+});

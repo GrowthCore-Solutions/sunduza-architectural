@@ -44,33 +44,32 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[--color-paper] px-4">
+    <div className="paper-grain flex min-h-screen items-center justify-center px-4">
       <div className="w-full max-w-sm">
-
-        {/* Header */}
         <div className="text-center mb-8">
-          <p className="text-xs font-medium uppercase tracking-[0.25em] text-[--color-primary] mb-2">
+          <div className="mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-md bg-ink text-sm font-black text-white shadow-soft">
+            SA
+          </div>
+          <p className="text-xs font-medium uppercase tracking-[0.25em] text-primary mb-2">
             Admin Portal
           </p>
-          <h1 className="font-serif text-3xl font-bold text-[--color-ink]">
+          <h1 className="font-serif text-3xl font-bold text-ink">
             Sign In
           </h1>
-          <p className="mt-2 text-sm text-[--color-muted]">
+          <p className="mt-2 text-sm text-muted">
             Sunduza Architectural & Projects
           </p>
         </div>
 
-        {/* Error */}
         {error && (
-          <div className="mb-6 rounded-sm border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          <div className="mb-6 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
             {error}
           </div>
         )}
 
-        {/* Form */}
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="space-y-5 rounded-sm border border-[--color-rule] bg-white p-8 shadow-sm"
+          className="space-y-5 rounded-md border border-rule/75 bg-white/95 p-8 shadow-soft"
           noValidate
         >
           <div className="space-y-1.5">
@@ -85,7 +84,7 @@ export default function AdminLoginPage() {
               {...register("email")}
             />
             {errors.email && (
-              <p className="text-xs text-red-600">{errors.email.message}</p>
+              <p className="text-xs font-medium text-red-700">{errors.email.message}</p>
             )}
           </div>
 
@@ -101,7 +100,7 @@ export default function AdminLoginPage() {
               {...register("password")}
             />
             {errors.password && (
-              <p className="text-xs text-red-600">{errors.password.message}</p>
+              <p className="text-xs font-medium text-red-700">{errors.password.message}</p>
             )}
           </div>
 
@@ -110,11 +109,11 @@ export default function AdminLoginPage() {
             className="w-full"
             disabled={isSubmitting}
           >
-            {isSubmitting ? "Signing in…" : "Sign In"}
+            {isSubmitting ? "Signing in..." : "Sign In"}
           </Button>
         </form>
 
-        <p className="mt-6 text-center text-xs text-[--color-muted]">
+        <p className="mt-6 text-center text-xs text-muted">
           This portal is for authorised staff only.
         </p>
       </div>
