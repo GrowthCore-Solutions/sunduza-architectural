@@ -41,7 +41,7 @@ Use a machine with `.env.local` pointed at PostgreSQL:
 
 These need a staging or preview environment:
 
-- Full pass through the production readiness checklist in `redesign/SUNDUZA_BUILD_PLAN_v2.md` (section 14)
+- Full pass through [PRODUCTION_CHECKLIST.md](./PRODUCTION_CHECKLIST.md)
 - Playwright e2e tests with the dev server running
 - Lighthouse score on the homepage (target 85+)
 - A test error in Sentry if you enable monitoring

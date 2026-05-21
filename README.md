@@ -43,12 +43,8 @@ lib/              Infrastructure (db, auth, email, rate-limit, env)
 types/            Zod schemas and shared types
 prisma/           Schema, migrations, seed.ts, seed.prod.ts
 tests/            Unit + E2E
-docs/             deployment.md, INTEGRATION_STATUS.md
-redesign/         Build plan, system redesign, improvements
-design-docs/      Locked product + API specs
+docs/             Setup, deploy, architecture, design specs (see docs/README.md)
 ```
-
-See `redesign/SUNDUZA_BUILD_PLAN_v2.md` §7 for the full target tree.
 
 ---
 
@@ -90,16 +86,16 @@ See `redesign/SUNDUZA_BUILD_PLAN_v2.md` §7 for the full target tree.
 
 ## Environment Variables
 
-Copy `.env.example` to `.env.local`:
+Copy `.env.example` to `.env.local` and fill in **required** values:
 
-```env
-DATABASE_URL=postgresql://...
-NEXTAUTH_URL=http://localhost:3000
-NEXTAUTH_SECRET=          # 32+ chars in production
-ADMIN_EMAIL=admin@sunduza.co.za
-```
+- `DATABASE_URL` — PostgreSQL (local or Neon)
+- `AUTH_SECRET` or `NEXTAUTH_SECRET` — random string, 32+ characters ([Auth.js requires this](https://errors.authjs.dev#missingsecret))
+- `NEXTAUTH_URL` — `http://localhost:3000` locally
+- `ADMIN_EMAIL` and `ADMIN_PASSWORD` — for `npm run db:seed`
 
-Optional for full Sprint 3–4 behaviour: `RESEND_*`, `CRON_SECRET`, `UPSTASH_*`, `SENTRY_DSN`.
+Full walkthrough: **`docs/LOCAL_SETUP.md`**.
+
+Optional: `RESEND_*`, `CRON_SECRET`, `UPSTASH_*`, `SENTRY_DSN`.
 
 ---
 
@@ -107,11 +103,14 @@ Optional for full Sprint 3–4 behaviour: `RESEND_*`, `CRON_SECRET`, `UPSTASH_*`
 
 ```bash
 npm install
+# Create .env.local first — see docs/LOCAL_SETUP.md
 npx prisma generate
-npx prisma migrate dev    # or migrate deploy on staging
-npm run db:seed           # dev data — see prisma/seed.ts
+npx prisma migrate dev
+npm run db:seed
 npm run dev
 ```
+
+Restart `npm run dev` after changing `.env.local`.
 
 **Scripts:**
 
@@ -128,15 +127,19 @@ npm run lint
 
 ---
 
-## Documentation Map
+## Documentation
+
+All maintained docs are under **`docs/`** — see [docs/README.md](docs/README.md).
 
 | Doc | Use |
 |-----|-----|
+| [docs/LOCAL_SETUP.md](docs/LOCAL_SETUP.md) | Environment and database setup |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Current layout, auth, `proxy.ts` |
+| [docs/deployment.md](docs/deployment.md) | Vercel + Neon/Railway + cron |
+| [docs/PRODUCTION_CHECKLIST.md](docs/PRODUCTION_CHECKLIST.md) | Pre–go-live checklist |
+| [docs/INTEGRATION_STATUS.md](docs/INTEGRATION_STATUS.md) | What's verified on `Dev` |
+| [docs/design/LOCKED_DESIGN.md](docs/design/LOCKED_DESIGN.md) | Product authority |
 | `CONSTITUTION-INDEX.md` | Session governance, sprint status |
-| `docs/INTEGRATION_STATUS.md` | What's verified on `Dev` |
-| `docs/deployment.md` | Vercel + Neon/Railway + cron |
-| `redesign/SUNDUZA_BUILD_PLAN_v2.md` | Full build history + §14 go-live checklist |
-| `design-docs/SUNDUZA_LOCKED_DESIGN.md` | Product authority |
 
 ---
 
