@@ -10,11 +10,13 @@
 > This document supersedes all prior design documents for build purposes.
 > Do not deviate from any decision here without a constitutional amendment.
 
+> **Implementation note (2026-05):** Route protection uses root `proxy.ts` (Next.js 16) instead of `middleware.ts`. Behaviour matches S3.7 double-layer auth — see [ARCHITECTURE.md](../ARCHITECTURE.md).
+
 ---
 
 ## How This Document Was Produced
 
-The seven pre-build design documents (`design-docs/SUNDUZA_*.md`) were run through the full constitutional framework:
+The seven pre-build design documents (`docs/design/*.md`) were run through the full constitutional framework:
 
 - **C2** — Backend Constitution (80 standards)
 - **C3** — Auth Constitution (36 standards)
@@ -203,7 +205,7 @@ Not applicable in v1 (no admin password change UI). Documented as Sprint 5 setti
 
 ### 3.2 Prisma Schema — 9 Models
 
-**LOCKED: 9 models, all in BCNF** — per `S5.9`. See `design-docs/SUNDUZA_NORMALIZATION.md` for full normalization proof.
+**LOCKED: 9 models, all in BCNF** — per `S5.9`. See `docs/design/NORMALIZATION.md` for full normalization proof.
 
 | Model | Table | Has deleted_at | FK | Purpose |
 |-------|-------|---------------|-----|---------|
@@ -217,7 +219,7 @@ Not applicable in v1 (no admin password change UI). Documented as Sprint 5 setti
 | `Notification` | `notifications` | ✗ | — | Outbox queue (v2) |
 | `AuditLog` | `audit_logs` | ✗ | → User SET NULL | Immutable audit trail |
 
-**`AuditLog` and `Notification` correctly have no `updated_at` or `deleted_at`** — audit logs are write-once, notifications are queue entries. This is a documented exception to `S5.10`, justified in `SUNDUZA_NORMALIZATION.md`.
+**`AuditLog` and `Notification` correctly have no `updated_at` or `deleted_at`** — audit logs are write-once, notifications are queue entries. This is a documented exception to `S5.10`, justified in `NORMALIZATION.md`.
 
 ### 3.3 Required Fields
 
@@ -283,7 +285,7 @@ prisma.$use(async (params, next) => {
 
 ### 3.7 Indexes
 
-**LOCKED: 25 indexes as specified in `design-docs/SUNDUZA_PHYSICAL_SCHEMA.md`** — per `S5.13`.
+**LOCKED: 25 indexes as specified in `docs/design/PHYSICAL_SCHEMA.md`** — per `S5.13`.
 
 12 are partial indexes (only index useful rows). Full index registry is in the physical schema document.
 
@@ -720,7 +722,7 @@ NEXT_PUBLIC_GTM_ID="..."              # GTM Container ID
 
 ### 7.1 Lead Scoring
 
-**LOCKED: Calculated on booking creation, stored as `leadScore`** — documented denormalization per `SUNDUZA_NORMALIZATION.md` §Entity 3.
+**LOCKED: Calculated on booking creation, stored as `leadScore`** — documented denormalization per `NORMALIZATION.md` §Entity 3.
 
 ```typescript
 // src/server/use-cases/booking/create-booking.ts
@@ -760,7 +762,7 @@ function calculateLeadScore(data: BookingInput): number {
 
 ### 7.2 UTM Capture
 
-**LOCKED: Captured server-side from request context + client-provided payload** — per marketing spec in `SUNDUZA_SYSTEM_DESIGN.md`.
+**LOCKED: Captured server-side from request context + client-provided payload** — per marketing spec in `SYSTEM_DESIGN.md`.
 
 UTM parameters are passed from the booking form as hidden fields (populated by JavaScript from `window.location.search` and `document.referrer` on form load). The server validates and stores them.
 
@@ -868,7 +870,7 @@ Every change from the pre-build design documents to this locked design:
 | C5 `S5.19` | Raw SQL for complex aggregates | ✅ | Sprint 5 |
 | C5 `S5.21` | Parameterised raw SQL | ✅ | Ongoing |
 | C2 `S2.1` | Business logic in use-cases | ⬜ | Sprint 1 |
-| C2 `S2.7` | OpenAPI contract first | ✅ | Done (design-docs) |
+| C2 `S2.7` | OpenAPI contract first | ✅ | Done (`docs/design/`) |
 | C2 `S2.19` | Standard response shape | ⬜ | Sprint 1 |
 | C2 `S2.20` | List response shape | ⬜ | Sprint 1 |
 | C2 `S2.23` | Zod validation | ✅ | Sprint 1 |
@@ -910,5 +912,5 @@ This is what must be delivered in Sprint 1 before Sprint 2 can begin. Every 🔴
 
 *Locked: 2026-05-15*
 *Status: LOCKED — All 15 design gaps documented · Sprint 1 checklist complete · Ready to build*
-*Supersedes: SUNDUZA_SYSTEM_DESIGN.md, SUNDUZA_ERD_ANALYSIS.md, SUNDUZA_NORMALIZATION.md, SUNDUZA_PHYSICAL_SCHEMA.md, SUNDUZA_API_DESIGN.md, SUNDUZA_COMPONENT_ARCHITECTURE.md for build purposes*
+*Supersedes: SYSTEM_DESIGN.md, ERD_ANALYSIS.md, NORMALIZATION.md, PHYSICAL_SCHEMA.md, API_DESIGN.md, COMPONENT_ARCHITECTURE.md (all in `docs/design/`) for build purposes*
 *Constitutional authority: C0 §7.1 hierarchy applied · C0 §7.3 Auth Override applied to S3.5 fix*

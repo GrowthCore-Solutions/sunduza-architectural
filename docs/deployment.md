@@ -51,9 +51,7 @@ npm run test:e2e   # requires dev server: npm run dev
 
 ## Release to `main`
 
-Per `redesign/SUNDUZA_BUILD_PLAN_v2.md`:
-
-1. Complete §14 Production Readiness Checklist on staging (preview or production-like env).
+1. Complete [PRODUCTION_CHECKLIST.md](./PRODUCTION_CHECKLIST.md) on staging (preview or production-like env).
 2. Open PR **`Dev` → `main`** only after founder sign-off.
 3. Run `prisma migrate deploy` and `seed.prod.ts` on production DB before traffic.
 

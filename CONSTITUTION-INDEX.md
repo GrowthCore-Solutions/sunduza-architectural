@@ -27,13 +27,14 @@
 | `system-design-template/AI-INSTRUCTIONS.md` | Every session — first |
 | `system-design-template/system-contexts/sunduza-context.md` | Every build session |
 | `system-design-template/overlays/solo-dev-overlay.md` | Every session — operating mode is SOLO |
-| **`design-docs/SUNDUZA_LOCKED_DESIGN.md`** | **Every build session — authoritative product spec** |
-| `design-docs/SUNDUZA_API_DESIGN.md` | API contract details |
-| `design-docs/SUNDUZA_PHYSICAL_SCHEMA.md` | Database schema details |
-| `redesign/SUNDUZA_BUILD_PLAN_v2.md` | Sprint history, §14 production checklist |
-| `redesign/SUNDUZA_SYSTEM_REDESIGN.md` | Layer contracts, debugging |
+| **`docs/design/LOCKED_DESIGN.md`** | **Every build session — authoritative product spec** |
+| `docs/design/API_DESIGN.md` | API contract details |
+| `docs/design/PHYSICAL_SCHEMA.md` | Database schema details |
+| `docs/ARCHITECTURE.md` | Current codebase layout and auth |
+| `docs/PRODUCTION_CHECKLIST.md` | Pre–go-live checklist |
 | `docs/deployment.md` | Staging / production deploy |
 | `docs/INTEGRATION_STATUS.md` | Current verification status on `Dev` |
+| `docs/README.md` | Index of all project documentation |
 
 ---
 
@@ -105,7 +106,7 @@ tests/       → unit (Vitest) + e2e (Playwright)
 
 | Step | Engineer | Status | Notes |
 |------|----------|--------|-------|
-| Design (Phase 0) | Claude | ✅ Complete | `design-docs/` |
+| Design (Phase 0) | Claude | ✅ Complete | `docs/design/` |
 | Build Sprints 0–4 | Cursor | ✅ Complete | Merged to `Dev` |
 | Integration / staging | Founder + Cursor | 🟡 In progress | `docs/INTEGRATION_STATUS.md` |
 | `Dev` → `main` release | Founder | ⬜ Pending | Not started |
