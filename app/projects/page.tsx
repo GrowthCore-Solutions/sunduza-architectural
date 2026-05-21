@@ -1,11 +1,10 @@
-// TODO: Projects page — portfolio grid fetched from DB, filterable by category
-import type { Metadata } from "next";
+import { ProjectsPageContent } from "@/src/client/components/features/ProjectsPageContent";
 
-export const metadata: Metadata = {
+export const metadata = {
   title: "Projects",
-  description: "View Sunduza Architectural portfolio of completed projects.",
+  description: "Portfolio of completed architectural projects by Sunduza Architectural.",
 };
 
 export default function ProjectsPage() {
-  return null;
+  return <ProjectsPageContent />;
 }
