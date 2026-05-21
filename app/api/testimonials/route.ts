@@ -1,13 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { apiSuccess, apiError, ErrorCode } from "@/lib/api-response";
 import { TestimonialCreateSchema } from "@/types/testimonial";
-import { createTestimonial, getTestimonials } from "@/server/testimonials";
+import { auth } from "@/lib/auth";
+import { createTestimonial, getTestimonials, getAllTestimonials } from "@/server/testimonials";
 import { withAuth } from "@/lib/with-auth";
 import { generateRequestId } from "@/lib/request";
 
 export async function GET() {
   const requestId = generateRequestId();
-  const testimonials = await getTestimonials();
+  const session = await auth();
+  const testimonials = session?.user
+    ? await getAllTestimonials()
+    : await getTestimonials();
 
   return NextResponse.json(apiSuccess({ testimonials, total: testimonials.length }), {
     headers: { "X-Request-ID": requestId },

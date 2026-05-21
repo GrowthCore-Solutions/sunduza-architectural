@@ -14,6 +14,13 @@ export async function getTestimonials(): Promise<TestimonialRow[]> {
   });
 }
 
+export async function getAllTestimonials(): Promise<TestimonialRow[]> {
+  return db.testimonial.findMany({
+    orderBy: { createdAt: "desc" },
+    select: testimonialRowSelect,
+  });
+}
+
 export async function createTestimonial(
   data: TestimonialCreateInput,
   context: { userId: string }
