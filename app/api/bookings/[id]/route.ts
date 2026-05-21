@@ -1,111 +1,83 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/db";
 import { apiSuccess, apiError, ErrorCode } from "@/lib/api-response";
-import { auth } from "@/lib/auth";
-import { BookingStatus } from "@prisma/client";
+import { BookingUpdateSchema } from "@/types/booking";
+import {
+  getBookingById,
+  updateBookingStatus,
+  softDeleteBooking,
+} from "@/server/bookings";
+import { withAuth } from "@/lib/with-auth";
+import { generateRequestId, getClientIp } from "@/lib/request";
 
-const VALID_STATUSES = Object.values(BookingStatus);
+export const GET = withAuth(async (_req, _session, context) => {
+  const requestId = generateRequestId();
+  const { id } = await context!.params;
 
-export async function GET(
-  _req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  const session = await auth();
-  if (!session?.user) {
-    return NextResponse.json(
-      apiError("Unauthorized", ErrorCode.UNAUTHORIZED, 401),
-      { status: 401 }
-    );
-  }
-
-  const { id } = await params;
-
-  const booking = await db.booking.findUnique({
-    where: { id },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      phone: true,
-      service: true,
-      location: true,
-      description: true,
-      meetingDate: true,
-      budget: true,
-      status: true,
-      leadScore: true,
-      adminNotes: true,
-      consentGiven: true,
-      createdAt: true,
-      updatedAt: true,
-    },
-  });
-
+  const booking = await getBookingById(id);
   if (!booking) {
     return NextResponse.json(
       apiError("Booking not found", ErrorCode.NOT_FOUND, 404),
-      { status: 404 }
+      { status: 404, headers: { "X-Request-ID": requestId } }
     );
   }
 
-  return NextResponse.json(apiSuccess(booking));
-}
+  return NextResponse.json(apiSuccess(booking), {
+    headers: { "X-Request-ID": requestId },
+  });
+});
 
-export async function PATCH(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  const session = await auth();
-  if (!session?.user) {
-    return NextResponse.json(
-      apiError("Unauthorized", ErrorCode.UNAUTHORIZED, 401),
-      { status: 401 }
-    );
-  }
-
-  const { id } = await params;
+export const PATCH = withAuth(async (req, session, context) => {
+  const requestId = generateRequestId();
+  const { id } = await context!.params;
   const body = await req.json();
-  const { status, adminNotes } = body as {
-    status?: BookingStatus;
-    adminNotes?: string;
-  };
+  const parsed = BookingUpdateSchema.safeParse(body);
 
-  if (status && !VALID_STATUSES.includes(status)) {
+  if (!parsed.success) {
     return NextResponse.json(
       apiError(
-        `Invalid status. Must be one of: ${VALID_STATUSES.join(", ")}`,
+        parsed.error.issues.map((e) => e.message).join(", "),
         ErrorCode.VALIDATION_ERROR,
         400
       ),
-      { status: 400 }
+      { status: 400, headers: { "X-Request-ID": requestId } }
     );
   }
 
-  const existing = await db.booking.findUnique({
-    where: { id },
-    select: { id: true },
+  const result = await updateBookingStatus(
+    id,
+    { status: parsed.data.status, adminNotes: parsed.data.adminNotes },
+    { userId: session.user.id, ipAddress: getClientIp(req) }
+  );
+
+  if (result.error) {
+    return NextResponse.json(
+      apiError(result.error, ErrorCode.BAD_REQUEST, 400),
+      { status: 400, headers: { "X-Request-ID": requestId } }
+    );
+  }
+
+  return NextResponse.json(apiSuccess(result.booking), {
+    headers: { "X-Request-ID": requestId },
+  });
+});
+
+export const DELETE = withAuth(async (req, session, context) => {
+  const requestId = generateRequestId();
+  const { id } = await context!.params;
+
+  const deleted = await softDeleteBooking(id, {
+    userId: session.user.id,
+    ipAddress: getClientIp(req),
   });
 
-  if (!existing) {
+  if (!deleted) {
     return NextResponse.json(
       apiError("Booking not found", ErrorCode.NOT_FOUND, 404),
-      { status: 404 }
+      { status: 404, headers: { "X-Request-ID": requestId } }
     );
   }
 
-  const updated = await db.booking.update({
-    where: { id },
-    data: {
-      ...(status !== undefined && { status }),
-      ...(adminNotes !== undefined && { adminNotes }),
-    },
-    select: {
-      id: true,
-      status: true,
-      adminNotes: true,
-      updatedAt: true,
-    },
+  return NextResponse.json(apiSuccess({ deleted: true }), {
+    headers: { "X-Request-ID": requestId },
   });
-
-  return NextResponse.json(apiSuccess(updated));
-}
+});

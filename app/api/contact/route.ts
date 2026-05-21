@@ -1,51 +1,47 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/db";
 import { apiSuccess, apiError, ErrorCode } from "@/lib/api-response";
-import { auth } from "@/lib/auth";
+import { ContactMessageSchema } from "@/types/contact";
+import { createContactMessage } from "@/server/contact";
+import { checkRateLimit } from "@/lib/rate-limit";
+import { generateRequestId, getClientIp } from "@/lib/request";
 
-export async function GET(req: NextRequest) {
-  const session = await auth();
-  if (!session?.user) {
+export async function POST(req: NextRequest) {
+  const requestId = generateRequestId();
+  const ip = getClientIp(req);
+
+  if (!checkRateLimit(`contact:${ip}`, 3, 60 * 60 * 1000)) {
     return NextResponse.json(
-      apiError("Unauthorized", ErrorCode.UNAUTHORIZED, 401),
-      { status: 401 }
+      apiError("Too many requests. Please try again later.", ErrorCode.RATE_LIMIT_EXCEEDED, 429),
+      { status: 429, headers: { "X-Request-ID": requestId } }
     );
   }
 
-  const { searchParams } = new URL(req.url);
-  const unreadOnly = searchParams.get("unread") === "true";
+  try {
+    const body = await req.json();
+    const parsed = ContactMessageSchema.safeParse(body);
 
-  const messages = await db.contactMessage.findMany({
-    where: unreadOnly ? { read: false } : undefined,
-    orderBy: { createdAt: "desc" },
-  });
+    if (!parsed.success) {
+      return NextResponse.json(
+        apiError(
+          parsed.error.issues.map((e) => e.message).join(", "),
+          ErrorCode.VALIDATION_ERROR,
+          400
+        ),
+        { status: 400, headers: { "X-Request-ID": requestId } }
+      );
+    }
 
-  return NextResponse.json(apiSuccess(messages));
-}
+    const message = await createContactMessage(parsed.data, { ipAddress: ip });
 
-export async function PATCH(req: NextRequest) {
-  const session = await auth();
-  if (!session?.user) {
+    return NextResponse.json(apiSuccess({ id: message.id }), {
+      status: 201,
+      headers: { "X-Request-ID": requestId },
+    });
+  } catch (err) {
+    console.error(`[${requestId}] Contact POST error:`, err);
     return NextResponse.json(
-      apiError("Unauthorized", ErrorCode.UNAUTHORIZED, 401),
-      { status: 401 }
+      apiError("Something went wrong. Please try again.", ErrorCode.INTERNAL_ERROR, 500),
+      { status: 500, headers: { "X-Request-ID": requestId } }
     );
   }
-
-  const body = await req.json();
-  const { id, read } = body;
-
-  if (typeof read !== "boolean" || !id) {
-    return NextResponse.json(
-      apiError("Invalid request", ErrorCode.VALIDATION_ERROR, 400),
-      { status: 400 }
-    );
-  }
-
-  const updated = await db.contactMessage.update({
-    where: { id },
-    data: { read },
-  });
-
-  return NextResponse.json(apiSuccess(updated));
 }

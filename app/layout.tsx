@@ -5,7 +5,8 @@ import { Header } from "@/src/client/components/layout/Header";
 import { Footer } from "@/src/client/components/layout/Footer";
 import { FloatingWhatsApp } from "@/src/client/components/layout/FloatingWhatsApp";
 import { Providers } from "@/src/client/components/providers";
-import { db } from "@/lib/db";
+import { unstable_cache } from "next/cache";
+import { getSetting } from "@/server/settings";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -39,17 +40,17 @@ export const metadata: Metadata = {
   ],
 };
 
-async function getWhatsAppNumber(): Promise<string> {
-  try {
-    const setting = await db.siteSettings.findUnique({
-      where: { key: "whatsapp_number" },
-      select: { value: true },
-    });
-    return setting?.value ?? "27786723364";
-  } catch {
-    return "27786723364";
-  }
-}
+const getWhatsAppNumber = unstable_cache(
+  async () => {
+    try {
+      return (await getSetting("whatsapp_number")) ?? "27786723364";
+    } catch {
+      return "27786723364";
+    }
+  },
+  ["whatsapp-number"],
+  { revalidate: 3600 }
+);
 
 export default async function RootLayout({
   children,
