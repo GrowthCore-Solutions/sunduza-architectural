@@ -1,5 +1,5 @@
-// TODO: Admin testimonials — CRUD, star rating, isActive toggle, project link
-// Sprint 5 implementation
-export default function AdminTestimonialsPage() {
-  return null;
+import { AdminTestimonialsPage } from "@/src/client/components/admin/AdminTestimonialsPage";
+
+export default function AdminTestimonialsPageRoute() {
+  return <AdminTestimonialsPage />;
 }
