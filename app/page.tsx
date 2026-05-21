@@ -1,4 +1,5 @@
-// TODO: Home page — hero, stats bar, services preview, CTA strip
+import { HomePageContent } from "@/src/client/components/features/HomePageContent";
+
 export default function HomePage() {
-  return null;
+  return <HomePageContent />;
 }
