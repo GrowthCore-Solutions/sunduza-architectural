@@ -38,6 +38,14 @@ export const metadata: Metadata = {
     "development projects",
     "council submissions",
   ],
+  openGraph: {
+    type: "website",
+    locale: "en_ZA",
+    siteName: "Sunduza Architectural & Projects",
+    title: "Sunduza Architectural & Projects",
+    description:
+      "Professional house planning, architectural drawings, drafting, and development projects across South Africa.",
+  },
 };
 
 const getWhatsAppNumber = unstable_cache(

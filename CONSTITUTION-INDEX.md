@@ -11,12 +11,12 @@
 | **System**       | Sunduza Architectural & Projects |
 | **Client**       | Xivutiso Kevin Sunduza |
 | **Stack**        | Next.js (App Router) |
-| **Build Phase**  | Phase 1 — Sprint 1 (Foundation) |
-| **Active Group** | G1 — Foundation |
+| **Build Phase**  | Phase 2 — Full stack implementation |
+| **Active Group** | G2 — Public + Admin UI |
 | **Operating Mode** | SOLO |
 | **Overlay**      | `system-design-template/overlays/solo-dev-overlay.md` |
-| **Last Updated** | 2026-05-15 |
-| **Sprint**       | Sprint 1 — Foundation: DB, Auth, Infra |
+| **Last Updated** | 2026-05-21 |
+| **Sprint**       | Sprints 0–4 per `redesign/SUNDUZA_BUILD_PLAN_v2.md` |
 
 ---
 
@@ -123,9 +123,9 @@
 
 | Issue | Type | Status | Sprint |
 |-------|------|--------|--------|
-| `S3.5` violation — `lib/auth.ts` uses JWT strategy | Security — must fix | 🔴 Open | Sprint 1 |
-| `S5.5` violation — Prisma schema uses SQLite provider | Database — must fix | 🔴 Open | Sprint 1 |
-| `prisma/schema.prisma` — 5-table schema vs 9-table design | Schema gap | 🔴 Open | Sprint 1 |
+| `S3.5` violation — JWT strategy | Security | ✅ Resolved — database sessions in `lib/auth.ts` |
+| `S5.5` violation — SQLite provider | Database | ✅ Resolved — PostgreSQL in schema |
+| `prisma/schema.prisma` — 9-table design | Schema | ✅ Resolved |
 | `design-docs/` API routes use `/api/*` not `/api/v1/*` | API versioning `S2.76` | 🟡 Decision needed | Sprint 1 |
 | Image strategy — `/images/projects/` local path vs Cloudinary | Pending client input | 🟡 Open | Sprint 3 |
 | Real testimonials — placeholder text in current seed | Content | 🟡 Open | Sprint 3 |
