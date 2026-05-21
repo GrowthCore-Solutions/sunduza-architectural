@@ -1,5 +1,7 @@
 # Sunduza — Deployment Guide
 
+> **Status:** Application code for Sprints 0–4 is on `Dev`. Use this guide for staging/preview and production. See `INTEGRATION_STATUS.md` for verification checklist.
+
 ## Stack
 
 - **App:** Vercel (Next.js 16)
@@ -46,3 +48,13 @@ Set `SENTRY_DSN` (and optionally `NEXT_PUBLIC_SENTRY_DSN`) to enable Sentry via 
 npm run test
 npm run test:e2e   # requires dev server: npm run dev
 ```
+
+## Release to `main`
+
+Per `redesign/SUNDUZA_BUILD_PLAN_v2.md`:
+
+1. Complete §14 Production Readiness Checklist on staging (preview or production-like env).
+2. Open PR **`Dev` → `main`** only after founder sign-off.
+3. Run `prisma migrate deploy` and `seed.prod.ts` on production DB before traffic.
+
+Do not merge to `main` until staging email, auth, and admin walkthrough pass.

@@ -6,258 +6,144 @@
 
 ## What This Is
 
-A full-stack web application for Sunduza Architectural & Projects. It serves two audiences:
+A full-stack lead-generation site for Sunduza Architectural:
 
-- **Public visitors** — browse services, view the project portfolio, read client testimonials, make contact, and book a consultation.
-- **Admin (Xivutiso Kevin Sunduza)** — a private dashboard to manage incoming booking requests, update booking statuses, manage portfolio projects, and manage client testimonials.
+- **Public** — services, portfolio, testimonials, contact, consultation booking (POPIA-aware)
+- **Admin** — single-owner dashboard: bookings pipeline, projects, testimonials, messages, site settings
+
+**Integration branch:** `Dev` (Sprints 0–4 merged). **`main`** is updated only via release PRs when staging is verified.
 
 ---
 
 ## Tech Stack
 
 | Layer | Technology |
-|---|---|
-| Framework | Next.js (App Router) |
+|-------|------------|
+| Framework | Next.js 16 (App Router) |
+| UI | React 19, Tailwind CSS v4 |
 | Language | TypeScript (strict) |
-| Styling | Tailwind CSS v4 — `@theme` design tokens |
-| Components | Radix UI primitives + class-variance-authority |
-| Forms | react-hook-form + Zod v4 |
-| Auth | NextAuth v5 (Credentials provider, bcrypt) |
-| Database | Prisma 5 — SQLite (dev) → PostgreSQL (prod) |
-| Icons | lucide-react |
-| Fonts | Playfair Display (serif) + IBM Plex Sans (sans) |
-
----
-
-## Design Tokens
-
-Defined in `app/globals.css` via Tailwind v4 `@theme`:
-
-| Token | Value | Use |
-|---|---|---|
-| `--color-primary` | `#b88b4a` | Brand gold — CTAs, accents, highlights |
-| `--color-primary-dark` | `#a07740` | Hover state for primary |
-| `--color-ink` | `#0f172a` | Main text colour |
-| `--color-paper` | `#faf8f2` | Page background (warm white) |
-| `--color-paper2` | `#f5f0e8` | Section backgrounds, card fills |
-| `--color-rule` | `#e8ddd0` | Borders and dividers |
-| `--color-muted` | `#8a7a60` | Secondary text, captions |
-| `--font-serif` | Playfair Display | Headings, logo, display text |
-| `--font-sans` | IBM Plex Sans | Body, UI, labels |
-
----
-
-## Services Offered
-
-1. **House Planning** — Full plan sets for council submission (site analysis, floor plans, elevations, sections, SANS-compliant docs)
-2. **Architectural Drawings** — Detailed drawings with dimensioning, material schedules, construction details
-3. **Drafting Services** — CAD drafting, as-built drawings, town planning support, compliance documentation
-4. **Development Projects** — Multi-unit residential, townhouse complexes, commercial developments
-
----
-
-## Site Structure
-
-### Public Pages
-
-| Route | Purpose |
-|---|---|
-| `/` | Homepage — hero, stats, services preview, CTA |
-| `/services` | Full services listing with feature breakdowns |
-| `/projects` | Portfolio grid — all completed projects |
-| `/projects/[id]` | Individual project detail view |
-| `/testimonials` | Client reviews grid |
-| `/contact` | Contact form (saves to DB as `ContactMessage`) |
-| `/booking` | Consultation booking form (saves to DB as `Booking`) |
-
-### Admin Pages (authenticated)
-
-| Route | Purpose |
-|---|---|
-| `/admin/login` | Sign-in page (Credentials — email + bcrypt password) |
-| `/admin` | Dashboard — stats overview, quick nav to sections |
-| `/admin/bookings` | Manage all booking requests — filter, search, update status, add notes |
-| `/admin/projects` | Add / edit / delete portfolio projects, toggle featured |
-| `/admin/testimonials` | Add / edit / delete testimonials, toggle featured |
-
-### API Routes
-
-| Route | Method(s) | Auth | Purpose |
-|---|---|---|---|
-| `/api/auth/[...nextauth]` | GET, POST | — | NextAuth handler |
-| `/api/health` | GET | — | Health check |
-| `/api/bookings` | POST | — | Submit consultation booking |
-| `/api/bookings/[id]` | GET, PATCH, DELETE | — | Single booking ops |
-| `/api/contact` | POST | — | Submit contact message |
-| `/api/projects` | GET, POST | — | List / create projects |
-| `/api/projects/[id]` | GET, PATCH, DELETE | — | Single project ops |
-| `/api/testimonials` | GET, POST | — | List / create testimonials |
-| `/api/testimonials/[id]` | GET, PATCH, DELETE | — | Single testimonial ops |
-| `/api/admin/bookings` | GET, PATCH | Admin | Protected booking management |
-
----
-
-## Database Models
-
-Defined in `prisma/schema.prisma`:
-
-### `Admin`
-Stores admin accounts. Passwords are bcrypt-hashed. Default role: `"admin"`.
-
-### `Booking`
-A consultation lead submitted from `/booking`.
-
-| Field | Type | Notes |
-|---|---|---|
-| `name` | String | Client full name |
-| `email` | String | |
-| `phone` | String | |
-| `service` | String | One of the 4 services |
-| `location` | String | City / suburb / area |
-| `description` | String | Project description |
-| `meetingDate` | String | `YYYY-MM-DD` |
-| `budget` | String? | Optional budget range |
-| `status` | String | `new` → `contacted` → `in_review` → `confirmed` → `completed` / `cancelled` |
-| `notes` | String? | Admin internal notes |
-
-### `ContactMessage`
-A general enquiry submitted from `/contact`.
-
-### `Project`
-A portfolio item managed from `/admin/projects`.
-
-| Field | Type | Notes |
-|---|---|---|
-| `title` | String | |
-| `shortDescription` | String | |
-| `imageUrl` | String | Path under `/images/projects/` |
-| `category` | String | `House Plan` / `Architectural Drawing` / `Drafting Services` / `Development Projects` |
-| `featured` | Boolean | Whether to highlight on homepage |
-
-### `Testimonial`
-A client review managed from `/admin/testimonials`.
-
-| Field | Type | Notes |
-|---|---|---|
-| `clientName` | String | |
-| `review` | String | |
-| `rating` | Int | 1–5 |
-| `featured` | Boolean | Whether to highlight on homepage |
-
----
-
-## Booking Status Flow
-
-```
-new → contacted → in_review → confirmed → completed
-                                         ↘ cancelled (from any stage)
-```
-
----
-
-## API Response Shape
-
-All API routes return a consistent envelope:
-
-```ts
-// Success
-{ success: true, data: T }
-
-// Error
-{ success: false, message: string, code: ErrorCode, status: number }
-```
-
-Error codes: `VALIDATION_ERROR`, `NOT_FOUND`, `UNAUTHORIZED`, `FORBIDDEN`, `INTERNAL_ERROR`, `RATE_LIMITED`, `CONFLICT`, `BAD_REQUEST`, `SERVICE_UNAVAILABLE`
+| Database | PostgreSQL via Prisma 5 |
+| Auth | NextAuth v5 — **database sessions** (not JWT) |
+| Client data | TanStack Query, Zustand (admin UI) |
+| Forms | react-hook-form + Zod |
+| Email | Resend (Sprint 3 worker) |
+| Rate limiting | Upstash Redis (in-memory fallback in dev) |
+| Tests | Vitest + Playwright |
+| Monitoring | Sentry (optional, env-gated) |
 
 ---
 
 ## Project Layout
 
 ```
-/
-├── app/
-│   ├── globals.css           ← Design tokens (Tailwind @theme)
-│   ├── layout.tsx            ← Root layout (fonts, metadata)
-│   ├── page.tsx              ← Homepage
-│   ├── services/page.tsx
-│   ├── projects/
-│   │   ├── page.tsx
-│   │   └── [id]/page.tsx
-│   ├── testimonials/page.tsx
-│   ├── contact/page.tsx
-│   ├── booking/page.tsx
-│   ├── admin/
-│   │   ├── page.tsx          ← Dashboard
-│   │   ├── login/page.tsx
-│   │   ├── bookings/page.tsx
-│   │   ├── projects/page.tsx
-│   │   └── testimonials/page.tsx
-│   └── api/                  ← All REST handlers
-├── components/
-│   ├── ui/                   ← Design system primitives
-│   ├── layout/               ← Header, Footer, FloatingWhatsApp
-│   ├── features/             ← ProjectsGrid, TestimonialsGrid
-│   └── admin/                ← BookingActions
-├── lib/
-│   ├── auth.ts               ← NextAuth config
-│   ├── db.ts                 ← Prisma singleton
-│   ├── utils.ts              ← cn(), formatDate()
-│   ├── api-response.ts       ← ApiSuccess / ApiError helpers
-│   └── api-client.ts         ← Typed fetch wrapper
-├── types/
-│   ├── booking.ts            ← Zod schema + inferred types
-│   ├── project.ts
-│   ├── testimonial.ts
-│   └── next-auth.d.ts        ← Session type augmentation
-└── prisma/
-    ├── schema.prisma
-    └── seed.ts               ← Dev seed (admin + sample data)
+app/              Next.js routes (public, admin, API)
+server/           Business logic (server-only)
+src/client/       Browser UI, hooks, stores
+lib/              Infrastructure (db, auth, email, rate-limit, env)
+types/            Zod schemas and shared types
+prisma/           Schema, migrations, seed.ts, seed.prod.ts
+tests/            Unit + E2E
+docs/             deployment.md, INTEGRATION_STATUS.md
+redesign/         Build plan, system redesign, improvements
+design-docs/      Locked product + API specs
 ```
+
+See `redesign/SUNDUZA_BUILD_PLAN_v2.md` §7 for the full target tree.
+
+---
+
+## Public Routes
+
+| Route | Purpose |
+|-------|---------|
+| `/` | Homepage |
+| `/services` | Four services |
+| `/projects`, `/projects/[id]` | Portfolio |
+| `/testimonials` | Client reviews |
+| `/contact` | Contact form → `POST /api/contact` |
+| `/booking` | Consultation booking → `POST /api/bookings` |
+| `/privacy` | POPIA privacy policy |
+
+## Admin Routes
+
+| Route | Purpose |
+|-------|---------|
+| `/admin/login` | Credentials sign-in |
+| `/admin` | Dashboard |
+| `/admin/bookings` | Pipeline + status state machine |
+| `/admin/projects` | CRUD + featured |
+| `/admin/testimonials` | CRUD + `isActive` |
+| `/admin/messages` | Inbox |
+| `/admin/settings` | Site settings (e.g. WhatsApp) |
+
+## API (high level)
+
+| Route | Notes |
+|-------|--------|
+| `/api/v1/health` | Canonical health check |
+| `/api/bookings`, `/api/contact` | Public lead capture |
+| `/api/projects`, `/api/testimonials` | Public read; admin mutations when session present |
+| `/api/admin/*` | Protected admin APIs |
+| `/api/internal/notify` | Cron worker (Resend) — `CRON_SECRET` |
 
 ---
 
 ## Environment Variables
 
-Create a `.env` file in the project root:
+Copy `.env.example` to `.env.local`:
 
 ```env
-# Required
-DATABASE_URL="file:./dev.db"
-NEXTAUTH_SECRET="your-secret-here"
-NEXTAUTH_URL="http://localhost:3000"
+DATABASE_URL=postgresql://...
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=          # 32+ chars in production
+ADMIN_EMAIL=admin@sunduza.co.za
 ```
+
+Optional for full Sprint 3–4 behaviour: `RESEND_*`, `CRON_SECRET`, `UPSTASH_*`, `SENTRY_DSN`.
 
 ---
 
 ## Getting Started
 
 ```bash
-# Install dependencies
 npm install
-
-# Set up the database
 npx prisma generate
-npx prisma db push
-
-# Seed with admin account + sample data
-npm run db:seed
-
-# Start dev server
+npx prisma migrate dev    # or migrate deploy on staging
+npm run db:seed           # dev data — see prisma/seed.ts
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) for the public site.
-Open [http://localhost:3000/admin/login](http://localhost:3000/admin/login) for the admin panel.
+**Scripts:**
 
-**Default admin credentials (dev only):**
-- Email: `admin@sunduza.co.za`
-- Password: set via seed — see `prisma/seed.ts`
+```bash
+npm run build
+npm run test              # Vitest unit tests
+npm run test:e2e          # Playwright (dev server must be running)
+npm run lint
+```
+
+**Admin (dev seed):** see `prisma/seed.ts` for credentials.
+
+**Production first deploy:** `docs/deployment.md` and `npx tsx prisma/seed.prod.ts`.
+
+---
+
+## Documentation Map
+
+| Doc | Use |
+|-----|-----|
+| `CONSTITUTION-INDEX.md` | Session governance, sprint status |
+| `docs/INTEGRATION_STATUS.md` | What's verified on `Dev` |
+| `docs/deployment.md` | Vercel + Neon/Railway + cron |
+| `redesign/SUNDUZA_BUILD_PLAN_v2.md` | Full build history + §14 go-live checklist |
+| `design-docs/SUNDUZA_LOCKED_DESIGN.md` | Product authority |
 
 ---
 
 ## Contact
 
 **Xivutiso Kevin Sunduza**
+
 - Phone: +27 78 672 3364
 - Email: xivutisokevinsunduza@gmail.com
 - Location: South Africa
