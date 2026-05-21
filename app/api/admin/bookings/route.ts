@@ -1,62 +1,36 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/db";
-import { apiSuccess, apiError, ErrorCode } from "@/lib/api-response";
-import { auth } from "@/lib/auth";
-import { BookingStatus } from "@prisma/client";
-import { z } from "zod";
+import { apiSuccess, apiError, apiList, ErrorCode } from "@/lib/api-response";
+import { BookingListQuerySchema, BookingUpdateSchema } from "@/types/booking";
+import { getAdminBookings, updateBookingStatus } from "@/server/bookings";
+import { withAuth } from "@/lib/with-auth";
+import { generateRequestId, getClientIp } from "@/lib/request";
 
-const BookingUpdateSchema = z.object({
-  id: z.string(),
-  status: z.nativeEnum(BookingStatus),
-  adminNotes: z.string().optional(),
+export const GET = withAuth(async (req) => {
+  const requestId = generateRequestId();
+  const { searchParams } = new URL(req.url);
+  const parsed = BookingListQuerySchema.safeParse(Object.fromEntries(searchParams));
+
+  if (!parsed.success) {
+    return NextResponse.json(
+      apiError(
+        parsed.error.issues.map((e) => e.message).join(", "),
+        ErrorCode.VALIDATION_ERROR,
+        400
+      ),
+      { status: 400, headers: { "X-Request-ID": requestId } }
+    );
+  }
+
+  const result = await getAdminBookings(parsed.data);
+
+  return NextResponse.json(
+    apiList(result.bookings, result.total, result.page, parsed.data.limit),
+    { headers: { "X-Request-ID": requestId } }
+  );
 });
 
-export async function GET(req: NextRequest) {
-  const session = await auth();
-  if (!session?.user) {
-    return NextResponse.json(
-      apiError("Unauthorized", ErrorCode.UNAUTHORIZED, 401),
-      { status: 401 }
-    );
-  }
-
-  const { searchParams } = new URL(req.url);
-  const statusParam = searchParams.get("status") as BookingStatus | null;
-
-  const bookings = await db.booking.findMany({
-    where: statusParam ? { status: statusParam } : undefined,
-    orderBy: { createdAt: "desc" },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      phone: true,
-      service: true,
-      location: true,
-      description: true,
-      meetingDate: true,
-      budget: true,
-      status: true,
-      leadScore: true,
-      adminNotes: true,
-      consentGiven: true,
-      createdAt: true,
-      updatedAt: true,
-    },
-  });
-
-  return NextResponse.json(apiSuccess({ bookings, total: bookings.length }));
-}
-
-export async function PATCH(req: NextRequest) {
-  const session = await auth();
-  if (!session?.user) {
-    return NextResponse.json(
-      apiError("Unauthorized", ErrorCode.UNAUTHORIZED, 401),
-      { status: 401 }
-    );
-  }
-
+export const PATCH = withAuth(async (req, session) => {
+  const requestId = generateRequestId();
   const body = await req.json();
   const parsed = BookingUpdateSchema.safeParse(body);
 
@@ -67,35 +41,32 @@ export async function PATCH(req: NextRequest) {
         ErrorCode.VALIDATION_ERROR,
         400
       ),
-      { status: 400 }
+      { status: 400, headers: { "X-Request-ID": requestId } }
     );
   }
 
-  const { id, status, adminNotes } = parsed.data;
+  const id = parsed.data.id ?? (body as { id?: string }).id;
+  if (!id) {
+    return NextResponse.json(
+      apiError("Booking id is required", ErrorCode.VALIDATION_ERROR, 400),
+      { status: 400, headers: { "X-Request-ID": requestId } }
+    );
+  }
 
-  const booking = await db.booking.update({
-    where: { id },
-    data: {
-      status,
-      ...(adminNotes !== undefined && { adminNotes }),
-    },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      phone: true,
-      service: true,
-      location: true,
-      description: true,
-      meetingDate: true,
-      budget: true,
-      status: true,
-      leadScore: true,
-      adminNotes: true,
-      createdAt: true,
-      updatedAt: true,
-    },
+  const result = await updateBookingStatus(
+    id,
+    { status: parsed.data.status, adminNotes: parsed.data.adminNotes },
+    { userId: session.user.id, ipAddress: getClientIp(req) }
+  );
+
+  if (result.error) {
+    return NextResponse.json(
+      apiError(result.error, ErrorCode.BAD_REQUEST, 400),
+      { status: 400, headers: { "X-Request-ID": requestId } }
+    );
+  }
+
+  return NextResponse.json(apiSuccess(result.booking), {
+    headers: { "X-Request-ID": requestId },
   });
-
-  return NextResponse.json(apiSuccess(booking));
-}
+});

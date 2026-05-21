@@ -4,26 +4,26 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-sm text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 cursor-pointer",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35 focus-visible:ring-offset-2 focus-visible:ring-offset-paper disabled:pointer-events-none disabled:opacity-55 cursor-pointer active:translate-y-px",
   {
     variants: {
       variant: {
         default:
-          "bg-[--color-primary] text-white hover:bg-[--color-primary-dark] focus-visible:ring-[--color-primary]",
+          "bg-primary text-white shadow-soft hover:bg-primary-dark hover:shadow-lift",
         secondary:
-          "bg-[--color-ink] text-white hover:bg-[--color-ink]/90 focus-visible:ring-[--color-ink]",
+          "bg-ink text-white shadow-soft hover:bg-graphite hover:shadow-lift",
         outline:
-          "border border-[--color-primary] text-[--color-primary] hover:bg-[--color-primary]/10 focus-visible:ring-[--color-primary]",
+          "border border-rule bg-white/85 text-ink hover:border-primary hover:bg-paper2",
         ghost:
-          "text-[--color-ink] hover:bg-[--color-ink]/5 focus-visible:ring-[--color-ink]",
+          "text-ink hover:bg-ink/5",
         destructive:
-          "bg-red-700 text-white hover:bg-red-800 focus-visible:ring-red-700",
-        link: "text-[--color-primary] underline-offset-4 hover:underline focus-visible:ring-[--color-primary] p-0 h-auto",
+          "bg-red-700 text-white shadow-soft hover:bg-red-800",
+        link: "h-auto p-0 text-primary underline-offset-4 shadow-none hover:underline active:translate-y-0",
       },
       size: {
-        default: "h-10 px-5 py-2",
-        sm: "h-8 px-3 text-xs",
-        lg: "h-12 px-8 text-base",
+        default: "h-11 px-5 py-2",
+        sm: "h-9 px-3 text-xs",
+        lg: "h-12 px-7 text-base",
         icon: "h-10 w-10",
       },
     },

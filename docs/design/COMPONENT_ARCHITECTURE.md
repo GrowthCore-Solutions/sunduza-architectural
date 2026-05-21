@@ -40,8 +40,9 @@ LAW 8 — Every empty state handled — no missing UI branches
 ```
 src/client/components/
 │
-├── ui/                     shadcn/ui primitives — never modified
+├── ui/                     shadcn/ui primitives — extend via semantic CSS, do not fork per page
 │   └── (button, card, input, dialog, table, badge, skeleton, toast, tooltip)
+│   └── See [UI_STYLING.md](./UI_STYLING.md) for tokens + surface/typography classes
 │
 ├── layout/                 Structural — wrap every page
 │   ├── navbar.tsx

@@ -90,7 +90,7 @@ This decision is immutable for the v1 lifetime of Sunduza Architectural & Projec
 
 **Special requirement documented here (not a deviation — a design constraint):**
 - Lighthouse mobile score target is **≥ 90** for Sunduza (above the constitutional minimum of 80 per `S4.69`) — this is a launch criterion, not aspirational.
-- Lead score must be stored as a materialised computed value on `bookings.lead_score` — justified denormalization for performance and historical stability (see `design-docs/SUNDUZA_NORMALIZATION.md` §Entity 3).
+- Lead score must be stored as a materialised computed value on `bookings.lead_score` — justified denormalization for performance and historical stability (see `docs/design/NORMALIZATION.md` §Entity 3).
 - POPIA compliance is treated as a Crown Jewel constraint (`S9.5`). Any feature that touches PII must pass POPIA review before merge.
 
 ---

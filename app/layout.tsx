@@ -5,19 +5,20 @@ import { Header } from "@/src/client/components/layout/Header";
 import { Footer } from "@/src/client/components/layout/Footer";
 import { FloatingWhatsApp } from "@/src/client/components/layout/FloatingWhatsApp";
 import { Providers } from "@/src/client/components/providers";
-import { db } from "@/lib/db";
+import { unstable_cache } from "next/cache";
+import { getSetting } from "@/server/settings";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
   weight: ["400", "700", "900"],
-  variable: "--font-serif",
+  variable: "--font-display",
   display: "swap",
 });
 
 const ibmPlex = IBM_Plex_Sans({
   subsets: ["latin"],
   weight: ["400", "500", "600"],
-  variable: "--font-sans",
+  variable: "--font-body",
   display: "swap",
 });
 
@@ -37,19 +38,27 @@ export const metadata: Metadata = {
     "development projects",
     "council submissions",
   ],
+  openGraph: {
+    type: "website",
+    locale: "en_ZA",
+    siteName: "Sunduza Architectural & Projects",
+    title: "Sunduza Architectural & Projects",
+    description:
+      "Professional house planning, architectural drawings, drafting, and development projects across South Africa.",
+  },
 };
 
-async function getWhatsAppNumber(): Promise<string> {
-  try {
-    const setting = await db.siteSettings.findUnique({
-      where: { key: "whatsapp_number" },
-      select: { value: true },
-    });
-    return setting?.value ?? "27786723364";
-  } catch {
-    return "27786723364";
-  }
-}
+const getWhatsAppNumber = unstable_cache(
+  async () => {
+    try {
+      return (await getSetting("whatsapp_number")) ?? "27786723364";
+    } catch {
+      return "27786723364";
+    }
+  },
+  ["whatsapp-number"],
+  { revalidate: 3600 }
+);
 
 export default async function RootLayout({
   children,
@@ -64,7 +73,7 @@ export default async function RootLayout({
       className={`${playfair.variable} ${ibmPlex.variable}`}
     >
       <body
-        className={`${playfair.variable} ${ibmPlex.variable} antialiased bg-[--color-paper] text-[--color-ink] flex flex-col min-h-screen`}
+        className="antialiased bg-paper text-ink flex flex-col min-h-screen"
       >
         <Providers>
           <Header />

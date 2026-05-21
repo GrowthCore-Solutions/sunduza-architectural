@@ -1,46 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/db";
 import { apiSuccess, apiError, ErrorCode } from "@/lib/api-response";
+import { TestimonialCreateSchema } from "@/types/testimonial";
 import { auth } from "@/lib/auth";
-import { z } from "zod";
+import { createTestimonial, getTestimonials, getAllTestimonials } from "@/server/testimonials";
+import { withAuth } from "@/lib/with-auth";
+import { generateRequestId } from "@/lib/request";
 
-const TestimonialCreateSchema = z.object({
-  clientName: z.string().min(1).max(100),
-  review: z.string().min(1),
-  rating: z.number().int().min(1).max(5).optional(),
-  projectId: z.string().optional(),
-  isActive: z.boolean().optional().default(true),
-});
+export async function GET() {
+  const requestId = generateRequestId();
+  const session = await auth();
+  const testimonials = session?.user
+    ? await getAllTestimonials()
+    : await getTestimonials();
 
-export async function GET(_req: NextRequest) {
-  const testimonials = await db.testimonial.findMany({
-    where: { isActive: true },
-    orderBy: { createdAt: "desc" },
-    select: {
-      id: true,
-      clientName: true,
-      review: true,
-      rating: true,
-      projectId: true,
-      isActive: true,
-      createdAt: true,
-    },
+  return NextResponse.json(apiSuccess({ testimonials, total: testimonials.length }), {
+    headers: { "X-Request-ID": requestId },
   });
-
-  return NextResponse.json(
-    apiSuccess({ testimonials, total: testimonials.length })
-  );
 }
 
-export async function POST(req: NextRequest) {
-  const session = await auth();
-  if (!session?.user) {
-    return NextResponse.json(
-      apiError("Unauthorized", ErrorCode.UNAUTHORIZED, 401),
-      { status: 401 }
-    );
-  }
-
+export const POST = withAuth(async (req, session) => {
+  const requestId = generateRequestId();
   const body = await req.json();
   const parsed = TestimonialCreateSchema.safeParse(body);
 
@@ -51,21 +30,14 @@ export async function POST(req: NextRequest) {
         ErrorCode.VALIDATION_ERROR,
         400
       ),
-      { status: 400 }
+      { status: 400, headers: { "X-Request-ID": requestId } }
     );
   }
 
-  const testimonial = await db.testimonial.create({
-    data: parsed.data,
-    select: {
-      id: true,
-      clientName: true,
-      review: true,
-      rating: true,
-      isActive: true,
-      createdAt: true,
-    },
-  });
+  const testimonial = await createTestimonial(parsed.data, { userId: session.user.id });
 
-  return NextResponse.json(apiSuccess(testimonial), { status: 201 });
-}
+  return NextResponse.json(apiSuccess(testimonial), {
+    status: 201,
+    headers: { "X-Request-ID": requestId },
+  });
+});

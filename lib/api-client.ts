@@ -1,9 +1,18 @@
-// Typed API client wrapper
-// Mirrors the design doc's API contracts
-
 type FetchOptions = RequestInit & {
   params?: Record<string, string>;
 };
+
+export class ApiClientError extends Error {
+  code: string;
+  status: number;
+
+  constructor(message: string, code: string, status: number) {
+    super(message);
+    this.name = "ApiClientError";
+    this.code = code;
+    this.status = status;
+  }
+}
 
 async function request<T>(
   method: string,
@@ -29,12 +38,16 @@ async function request<T>(
     ...fetchOptions,
   });
 
+  const json = await res.json().catch(() => null);
+
   if (!res.ok) {
-    const err = await res.json().catch(() => ({ message: res.statusText }));
-    throw new Error(err.message ?? `Request failed: ${res.status}`);
+    const message = json?.error?.message ?? json?.message ?? res.statusText;
+    const code = json?.error?.code ?? "UNKNOWN_ERROR";
+    const status = json?.error?.status ?? res.status;
+    throw new ApiClientError(message, code, status);
   }
 
-  return res.json() as Promise<T>;
+  return json as T;
 }
 
 export const api = {
