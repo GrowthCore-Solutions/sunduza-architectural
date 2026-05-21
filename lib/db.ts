@@ -3,6 +3,7 @@
 // Middleware: automatic deleted_at: null filter on all soft-deletable models (S5.12)
 //             — system-level default, never rely on per-query filtering alone
 
+import "@/lib/load-env";
 import { PrismaClient } from "@prisma/client";
 
 // ── Soft-delete models — these always filter deletedAt: null by default ──────
