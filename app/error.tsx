@@ -21,10 +21,10 @@ export default function Error({
         <p className="text-xs font-medium uppercase tracking-[0.25em] text-red-600 mb-4">
           Something went wrong
         </p>
-        <h2 className="font-serif text-3xl font-black text-[--color-ink] mb-4">
+        <h2 className="font-serif text-3xl font-black text-ink mb-4">
           An error occurred
         </h2>
-        <p className="text-[--color-muted] mb-8 leading-relaxed">
+        <p className="text-muted mb-8 leading-relaxed">
           We encountered an unexpected issue. Please try again — if the problem
           persists, contact us on WhatsApp.
         </p>

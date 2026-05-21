@@ -57,9 +57,16 @@ export function AdminBookingsPage() {
   }
 
   return (
-    <div>
-      <h1 className="font-serif text-2xl font-black mb-6">Bookings</h1>
-      <div className="flex flex-wrap gap-2 mb-4 border-b border-[--color-rule] pb-2">
+    <div className="max-w-6xl">
+      <div className="mb-6">
+        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
+          Lead pipeline
+        </p>
+        <h1 className="mt-2 font-serif text-3xl font-black tracking-tight text-ink">
+          Bookings
+        </h1>
+      </div>
+      <div className="mb-4 inline-flex flex-wrap gap-1 rounded-md border border-rule bg-white/90 p-1 shadow-sm shadow-ink/5">
         {STATUS_TABS.map((tab) => (
           <button
             key={tab.value}
@@ -69,10 +76,10 @@ export function AdminBookingsPage() {
               setPage(1);
             }}
             className={cn(
-              "px-3 py-1.5 text-sm rounded-sm",
+              "h-9 rounded-sm px-3 text-sm font-semibold transition-colors",
               bookingStatusFilter === tab.value
-                ? "bg-[--color-primary] text-white"
-                : "text-[--color-muted] hover:bg-[--color-paper2]"
+                ? "bg-primary text-white"
+                : "text-muted hover:bg-paper2 hover:text-ink"
             )}
           >
             {tab.label}
@@ -80,28 +87,28 @@ export function AdminBookingsPage() {
         ))}
       </div>
       <Input
-        placeholder="Search name or email…"
+        placeholder="Search name or email..."
         value={bookingSearch}
         onChange={(e) => setBookingSearch(e.target.value)}
         className="max-w-sm mb-6"
       />
-      {error && <p className="text-sm text-red-600 mb-4">{error}</p>}
-      {isLoading && <p className="text-[--color-muted]">Loading…</p>}
+      {error && <p className="mb-4 text-sm font-medium text-red-700">{error}</p>}
+      {isLoading && <p className="text-muted">Loading...</p>}
       <div className="space-y-2">
         {filtered.map((booking) => (
-          <div key={booking.id} className="rounded-sm border border-[--color-rule] bg-white">
+          <div key={booking.id} className="rounded-md border border-rule/75 bg-white shadow-sm shadow-ink/5">
             <button
               type="button"
-              className="w-full flex items-center justify-between p-4 text-left text-sm"
+              className="flex w-full items-center justify-between gap-4 p-4 text-left text-sm"
               onClick={() =>
                 setExpandedId(expandedId === booking.id ? null : booking.id)
               }
             >
-              <div>
-                <p className="font-medium">{booking.name}</p>
-                <p className="text-[--color-muted]">{booking.email}</p>
+              <div className="min-w-0">
+                <p className="font-semibold text-ink">{booking.name}</p>
+                <p className="text-muted">{booking.email}</p>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex shrink-0 items-center gap-2">
                 {booking.leadScore !== null && (
                   <span
                     className={`rounded-full px-2 py-0.5 text-xs font-medium ${leadScoreColor(booking.leadScore)}`}
@@ -113,7 +120,7 @@ export function AdminBookingsPage() {
               </div>
             </button>
             {expandedId === booking.id && (
-              <div className="border-t border-[--color-rule] p-4 space-y-3 text-sm">
+              <div className="space-y-3 border-t border-rule/75 bg-paper/40 p-4 text-sm">
                 <p><strong>Service:</strong> {booking.service}</p>
                 <p><strong>Location:</strong> {booking.location}</p>
                 <p><strong>Description:</strong> {booking.description}</p>
@@ -138,7 +145,7 @@ export function AdminBookingsPage() {
                     </Button>
                   ))}
                   {validNextStatuses(booking.status).length === 0 && (
-                    <p className="text-[--color-muted]">No further status changes.</p>
+                    <p className="text-muted">No further status changes.</p>
                   )}
                 </div>
               </div>
@@ -156,7 +163,7 @@ export function AdminBookingsPage() {
           >
             Previous
           </Button>
-          <span className="text-sm text-[--color-muted] self-center">
+          <span className="text-sm text-muted self-center">
             Page {page} of {data.totalPages}
           </span>
           <Button

@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu } from "lucide-react";
+import { ArrowRight, Menu } from "lucide-react";
 import { Button } from "@/src/client/components/ui/button";
 import {
   Sheet,
@@ -26,32 +26,39 @@ export function Header() {
   const pathname = usePathname();
   const [open, setOpen] = React.useState(false);
 
-  return (
-    <header className="sticky top-0 z-50 w-full border-b border-[--color-rule] bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 h-16">
+  if (pathname.startsWith("/admin")) return null;
 
-        {/* Logo */}
+  return (
+    <header className="sticky top-0 z-50 w-full border-b border-rule/80 bg-paper/95 backdrop-blur supports-[backdrop-filter]:bg-paper/85">
+      <div className="mx-auto flex h-18 max-w-7xl items-center justify-between px-4">
         <Link
           href="/"
-          className="flex items-center gap-2 shrink-0"
-          aria-label="Sunduza Architectural — home"
+          className="flex shrink-0 items-center gap-3"
+          aria-label="Sunduza Architectural home"
         >
-          <span className="font-serif text-xl font-bold text-[--color-ink] tracking-tight">
-            Sunduza
+          <span className="flex h-10 w-10 items-center justify-center rounded-md bg-ink text-sm font-black text-white shadow-soft">
+            SA
+          </span>
+          <span className="leading-none">
+            <span className="block font-serif text-xl font-black tracking-tight text-ink">
+              Sunduza
+            </span>
+            <span className="hidden text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-muted sm:block">
+              Architectural
+            </span>
           </span>
         </Link>
 
-        {/* Desktop nav */}
-        <nav className="hidden md:flex items-center gap-1" aria-label="Main navigation">
+        <nav className="hidden items-center gap-1 md:flex" aria-label="Main navigation">
           {NAV_ITEMS.map((item) => (
             <Link
               key={item.href}
               href={item.href}
               className={cn(
-                "px-4 py-2 text-sm font-medium rounded-sm transition-colors duration-200",
+                "rounded-md px-3.5 py-2 text-sm font-semibold transition-colors duration-200",
                 pathname === item.href
-                  ? "text-[--color-primary] bg-[--color-paper2]"
-                  : "text-[--color-ink] hover:text-[--color-primary] hover:bg-[--color-paper2]"
+                  ? "bg-white text-primary shadow-sm shadow-ink/5"
+                  : "text-graphite hover:bg-white/75 hover:text-primary"
               )}
             >
               {item.label}
@@ -59,14 +66,15 @@ export function Header() {
           ))}
         </nav>
 
-        {/* Desktop CTA */}
-        <div className="hidden md:flex items-center">
+        <div className="hidden items-center md:flex">
           <Button size="sm" asChild>
-            <Link href="/booking">Book Consultation</Link>
+            <Link href="/booking">
+              Book Consultation
+              <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
           </Button>
         </div>
 
-        {/* Mobile hamburger */}
         <Sheet open={open} onOpenChange={setOpen}>
           <SheetTrigger asChild className="md:hidden">
             <Button variant="ghost" size="icon" aria-label="Open navigation menu">
@@ -75,22 +83,22 @@ export function Header() {
           </SheetTrigger>
 
           <SheetContent side="right" className="w-[280px] p-0">
-            <div className="flex flex-col h-full">
-              <SheetHeader className="px-5 py-4 border-b border-[--color-rule]">
-                <SheetTitle>Sunduza</SheetTitle>
+            <div className="flex h-full flex-col">
+              <SheetHeader className="border-b border-rule px-5 py-4">
+                <SheetTitle>Sunduza Architectural</SheetTitle>
               </SheetHeader>
 
-              <nav className="flex flex-col p-4 gap-1 flex-1" aria-label="Mobile navigation">
+              <nav className="flex flex-1 flex-col gap-1 p-4" aria-label="Mobile navigation">
                 {NAV_ITEMS.map((item) => (
                   <Link
                     key={item.href}
                     href={item.href}
                     onClick={() => setOpen(false)}
                     className={cn(
-                      "px-4 py-3 text-sm font-medium rounded-sm transition-colors duration-200",
+                      "rounded-md px-4 py-3 text-sm font-semibold transition-colors duration-200",
                       pathname === item.href
-                        ? "text-[--color-primary] bg-[--color-paper2]"
-                        : "text-[--color-ink] hover:text-[--color-primary] hover:bg-[--color-paper2]"
+                        ? "bg-paper2 text-primary"
+                        : "text-ink hover:bg-paper2 hover:text-primary"
                     )}
                   >
                     {item.label}
@@ -98,10 +106,11 @@ export function Header() {
                 ))}
               </nav>
 
-              <div className="p-4 border-t border-[--color-rule]">
+              <div className="border-t border-rule p-4">
                 <Button className="w-full" asChild>
                   <Link href="/booking" onClick={() => setOpen(false)}>
                     Book Consultation
+                    <ArrowRight className="h-4 w-4" />
                   </Link>
                 </Button>
               </div>

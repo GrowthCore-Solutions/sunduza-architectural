@@ -34,28 +34,37 @@ export function AdminDashboard() {
   ];
 
   return (
-    <div>
-      <h1 className="font-serif text-2xl font-black text-[--color-ink] mb-8">Dashboard</h1>
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
+    <div className="max-w-6xl">
+      <div className="mb-8">
+        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
+          Admin overview
+        </p>
+        <h1 className="mt-2 font-serif text-3xl font-black tracking-tight text-ink">
+          Dashboard
+        </h1>
+      </div>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 mb-10">
         {stats.map((stat) => (
           <Link
             key={stat.label}
             href={stat.href}
-            className="rounded-sm border border-[--color-rule] bg-white p-5 hover:border-[--color-primary]/40 transition-colors"
+            className="rounded-md border border-rule/75 bg-white p-5 shadow-soft transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lift"
           >
-            <stat.icon className="h-5 w-5 text-[--color-primary] mb-3" />
-            <p className="text-2xl font-bold text-[--color-ink]">{stat.value}</p>
-            <p className="text-sm text-[--color-muted] mt-1">{stat.label}</p>
+            <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-md bg-paper2 text-primary">
+              <stat.icon className="h-5 w-5" />
+            </div>
+            <p className="text-3xl font-bold text-ink">{stat.value}</p>
+            <p className="mt-1 text-sm font-medium text-muted">{stat.label}</p>
           </Link>
         ))}
       </div>
-      <h2 className="font-serif text-lg font-bold mb-4">Recent bookings</h2>
-      <div className="rounded-sm border border-[--color-rule] bg-white divide-y divide-[--color-rule]">
+      <h2 className="mb-4 font-serif text-xl font-bold text-ink">Recent bookings</h2>
+      <div className="divide-y divide-rule/70 rounded-md border border-rule/75 bg-white shadow-soft">
         {pending?.bookings.slice(0, 5).map((b) => (
           <div key={b.id} className="flex items-center justify-between p-4 text-sm">
             <div>
-              <p className="font-medium">{b.name}</p>
-              <p className="text-[--color-muted]">{b.service}</p>
+              <p className="font-semibold text-ink">{b.name}</p>
+              <p className="text-muted">{b.service}</p>
             </div>
             <div className="flex items-center gap-2">
               {b.leadScore !== null && (
@@ -70,12 +79,12 @@ export function AdminDashboard() {
           </div>
         ))}
         {(!pending?.bookings.length) && (
-          <p className="p-6 text-[--color-muted] text-sm">No pending bookings.</p>
+          <p className="p-6 text-muted text-sm">No pending bookings.</p>
         )}
       </div>
       <Link
         href="/admin/bookings"
-        className="inline-flex items-center gap-1 mt-4 text-sm text-[--color-primary] hover:underline"
+        className="inline-flex items-center gap-1 mt-4 text-sm text-primary hover:underline"
       >
         View all bookings <ArrowRight className="h-4 w-4" />
       </Link>

@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { useProject } from "@/src/client/hooks/useProject";
@@ -32,17 +33,24 @@ export function ProjectDetailContent({ id }: { id: string }) {
   }
 
   return (
-    <article className="mx-auto max-w-4xl px-4 py-16">
+    <article className="mx-auto max-w-5xl px-4 py-16 md:py-20">
       <Button variant="ghost" size="sm" className="mb-8 -ml-2" asChild>
         <Link href="/projects"><ArrowLeft className="h-4 w-4" /> All projects</Link>
       </Button>
       {project.category && <Badge className="mb-4">{project.category}</Badge>}
-      <h1 className="font-serif text-4xl font-black text-[--color-ink]">{project.title}</h1>
-      <div className="mt-8 aspect-video rounded-sm overflow-hidden bg-[--color-paper2]">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={project.imagePath} alt={project.title} className="h-full w-full object-cover" />
+      <h1 className="max-w-3xl font-serif text-4xl font-black tracking-tight text-ink md:text-6xl">
+        {project.title}
+      </h1>
+      <div className="relative mt-8 aspect-video overflow-hidden rounded-md bg-paper2 shadow-soft">
+        <Image
+          src={project.imagePath || "/images/hero/hero-fallback.png"}
+          alt={project.title}
+          fill
+          sizes="(min-width: 1024px) 960px, 100vw"
+          className="object-cover"
+        />
       </div>
-      <p className="mt-8 text-[--color-ink] leading-relaxed whitespace-pre-line">
+      <p className="mt-8 max-w-3xl text-lg leading-relaxed text-ink whitespace-pre-line">
         {project.description}
       </p>
       <Button className="mt-10" asChild>
