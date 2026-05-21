@@ -1,0 +1,45 @@
+@theme inline {
+  --color-primary: #b6843d;
+  --color-primary-dark: #8d6028;
+  --color-ink: #101820;
+  --color-graphite: #24313b;
+  --color-paper: #f7f3eb;
+  --color-paper2: #ece4d7;
+  --color-rule: #ded2c0;
+  --color-muted: #6f6252;
+  --color-sage: #687861;
+  --color-clay: #9b5c3d;
+  --color-steel: #425d69;
+  --color-mist: #eef1ee;
+
+  --font-serif: var(--font-display), Georgia, serif;
+  --font-sans: var(--font-body), system-ui, sans-serif;
+
+  --radius-sm: 0.25rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --duration-fast: 150ms;
+  --duration-base: 200ms;
+  --duration-slow: 500ms;
+
+  --type-eyebrow-tracking: 0.25em;
+  --type-display-leading: 0.98;
+  --leading-display: 0.98;
+
+  --z-header: 40;
+  --z-sheet: 50;
+  --z-fab: 50;
+
+  --shadow-rest: 0 18px 55px -42px rgb(16 24 32 / 0.55);
+  --shadow-hover: 0 24px 70px -45px rgb(16 24 32 / 0.6);
+  --shadow-elevated: 0 28px 80px -40px rgb(16 24 32 / 0.65);
+
+  --shadow-soft: var(--shadow-rest);
+  --shadow-lift: var(--shadow-hover);
+
+  --grid-cell-size: 72px;
+  --grid-opacity: 0.45;
+  --grain-line-size: 36px;
+}
