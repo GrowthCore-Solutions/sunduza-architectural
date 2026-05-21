@@ -103,7 +103,7 @@ All 11 constitutions apply. Stack-specific scope:
 | `audit_logs` | Immutable event log — every admin + system action | Infrastructure |
 
 **Relationships:** 4 typed FKs, 0 M:N relationships, 0 junction tables.
-**Denormalizations:** 7, all documented and justified in `design-docs/SUNDUZA_NORMALIZATION.md`.
+**Denormalizations:** 7, all documented and justified in `docs/design/NORMALIZATION.md`.
 
 ---
 
@@ -208,17 +208,18 @@ src/
 
 ---
 
-## Design Documents (in `design-docs/`)
+## Design Documents (in `docs/design/`)
 
-| Document | Lines | Content |
-|----------|-------|---------|
-| `SUNDUZA_PROJECT_SUMMARY.md` | ~480 | Full project overview, tech stack, database, API, build plan |
-| `SUNDUZA_SYSTEM_DESIGN.md` | ~2,743 | Architecture, security model, file structure, all business rules |
-| `SUNDUZA_ERD_ANALYSIS.md` | ~1,009 | 9 entities examined, 4 FK relationships, 0 M:N confirmed |
-| `SUNDUZA_NORMALIZATION.md` | ~800 | All 9 entities through BCNF, 7 denormalizations documented |
-| `SUNDUZA_PHYSICAL_SCHEMA.md` | ~700 | Full DDL, 25 indexes, 10 CHECK constraints, seed data |
-| `SUNDUZA_API_DESIGN.md` | ~900 | All 18 endpoints with request/response/error examples |
-| `SUNDUZA_COMPONENT_ARCHITECTURE.md` | ~900 | All 32 components with props, state, rules, GA4 events |
+| Document | Content |
+|----------|---------|
+| `PROJECT_SUMMARY.md` | Full project overview, tech stack, database, API |
+| `SYSTEM_DESIGN.md` | Architecture, security model, file structure, business rules |
+| `ERD_ANALYSIS.md` | 9 entities, relationships |
+| `NORMALIZATION.md` | BCNF, denormalizations |
+| `PHYSICAL_SCHEMA.md` | DDL, indexes, constraints, seed data |
+| `API_DESIGN.md` | Endpoints with request/response/error examples |
+| `COMPONENT_ARCHITECTURE.md` | Components, props, state, rules |
+| `LOCKED_DESIGN.md` | Constitutional lock-in decisions |
 
 **Total: ~7,000 lines of design before the first line of production code.**
 
