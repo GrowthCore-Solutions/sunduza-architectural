@@ -11,12 +11,12 @@
 | **System**       | Sunduza Architectural & Projects |
 | **Client**       | Xivutiso Kevin Sunduza |
 | **Stack**        | Next.js (App Router) |
-| **Build Phase**  | Phase 1 — Sprint 1 (Foundation) |
-| **Active Group** | G1 — Foundation |
+| **Build Phase**  | Phase 2 — Sprint 2 (Admin dashboard) |
+| **Active Group** | G2 — Admin dashboard |
 | **Operating Mode** | SOLO |
 | **Overlay**      | `system-design-template/overlays/solo-dev-overlay.md` |
-| **Last Updated** | 2026-05-15 |
-| **Sprint**       | Sprint 1 — Foundation: DB, Auth, Infra |
+| **Last Updated** | 2026-05-21 |
+| **Sprint**       | Sprint 2 — Admin dashboard UI |
 
 ---
 
