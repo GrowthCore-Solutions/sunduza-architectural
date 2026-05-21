@@ -10,7 +10,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
-    "db:seed": "prisma db seed"
+    "db:seed": "prisma db seed",
+    "db:check": "node scripts/check-db.mjs"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.2",

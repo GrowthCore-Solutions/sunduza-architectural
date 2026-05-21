@@ -8,16 +8,25 @@
 
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
+import Google from "next-auth/providers/google";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import bcrypt from "bcryptjs";
 import { db } from "@/lib/db";
 import { checkAuthRateLimit } from "@/lib/rate-limit";
+import { authConfig } from "@/lib/auth.config";
 
-// ── NextAuth configuration ─────────────────────────────────────────────────────
 export const { handlers, signIn, signOut, auth } = NextAuth({
+  ...authConfig,
+  secret: process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET,
   adapter: PrismaAdapter(db),
 
   providers: [
+    // Auth.js v5 requires a non-credentials provider when using database sessions.
+    // Google is not shown in the UI; credentials remain the only login path.
+    Google({
+      clientId: process.env.GOOGLE_CLIENT_ID ?? "not-configured",
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? "not-configured",
+    }),
     Credentials({
       name: "credentials",
       credentials: {
@@ -31,13 +40,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         const email = credentials.email as string;
         const password = credentials.password as string;
 
-        // Layer 1: IP-based rate limit — 10 attempts per 15 minutes (S3.4)
         const clientIp = "default";
         if (!(await checkAuthRateLimit(clientIp))) {
           return null;
         }
 
-        // Fetch user — explicit select, never expose sensitive fields (S5.11)
         const user = await db.user.findUnique({
           where: { email },
           select: {
@@ -54,9 +61,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
         if (!user || user.deletedAt !== null) return null;
 
-        // Layer 2: Account lockout check (S3.4)
         if (user.lockedUntil && user.lockedUntil > new Date()) {
-          // Return identical error — do not reveal lockout state (S3.4 — AP-S3.4b)
           return null;
         }
 
@@ -79,7 +84,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           return null;
         }
 
-        // Reset failed attempts on successful login
         if (user.failedAttempts > 0) {
           await db.user.update({
             where: { id: user.id },
@@ -87,7 +91,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           });
         }
 
-        // Return safe fields only — never expose password or sensitive fields (S3.8)
         return {
           id: user.id,
           email: user.email,
@@ -105,7 +108,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   },
 
   callbacks: {
-    // Expose id and role to session object — safe fields only (S3.8)
     async session({ session, user }) {
       if (user && session.user) {
         session.user.id = user.id;
@@ -114,10 +116,5 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       }
       return session;
     },
-  },
-
-  pages: {
-    signIn: "/admin/login",
-    error: "/admin/login",
   },
 });
