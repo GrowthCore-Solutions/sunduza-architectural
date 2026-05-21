@@ -19,7 +19,7 @@ export default function AdminError({
     <div className="flex min-h-[50vh] items-center justify-center">
       <div className="text-center max-w-md">
         <h2 className="font-serif text-2xl font-black mb-4">Something went wrong</h2>
-        <p className="text-[--color-muted] mb-6">
+        <p className="text-muted mb-6">
           An error occurred in the admin section. Try again or return to the dashboard.
         </p>
         <div className="flex gap-3 justify-center">

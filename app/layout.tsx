@@ -11,14 +11,14 @@ import { getSetting } from "@/server/settings";
 const playfair = Playfair_Display({
   subsets: ["latin"],
   weight: ["400", "700", "900"],
-  variable: "--font-serif",
+  variable: "--font-display",
   display: "swap",
 });
 
 const ibmPlex = IBM_Plex_Sans({
   subsets: ["latin"],
   weight: ["400", "500", "600"],
-  variable: "--font-sans",
+  variable: "--font-body",
   display: "swap",
 });
 
@@ -73,7 +73,7 @@ export default async function RootLayout({
       className={`${playfair.variable} ${ibmPlex.variable}`}
     >
       <body
-        className={`${playfair.variable} ${ibmPlex.variable} antialiased bg-[--color-paper] text-[--color-ink] flex flex-col min-h-screen`}
+        className="antialiased bg-paper text-ink flex flex-col min-h-screen"
       >
         <Providers>
           <Header />

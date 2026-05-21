@@ -17,24 +17,25 @@ export function ProjectsPageContent() {
     projects?.filter((p) => category === "All" || p.category === category) ?? [];
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-16">
+    <div className="paper-grain">
+      <div className="mx-auto max-w-7xl px-4 py-16 md:py-20">
       <PageHeader
         eyebrow="Portfolio"
         title="Our projects"
         description="A selection of completed architectural work across residential, commercial, and development projects."
       />
 
-      <div className="mb-8 flex flex-wrap gap-2">
+      <div className="mb-8 inline-flex flex-wrap gap-1 rounded-md border border-rule bg-white/85 p-1 shadow-sm shadow-ink/5">
         {CATEGORIES.map((cat) => (
           <button
             key={cat}
             type="button"
             onClick={() => setCategory(cat)}
             className={cn(
-              "rounded-full px-4 py-1.5 text-sm font-medium transition-colors",
+              "h-9 rounded-sm px-4 text-sm font-semibold transition-colors",
               category === cat
-                ? "bg-[--color-primary] text-white"
-                : "bg-white border border-[--color-rule] text-[--color-ink] hover:border-[--color-primary]"
+                ? "bg-primary text-white shadow-sm"
+                : "text-muted hover:bg-paper2 hover:text-ink"
             )}
           >
             {cat}
@@ -51,11 +52,11 @@ export function ProjectsPageContent() {
       )}
 
       {isError && (
-        <p className="text-[--color-muted]">Unable to load projects. Please refresh the page.</p>
+        <p className="text-muted">Unable to load projects. Please refresh the page.</p>
       )}
 
       {!isLoading && !isError && filtered.length === 0 && (
-        <p className="text-[--color-muted]">No projects in this category yet.</p>
+        <p className="text-muted">No projects in this category yet.</p>
       )}
 
       {filtered.length > 0 && (
@@ -65,6 +66,7 @@ export function ProjectsPageContent() {
           ))}
         </div>
       )}
+      </div>
     </div>
   );
 }

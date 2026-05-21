@@ -32,11 +32,11 @@ function SettingsFields({
       {settings.map((setting) => (
         <div
           key={setting.key}
-          className="rounded-sm border border-[--color-rule] bg-white p-4"
+          className="rounded-md border border-rule/75 bg-white p-4 shadow-sm shadow-ink/5"
         >
-          <p className="text-sm font-medium text-[--color-ink]">{setting.key}</p>
+          <p className="text-sm font-semibold text-ink">{setting.key}</p>
           {setting.description && (
-            <p className="text-xs text-[--color-muted] mt-0.5">{setting.description}</p>
+            <p className="text-xs text-muted mt-0.5">{setting.description}</p>
           )}
           <div className="flex gap-2 mt-3">
             <Input
@@ -59,14 +59,21 @@ export function AdminSettingsPage() {
   const { data: settings, isLoading } = useAdminSettings();
   const updateSetting = useUpdateSetting();
 
-  if (isLoading) return <p className="text-[--color-muted]">Loading…</p>;
-  if (!settings?.length) return <p className="text-[--color-muted]">No settings found.</p>;
+  if (isLoading) return <p className="text-muted">Loading...</p>;
+  if (!settings?.length) return <p className="text-muted">No settings found.</p>;
 
   const settingsKey = settings.map((s) => `${s.key}:${s.value}`).join("|");
 
   return (
-    <div>
-      <h1 className="font-serif text-2xl font-black mb-6">Settings</h1>
+    <div className="max-w-6xl">
+      <div className="mb-6">
+        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
+          Site controls
+        </p>
+        <h1 className="mt-2 font-serif text-3xl font-black tracking-tight text-ink">
+          Settings
+        </h1>
+      </div>
       <SettingsFields
         key={settingsKey}
         settings={settings}

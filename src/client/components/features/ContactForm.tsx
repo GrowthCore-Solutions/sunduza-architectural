@@ -6,9 +6,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { ContactMessageSchema, type ContactMessageInput } from "@/types/contact";
 import { api, ApiClientError } from "@/lib/api-client";
 import { Button } from "@/src/client/components/ui/button";
+import { FormField } from "@/src/client/components/ui/form-field";
 import { Input } from "@/src/client/components/ui/input";
 import { Textarea } from "@/src/client/components/ui/textarea";
-import { FormField } from "@/src/client/components/ui/form-field";
 import type { ApiSuccess } from "@/src/client/lib/api-types";
 
 export function ContactForm() {
@@ -37,11 +37,9 @@ export function ContactForm() {
 
   if (submitted) {
     return (
-      <div className="rounded-sm border border-[--color-primary]/30 bg-[--color-paper2] p-8 text-center">
-        <h3 className="font-serif text-xl font-bold text-[--color-ink]">Message sent</h3>
-        <p className="mt-2 text-[--color-muted]">
-          Thank you. We will be in touch within 24 hours.
-        </p>
+      <div className="rounded-md border border-primary/30 bg-paper2 p-8 text-center">
+        <h3 className="font-serif text-xl font-bold text-ink">Message sent</h3>
+        <p className="mt-2 text-muted">Thank you. We will be in touch within 24 hours.</p>
       </div>
     );
   }
@@ -60,13 +58,15 @@ export function ContactForm() {
       <FormField label="Message" error={errors.message?.message} required>
         <Textarea id="message" rows={5} {...register("message")} />
       </FormField>
+
       {submitError && (
-        <p className="text-sm text-red-600" role="alert">
+        <p className="text-sm font-medium text-red-700" role="alert">
           {submitError}
         </p>
       )}
+
       <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto">
-        {isSubmitting ? "Sending…" : "Send message"}
+        {isSubmitting ? "Sending..." : "Send message"}
       </Button>
     </form>
   );
