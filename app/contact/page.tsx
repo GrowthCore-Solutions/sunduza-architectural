@@ -1,48 +1,94 @@
 import { PageHeader } from "@/src/client/components/features/PageHeader";
 import { ContactForm } from "@/src/client/components/features/ContactForm";
-import { Mail, Phone, MapPin } from "lucide-react";
+import { Clock, Mail, MapPin, Phone } from "lucide-react";
 
 export const metadata = {
   title: "Contact",
   description: "Get in touch with Sunduza Architectural & Projects.",
 };
 
+const CONTACT_ITEMS = [
+  {
+    icon: Phone,
+    label: "Phone",
+    value: "+27 78 672 3364",
+    href: "tel:+27786723364",
+  },
+  {
+    icon: Mail,
+    label: "Email",
+    value: "xivutisokevinsunduza@gmail.com",
+    href: "mailto:xivutisokevinsunduza@gmail.com",
+    breakAll: true,
+  },
+  {
+    icon: MapPin,
+    label: "Location",
+    value: "South Africa",
+  },
+  {
+    icon: Clock,
+    label: "Hours",
+    value: "Mon–Fri, 8 am – 5 pm",
+  },
+];
+
 export default function ContactPage() {
   return (
-    <div className="paper-grain">
-      <div className="mx-auto max-w-7xl px-4 py-16 md:py-20">
+    <div className="paper-grain min-h-screen">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 py-16 md:py-24">
         <PageHeader
           eyebrow="Get in touch"
           title="Contact us"
           description="Have a question about your project? Send us a message and we will respond within 24 hours."
         />
-        <div className="grid grid-cols-1 gap-10 lg:grid-cols-3">
-          <div className="rounded-md border border-rule/75 bg-white/95 p-5 shadow-soft md:p-8 lg:col-span-2">
+
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1.6fr_1fr]">
+
+          {/* Form */}
+          <div className="surface-panel p-6 md:p-8">
+            <h2 className="font-serif text-xl font-semibold text-ink mb-6">Send a message</h2>
             <ContactForm />
           </div>
-          <aside className="space-y-4 text-sm">
-            <div className="rounded-md border border-rule/75 bg-white/86 p-5 shadow-soft">
-              <Phone className="mb-3 h-5 w-5 text-primary" />
-              <p className="font-semibold text-ink">Phone</p>
-              <a href="tel:+27786723364" className="mt-1 block text-muted hover:text-primary">
-                +27 78 672 3364
-              </a>
-            </div>
-            <div className="rounded-md border border-rule/75 bg-white/86 p-5 shadow-soft">
-              <Mail className="mb-3 h-5 w-5 text-primary" />
-              <p className="font-semibold text-ink">Email</p>
-              <a
-                href="mailto:xivutisokevinsunduza@gmail.com"
-                className="mt-1 block break-all text-muted hover:text-primary"
-              >
-                xivutisokevinsunduza@gmail.com
-              </a>
-            </div>
-            <div className="rounded-md border border-rule/75 bg-white/86 p-5 shadow-soft">
-              <MapPin className="mb-3 h-5 w-5 text-primary" />
-              <p className="font-semibold text-ink">Location</p>
-              <p className="mt-1 text-muted">South Africa</p>
-              <p className="mt-1 text-muted">Mon-Fri, 8am-5pm</p>
+
+          {/* Contact details */}
+          <aside className="space-y-3">
+            <h2 className="font-serif text-xl font-semibold text-ink mb-5">Contact details</h2>
+            {CONTACT_ITEMS.map((item) => {
+              const Icon = item.icon;
+              return (
+                <div
+                  key={item.label}
+                  className="contact-aside-card flex items-start gap-4"
+                >
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded bg-primary/8 text-primary">
+                    <Icon className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <p className="text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-muted mb-0.5">
+                      {item.label}
+                    </p>
+                    {item.href ? (
+                      <a
+                        href={item.href}
+                        className={`text-sm font-medium text-ink hover:text-primary transition-colors${item.breakAll ? " break-all" : ""}`}
+                      >
+                        {item.value}
+                      </a>
+                    ) : (
+                      <p className="text-sm font-medium text-ink">{item.value}</p>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+
+            <div className="mt-6 rounded border border-rule/60 bg-paper2/60 p-5 text-sm leading-relaxed text-muted">
+              For project enquiries, the{" "}
+              <a href="/booking" className="font-semibold text-primary hover:underline">
+                booking form
+              </a>{" "}
+              gives us the context we need to respond meaningfully.
             </div>
           </aside>
         </div>

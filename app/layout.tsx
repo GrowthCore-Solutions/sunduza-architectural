@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Playfair_Display, IBM_Plex_Sans } from "next/font/google";
+import { Cormorant_Garamond, DM_Sans } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/src/client/components/layout/Header";
 import { Footer } from "@/src/client/components/layout/Footer";
@@ -8,16 +8,17 @@ import { Providers } from "@/src/client/components/providers";
 import { unstable_cache } from "next/cache";
 import { getSetting } from "@/server/settings";
 
-const playfair = Playfair_Display({
+const cormorant = Cormorant_Garamond({
   subsets: ["latin"],
-  weight: ["400", "700", "900"],
+  weight: ["300", "400", "500", "600", "700"],
+  style: ["normal", "italic"],
   variable: "--font-display",
   display: "swap",
 });
 
-const ibmPlex = IBM_Plex_Sans({
+const dmSans = DM_Sans({
   subsets: ["latin"],
-  weight: ["400", "500", "600"],
+  weight: ["300", "400", "500", "600", "700"],
   variable: "--font-body",
   display: "swap",
 });
@@ -70,11 +71,9 @@ export default async function RootLayout({
   return (
     <html
       lang="en"
-      className={`${playfair.variable} ${ibmPlex.variable}`}
+      className={`${cormorant.variable} ${dmSans.variable}`}
     >
-      <body
-        className="antialiased bg-paper text-ink flex flex-col min-h-screen"
-      >
+      <body className="antialiased bg-paper text-ink flex flex-col min-h-screen">
         <Providers>
           <Header />
           <main className="flex-1">{children}</main>

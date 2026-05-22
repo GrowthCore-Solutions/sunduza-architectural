@@ -19,57 +19,66 @@ const QUICK_LINKS = [
 
 export function Footer() {
   return (
-    <footer className="border-t border-rule/30 bg-ink text-white">
-      <div className="mx-auto max-w-7xl px-4 py-14">
-        <div className="flex flex-col gap-6 border-b border-white/10 pb-10 md:flex-row md:items-end md:justify-between">
+    <footer className="bg-ink text-white">
+      <div className="h-[2px] w-full bg-primary" />
+
+      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+        {/* Editorial top band */}
+        <div className="grid grid-cols-1 gap-6 border-b border-white/10 py-14 md:grid-cols-2 md:items-end">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
-              Sunduza Architectural
+            <p className="text-[0.65rem] font-semibold uppercase tracking-[0.28em] text-primary">
+              Sunduza Architectural & Projects
             </p>
-            <h2 className="mt-3 max-w-2xl font-serif text-3xl font-black leading-tight text-white md:text-4xl">
-              Start with drawings that make the build clearer.
+            <h2 className="mt-4 max-w-xl font-serif text-3xl font-light italic leading-tight text-white md:text-4xl">
+              Start with drawings that<br className="hidden sm:block" /> make the build clearer.
             </h2>
           </div>
-          <Link
-            href="/booking"
-            className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-primary px-5 text-sm font-semibold text-white shadow-soft transition-colors hover:bg-primary-dark"
-          >
-            Book Consultation
-            <ArrowRight className="h-4 w-4" />
-          </Link>
+          <div className="md:text-right">
+            <p className="mb-4 text-sm text-white/50">
+              Ready to begin your project?
+            </p>
+            <Link
+              href="/booking"
+              className="inline-flex items-center gap-2 rounded bg-primary px-5 h-11 text-sm font-semibold text-white shadow-soft transition-colors hover:bg-primary-dark"
+            >
+              Book Consultation
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-10 py-12 md:grid-cols-[1.3fr_1fr_1fr_1fr]">
-          <div>
+        {/* Link columns */}
+        <div className="grid grid-cols-2 gap-10 py-12 md:grid-cols-[1.6fr_1fr_1fr_1.2fr]">
+          <div className="col-span-2 md:col-span-1">
             <div className="flex items-center gap-3">
-              <span className="flex h-10 w-10 items-center justify-center rounded-md bg-white text-sm font-black text-ink">
+              <span className="flex h-10 w-10 items-center justify-center rounded bg-white text-[0.65rem] font-black tracking-[0.18em] text-ink">
                 SA
               </span>
               <div>
-                <p className="font-serif text-2xl font-black text-white">Sunduza</p>
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/45">
+                <p className="font-serif text-xl font-semibold text-white">Sunduza</p>
+                <p className="text-[0.6rem] font-medium uppercase tracking-[0.2em] text-white/40">
                   Architectural & Projects
                 </p>
               </div>
             </div>
-            <p className="mt-5 max-w-xs text-sm leading-relaxed text-white/65">
+            <p className="mt-5 max-w-xs text-sm leading-relaxed text-white/55">
               Professional house planning, architectural drawings, drafting, and
               development project support across South Africa.
             </p>
           </div>
 
           <div>
-            <h3 className="mb-4 text-xs font-semibold uppercase tracking-widest text-white/40">
+            <h3 className="mb-4 text-[0.65rem] font-semibold uppercase tracking-[0.22em] text-white/35">
               Services
             </h3>
-            <ul className="space-y-3">
-              {SERVICES.map((service) => (
-                <li key={service.href}>
+            <ul className="space-y-2.5">
+              {SERVICES.map((s) => (
+                <li key={s.href}>
                   <Link
-                    href={service.href}
-                    className="text-sm text-white/72 transition-colors duration-200 hover:text-primary"
+                    href={s.href}
+                    className="text-sm text-white/60 transition-colors hover:text-primary"
                   >
-                    {service.label}
+                    {s.label}
                   </Link>
                 </li>
               ))}
@@ -77,17 +86,17 @@ export function Footer() {
           </div>
 
           <div>
-            <h3 className="mb-4 text-xs font-semibold uppercase tracking-widest text-white/40">
+            <h3 className="mb-4 text-[0.65rem] font-semibold uppercase tracking-[0.22em] text-white/35">
               Company
             </h3>
-            <ul className="space-y-3">
-              {QUICK_LINKS.map((link) => (
-                <li key={link.href}>
+            <ul className="space-y-2.5">
+              {QUICK_LINKS.map((l) => (
+                <li key={l.href}>
                   <Link
-                    href={link.href}
-                    className="text-sm text-white/72 transition-colors duration-200 hover:text-primary"
+                    href={l.href}
+                    className="text-sm text-white/60 transition-colors hover:text-primary"
                   >
-                    {link.label}
+                    {l.label}
                   </Link>
                 </li>
               ))}
@@ -95,13 +104,13 @@ export function Footer() {
           </div>
 
           <div>
-            <h3 className="mb-4 text-xs font-semibold uppercase tracking-widest text-white/40">
+            <h3 className="mb-4 text-[0.65rem] font-semibold uppercase tracking-[0.22em] text-white/35">
               Contact
             </h3>
-            <ul className="space-y-3 text-sm text-white/72">
+            <ul className="space-y-3 text-sm">
               <li className="flex gap-2.5">
                 <Phone className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                <a href="tel:+27786723364" className="transition-colors hover:text-primary">
+                <a href="tel:+27786723364" className="text-white/60 transition-colors hover:text-primary">
                   +27 78 672 3364
                 </a>
               </li>
@@ -109,27 +118,28 @@ export function Footer() {
                 <Mail className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
                 <a
                   href="mailto:xivutisokevinsunduza@gmail.com"
-                  className="break-all transition-colors hover:text-primary"
+                  className="break-all text-white/60 transition-colors hover:text-primary"
                 >
                   xivutisokevinsunduza@gmail.com
                 </a>
               </li>
               <li className="flex gap-2.5">
                 <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                <span>South Africa</span>
+                <span className="text-white/60">South Africa</span>
               </li>
               <li className="flex gap-2.5">
                 <Clock className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                <span>Mon-Fri, 8am-5pm</span>
+                <span className="text-white/60">Mon–Fri, 8 am – 5 pm</span>
               </li>
             </ul>
           </div>
         </div>
 
-        <div className="flex flex-col items-start justify-between gap-3 border-t border-white/10 pt-6 text-xs text-white/45 md:flex-row md:items-center">
+        {/* Bottom bar */}
+        <div className="flex flex-col items-start justify-between gap-3 border-t border-white/8 py-6 text-xs text-white/35 md:flex-row md:items-center">
           <p>
-            &copy; {new Date().getFullYear()} Sunduza Architectural & Projects
-            (Pty) Ltd. All rights reserved.
+            &copy; {new Date().getFullYear()} Sunduza Architectural & Projects (Pty) Ltd.
+            All rights reserved.
           </p>
           <p>Design & Build by KSDRILL SA</p>
         </div>
