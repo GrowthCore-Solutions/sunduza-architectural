@@ -15,7 +15,7 @@ export function ProjectDetailContent({ id }: { id: string }) {
       <div className="mx-auto max-w-5xl px-4 sm:px-6 py-16 space-y-6">
         <Skeleton className="h-6 w-32" />
         <Skeleton className="h-12 w-2/3" />
-        <Skeleton className="aspect-video w-full rounded" />
+        <Skeleton className="h-[50vh] w-full" />
         <Skeleton className="h-5 w-full" />
         <Skeleton className="h-5 w-4/5" />
       </div>
@@ -40,7 +40,31 @@ export function ProjectDetailContent({ id }: { id: string }) {
 
   return (
     <article className="paper-grain min-h-screen">
-      <div className="mx-auto max-w-5xl px-4 sm:px-6 py-14 md:py-20">
+      {/* ─── Cinematic full-bleed hero ────────────────────────── */}
+      <div className="project-detail-hero-band">
+        <Image
+          src={project.imagePath || "/images/hero/hero-fallback.png"}
+          alt={project.title}
+          fill
+          sizes="100vw"
+          className="object-cover img-project"
+          priority
+        />
+        <div className="project-detail-img-overlay" />
+        <div className="project-detail-caption">
+          <div className="mx-auto max-w-5xl px-4 sm:px-6">
+            {project.category && (
+              <p className="type-eyebrow-hero mb-3">{project.category}</p>
+            )}
+            <h1 className="max-w-3xl font-serif text-3xl font-semibold tracking-tight text-white md:text-5xl leading-tight">
+              {project.title}
+            </h1>
+          </div>
+        </div>
+      </div>
+
+      {/* ─── Content ──────────────────────────────────────────── */}
+      <div className="mx-auto max-w-5xl px-4 sm:px-6 py-12 md:py-16">
         <Button variant="ghost" size="sm" className="-ml-2 mb-10 text-muted hover:text-ink" asChild>
           <Link href="/projects">
             <ArrowLeft className="h-4 w-4" />
@@ -48,26 +72,7 @@ export function ProjectDetailContent({ id }: { id: string }) {
           </Link>
         </Button>
 
-        {project.category && (
-          <p className="type-eyebrow mb-4">{project.category}</p>
-        )}
-
-        <h1 className="max-w-3xl font-serif text-4xl font-semibold tracking-tight text-ink md:text-6xl leading-tight">
-          {project.title}
-        </h1>
-
-        <div className="relative mt-10 aspect-video overflow-hidden rounded bg-paper2 shadow-soft">
-          <Image
-            src={project.imagePath || "/images/hero/hero-fallback.png"}
-            alt={project.title}
-            fill
-            sizes="(min-width: 1024px) 960px, 100vw"
-            className="object-cover"
-            priority
-          />
-        </div>
-
-        <div className="mt-12 max-w-2xl">
+        <div className="max-w-2xl">
           <p className="font-serif text-xl leading-relaxed text-ink whitespace-pre-line">
             {project.description}
           </p>

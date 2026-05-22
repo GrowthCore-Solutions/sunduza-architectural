@@ -15,12 +15,12 @@ export function ProjectCard({ project }: { project: ProjectRow }) {
           alt={project.title}
           fill
           sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-          className="object-cover transition-transform duration-700 group-hover:scale-105"
+          className="object-cover transition-transform duration-700 group-hover:scale-[1.04] img-project"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-ink/70 via-ink/10 to-transparent" />
+        <div className="project-img-overlay" />
         {project.category && (
           <div className="absolute top-3.5 left-3.5">
-            <span className="inline-flex items-center rounded-sm bg-white/90 px-2.5 py-1 text-[0.7rem] font-semibold uppercase tracking-[0.14em] text-ink/80 shadow-sm">
+            <span className="inline-flex items-center rounded-sm bg-white/90 px-2.5 py-1 text-[0.7rem] font-semibold uppercase tracking-[0.14em] text-ink/80 shadow-sm backdrop-blur-sm">
               {project.category}
             </span>
           </div>
