@@ -19,11 +19,10 @@
       }
     ],
     "paths": {
-      "@/*": ["./*"],
-      "@/components/*": ["./src/client/components/*"],
-      "@/hooks/*": ["./src/client/hooks/*"],
-      "@/stores/*": ["./src/client/stores/*"],
-      "@/server/*": ["./server/*"]
+      "@/frontend/*": ["./src/frontend/*"],
+      "@/backend/*": ["./src/backend/*"],
+      "@/shared/*": ["./src/shared/*"],
+      "@/*": ["./*"]
     }
   },
   "include": [

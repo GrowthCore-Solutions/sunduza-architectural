@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { apiSuccess, apiError, ErrorCode } from "@/lib/api-response";
-import { BookingSchema } from "@/types/booking";
-import { createBooking } from "@/server/bookings";
-import { checkBookingRateLimit } from "@/lib/rate-limit";
-import { generateRequestId, getClientIp } from "@/lib/request";
+import { apiSuccess, apiError, ErrorCode } from "@/backend/lib/api-response";
+import { BookingSchema } from "@/shared/types/booking";
+import { createBooking } from "@/backend/services/bookings";
+import { checkBookingRateLimit } from "@/backend/lib/rate-limit";
+import { generateRequestId, getClientIp } from "@/backend/lib/request";
 
 export async function POST(req: NextRequest) {
   const requestId = generateRequestId();

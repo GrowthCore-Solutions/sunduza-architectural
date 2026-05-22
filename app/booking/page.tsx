@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { CheckCircle2, Clock, FileText, MessageSquare } from "lucide-react";
-import { BookingForm } from "@/src/client/components/features/BookingForm";
-import { Skeleton } from "@/src/client/components/ui/skeleton";
+import { BookingForm } from "@/frontend/components/features/BookingForm";
+import { Skeleton } from "@/frontend/components/ui/skeleton";
 
 export const metadata = {
   title: "Book a Consultation",

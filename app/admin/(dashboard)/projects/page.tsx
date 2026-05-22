@@ -1,4 +1,4 @@
-import { AdminProjectsPage } from "@/src/client/components/admin/AdminProjectsPage";
+import { AdminProjectsPage } from "@/frontend/components/admin/AdminProjectsPage";
 
 export default function AdminProjectsPageRoute() {
   return <AdminProjectsPage />;

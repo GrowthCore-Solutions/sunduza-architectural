@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import { Cormorant_Garamond, DM_Sans } from "next/font/google";
 import "./globals.css";
-import { Header } from "@/src/client/components/layout/Header";
-import { Footer } from "@/src/client/components/layout/Footer";
-import { FloatingWhatsApp } from "@/src/client/components/layout/FloatingWhatsApp";
-import { Providers } from "@/src/client/components/providers";
+import { Header } from "@/frontend/components/layout/Header";
+import { Footer } from "@/frontend/components/layout/Footer";
+import { FloatingWhatsApp } from "@/frontend/components/layout/FloatingWhatsApp";
+import { Providers } from "@/frontend/components/providers";
 import { unstable_cache } from "next/cache";
-import { getSetting } from "@/server/settings";
+import { getSetting } from "@/backend/services/settings";
 
 const cormorant = Cormorant_Garamond({
   subsets: ["latin"],

@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { calculateLeadScore } from "@/server/lead-score";
-import type { BookingInput } from "@/types/booking";
+import { calculateLeadScore } from "@/backend/services/lead-score";
+import type { BookingInput } from "@/shared/types/booking";
 
 const base: BookingInput = {
   name: "Test User",

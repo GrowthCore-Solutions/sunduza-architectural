@@ -1,4 +1,4 @@
-import { ProjectDetailContent } from "@/src/client/components/features/ProjectDetailContent";
+import { ProjectDetailContent } from "@/frontend/components/features/ProjectDetailContent";
 
 export default async function ProjectDetailPage({
   params,

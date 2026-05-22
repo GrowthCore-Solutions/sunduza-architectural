@@ -8,8 +8,11 @@ export default defineConfig({
     setupFiles: ["./tests/setup.ts"],
   },
   resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "."),
-    },
+    alias: [
+      { find: /^@\/frontend(.*)/, replacement: path.resolve(__dirname, "src/frontend") + "$1" },
+      { find: /^@\/backend(.*)/, replacement: path.resolve(__dirname, "src/backend") + "$1" },
+      { find: /^@\/shared(.*)/, replacement: path.resolve(__dirname, "src/shared") + "$1" },
+      { find: "@", replacement: path.resolve(__dirname, ".") },
+    ],
   },
 });

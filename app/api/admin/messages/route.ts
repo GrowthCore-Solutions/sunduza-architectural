@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from "next/server";
-import { apiSuccess, apiError, ErrorCode } from "@/lib/api-response";
-import { getContactMessages, markMessageRead } from "@/server/contact";
-import { withAuth } from "@/lib/with-auth";
-import { generateRequestId } from "@/lib/request";
+import { NextResponse } from "next/server";
+import { apiSuccess, apiError, ErrorCode } from "@/backend/lib/api-response";
+import { getContactMessages, markMessageRead } from "@/backend/services/contact";
+import { withAuth } from "@/backend/lib/with-auth";
+import { generateRequestId } from "@/backend/lib/request";
 import { z } from "zod";
 
 const MarkReadSchema = z.object({

@@ -1,5 +1,5 @@
-import { PageHeader } from "@/src/client/components/features/PageHeader";
-import { ContactForm } from "@/src/client/components/features/ContactForm";
+import { PageHeader } from "@/frontend/components/features/PageHeader";
+import { ContactForm } from "@/frontend/components/features/ContactForm";
 import { Clock, Mail, MapPin, Phone } from "lucide-react";
 
 export const metadata = {
