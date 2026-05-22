@@ -1,26 +1,36 @@
 import Link from "next/link";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import { Button } from "@/src/client/components/ui/button";
-import { ArrowLeft } from "lucide-react";
 
 export default function NotFound() {
   return (
-    <div className="flex min-h-[70vh] items-center justify-center px-4">
-      <div className="text-center max-w-md">
-        <p className="text-xs font-medium uppercase tracking-[0.25em] text-primary mb-4">
+    <div className="paper-grain flex min-h-[80vh] items-center justify-center px-4">
+      <div className="max-w-lg text-center">
+        <p className="font-serif text-[8rem] font-light leading-none tracking-[-0.04em] text-rule select-none">
           404
         </p>
-        <h1 className="font-serif text-4xl font-black text-ink mb-4">
-          Page Not Found
+        <p className="type-eyebrow mt-2 mb-5">Page not found</p>
+        <h1 className="font-serif text-3xl font-semibold leading-tight tracking-tight text-ink md:text-4xl">
+          This page doesn&rsquo;t exist
         </h1>
-        <p className="text-muted mb-8 leading-relaxed">
-          The page you are looking for does not exist or may have been moved.
+        <p className="mt-4 text-[1.0625rem] leading-relaxed text-muted">
+          The page you are looking for may have been moved, renamed, or removed.
+          Let&rsquo;s get you back on track.
         </p>
-        <Button asChild>
-          <Link href="/">
-            <ArrowLeft className="h-4 w-4" />
-            Back to Home
-          </Link>
-        </Button>
+        <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
+          <Button asChild>
+            <Link href="/">
+              <ArrowLeft className="h-4 w-4" />
+              Back to home
+            </Link>
+          </Button>
+          <Button variant="outline" asChild>
+            <Link href="/contact">
+              Contact us
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </Button>
+        </div>
       </div>
     </div>
   );
