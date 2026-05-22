@@ -2,7 +2,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import type { ProjectRow } from "@/types/db";
-import { Badge } from "@/src/client/components/ui/badge";
 
 export function ProjectCard({ project }: { project: ProjectRow }) {
   return (

@@ -15,7 +15,9 @@ import {
 import { Button } from "@/src/client/components/ui/button";
 import { Skeleton } from "@/src/client/components/ui/skeleton";
 import { useProjects } from "@/src/client/hooks/useProjects";
+import { useTestimonials } from "@/src/client/hooks/useTestimonials";
 import { ProjectCard } from "@/src/client/components/features/ProjectCard";
+import { StarRating } from "@/src/client/components/features/StarRating";
 import { SERVICES } from "@/src/client/data/services";
 
 const SERVICE_ICONS = [Building2, PenTool, Ruler, Layers] as const;
@@ -33,19 +35,31 @@ const TRUST_POINTS = [
 ];
 
 export function HomePageContent() {
-  const { data: featured, isLoading, isError } = useProjects({ featured: true });
+  const { data: featured, isLoading: projectsLoading, isError: projectsError } = useProjects({ featured: true });
+  const { data: testimonials, isLoading: testimonialsLoading } = useTestimonials();
 
   return (
     <>
       {/* ─── Hero ─────────────────────────────────────────────────────── */}
       <section className="hero-band">
+        {/* Mobile image */}
+        <Image
+          src="/images/hero/hero-mobile.png"
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          className="hero-band-media md:hidden"
+          aria-hidden="true"
+        />
+        {/* Desktop image */}
         <Image
           src="/images/hero/hero-desktop.png"
           alt=""
           fill
           priority
           sizes="100vw"
-          className="hero-band-media"
+          className="hero-band-media hidden md:block"
           aria-hidden="true"
         />
         <div className="hero-overlay" />
@@ -95,7 +109,6 @@ export function HomePageContent() {
           </div>
         </div>
 
-        {/* Scroll indicator */}
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 hidden md:flex flex-col items-center gap-1.5 text-white/30">
           <div className="h-8 w-px bg-gradient-to-b from-transparent to-white/30" />
           <span className="text-[0.6rem] uppercase tracking-[0.22em]">Scroll</span>
@@ -182,6 +195,72 @@ export function HomePageContent() {
         </div>
       </section>
 
+      {/* ─── About the founder ────────────────────────────────────────── */}
+      <section className="bg-ink py-24">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6">
+          <div className="grid grid-cols-1 gap-12 lg:grid-cols-2 lg:items-center">
+
+            {/* Portrait */}
+            <div className="relative mx-auto w-full max-w-sm lg:max-w-none">
+              <div className="relative aspect-[3/4] overflow-hidden rounded bg-graphite">
+                <Image
+                  src="/images/founder-portrait.png"
+                  alt="Xivutiso Kevin Sunduza — Founder, Sunduza Architectural & Projects"
+                  fill
+                  sizes="(min-width: 1024px) 40vw, 90vw"
+                  className="object-cover object-top"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-ink/60 via-transparent to-transparent" />
+              </div>
+              {/* Decorative rule */}
+              <div className="absolute -bottom-4 -right-4 h-24 w-24 border-b-2 border-r-2 border-primary/40 rounded-br hidden lg:block" />
+            </div>
+
+            {/* Content */}
+            <div>
+              <p className="type-eyebrow mb-5">About the founder</p>
+              <h2 className="font-serif text-4xl font-semibold leading-tight text-white md:text-5xl">
+                Xivutiso Kevin<br />
+                <span className="font-light italic text-white/85">Sunduza</span>
+              </h2>
+              <div className="mt-2 h-px w-16 bg-primary" />
+
+              <p className="mt-7 text-[1.0625rem] leading-relaxed text-white/65">
+                With over five years of hands-on experience in residential and development
+                architecture, Kevin founded Sunduza Architectural & Projects to bring
+                precision and clarity to every project — from a single house plan to a
+                full development application.
+              </p>
+              <p className="mt-4 text-[1.0625rem] leading-relaxed text-white/65">
+                Every drawing that leaves the practice is personally reviewed to ensure
+                it meets council requirements, builder expectations, and the client&rsquo;s
+                original vision — without compromise.
+              </p>
+
+              <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3">
+                {[
+                  { label: "Council submissions", value: "50+" },
+                  { label: "Years in practice", value: "5+" },
+                  { label: "Provinces served", value: "4+" },
+                ].map((item) => (
+                  <div key={item.label} className="border-l-2 border-primary/40 pl-4">
+                    <p className="font-serif text-2xl font-semibold text-white">{item.value}</p>
+                    <p className="mt-0.5 text-xs text-white/45 uppercase tracking-[0.14em]">{item.label}</p>
+                  </div>
+                ))}
+              </div>
+
+              <Button className="mt-10" asChild>
+                <Link href="/booking">
+                  Work with Kevin
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ─── Featured projects ─────────────────────────────────────────── */}
       <section className="mist-section py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
@@ -200,7 +279,7 @@ export function HomePageContent() {
             </Button>
           </div>
 
-          {isLoading && (
+          {projectsLoading && (
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {Array.from({ length: 3 }).map((_, i) => (
                 <Skeleton key={i} className="h-80 w-full rounded" />
@@ -208,17 +287,16 @@ export function HomePageContent() {
             </div>
           )}
 
-          {isError && (
+          {projectsError && (
             <div className="state-panel">
               Unable to load projects right now. The portfolio section is ready,
               but the database connection needs attention.
             </div>
           )}
 
-          {!isLoading && !isError && featured?.length === 0 && (
+          {!projectsLoading && !projectsError && featured?.length === 0 && (
             <div className="state-panel">
-              Featured projects will appear here once they are marked in the admin
-              dashboard.
+              Featured projects will appear here once they are marked in the admin dashboard.
             </div>
           )}
 
@@ -234,6 +312,68 @@ export function HomePageContent() {
             <Button variant="outline" asChild className="w-full">
               <Link href="/projects">
                 View all projects
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── Testimonials preview ─────────────────────────────────────── */}
+      <section className="paper-grain py-24">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6">
+          <div className="section-intro">
+            <div className="section-intro-stack">
+              <p className="type-eyebrow mb-3">Client reviews</p>
+              <h2 className="font-serif text-4xl font-semibold tracking-tight text-ink md:text-5xl">
+                What our clients say
+              </h2>
+            </div>
+            <Button variant="outline" asChild className="hidden sm:inline-flex">
+              <Link href="/testimonials">
+                All reviews
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </Button>
+          </div>
+
+          {testimonialsLoading && (
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <Skeleton key={i} className="h-52 w-full rounded" />
+              ))}
+            </div>
+          )}
+
+          {!testimonialsLoading && testimonials && testimonials.length > 0 && (
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
+              {testimonials.slice(0, 3).map((t) => (
+                <div key={t.id} className="quote-card">
+                  {t.rating && <StarRating rating={t.rating} className="mb-4" />}
+                  <p className="font-serif text-[1.05rem] leading-relaxed text-ink line-clamp-4">
+                    &ldquo;{t.review}&rdquo;
+                  </p>
+                  <div className="mt-5 flex items-center gap-3 border-t border-rule/50 pt-4">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-[0.65rem] font-bold uppercase tracking-wide text-primary">
+                      {t.clientName.slice(0, 2)}
+                    </div>
+                    <p className="text-sm font-semibold text-ink">{t.clientName}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {!testimonialsLoading && (!testimonials || testimonials.length === 0) && (
+            <div className="state-panel">
+              Client reviews will appear here once added from the admin dashboard.
+            </div>
+          )}
+
+          <div className="mt-6 sm:hidden">
+            <Button variant="outline" asChild className="w-full">
+              <Link href="/testimonials">
+                All reviews
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </Button>
