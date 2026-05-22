@@ -15,38 +15,42 @@ export const metadata = {
 export default function ServicesPage() {
   return (
     <div className="paper-grain">
-      <div className="mx-auto max-w-7xl px-4 py-16 md:py-20">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 py-16 md:py-24">
         <PageHeader
           eyebrow="What we offer"
           title="Architectural services"
           description="End-to-end documentation and planning for residential and development projects across South Africa."
         />
 
-        <div className="space-y-6">
+        <div className="space-y-5">
           {SERVICES.map((service, index) => {
             const Icon = SERVICE_ICONS[index];
+            const num = String(index + 1).padStart(2, "0");
             return (
               <section
                 key={service.id}
                 id={service.id}
-                className="grid grid-cols-1 gap-8 rounded-md border border-rule/75 bg-white/92 p-6 shadow-soft md:p-8 lg:grid-cols-[0.9fr_1.1fr]"
+                className="service-section"
               >
                 <div>
-                  <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-md bg-paper2 text-primary">
-                    <Icon className="h-6 w-6" />
+                  <div className="mb-6 flex items-center justify-between">
+                    <div className="flex h-12 w-12 items-center justify-center rounded bg-paper2 text-primary">
+                      <Icon className="h-6 w-6" />
+                    </div>
+                    <span className="font-serif text-5xl font-light text-rule/60 leading-none select-none">
+                      {num}
+                    </span>
                   </div>
-                  <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-muted">
-                    Service {String(index + 1).padStart(2, "0")}
-                  </p>
-                  <h2 className="font-serif text-3xl font-black leading-tight text-ink">
+                  <p className="type-eyebrow mb-3">Service {num}</p>
+                  <h2 className="font-serif text-3xl font-semibold leading-tight tracking-tight text-ink">
                     {service.title}
                   </h2>
-                  <p className="mt-4 max-w-xl leading-relaxed text-muted">
+                  <p className="mt-4 max-w-lg text-[0.9375rem] leading-relaxed text-muted">
                     {service.description}
                   </p>
-                  <Button className="mt-7" asChild>
+                  <Button className="mt-8" asChild>
                     <Link href={`/booking?service=${service.id}`}>
-                      Book consultation
+                      Book this service
                       <ArrowRight className="h-4 w-4" />
                     </Link>
                   </Button>
@@ -56,7 +60,7 @@ export default function ServicesPage() {
                   {service.features.map((feature) => (
                     <li
                       key={feature}
-                      className="flex min-h-16 items-start gap-3 rounded-md border border-rule/65 bg-paper/70 p-4 text-sm leading-relaxed text-ink"
+                      className="flex items-start gap-3 rounded border border-rule/60 bg-paper/80 p-4 text-sm leading-relaxed text-ink"
                     >
                       <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
                       {feature}

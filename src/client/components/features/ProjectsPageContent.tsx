@@ -18,54 +18,52 @@ export function ProjectsPageContent() {
 
   return (
     <div className="paper-grain">
-      <div className="mx-auto max-w-7xl px-4 py-16 md:py-20">
-      <PageHeader
-        eyebrow="Portfolio"
-        title="Our projects"
-        description="A selection of completed architectural work across residential, commercial, and development projects."
-      />
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 py-16 md:py-24">
+        <PageHeader
+          eyebrow="Portfolio"
+          title="Our projects"
+          description="A selection of completed architectural work across residential, commercial, and development projects."
+        />
 
-      <div className="mb-8 inline-flex flex-wrap gap-1 rounded-md border border-rule bg-white/85 p-1 shadow-sm shadow-ink/5">
-        {CATEGORIES.map((cat) => (
-          <button
-            key={cat}
-            type="button"
-            onClick={() => setCategory(cat)}
-            className={cn(
-              "h-9 rounded-sm px-4 text-sm font-semibold transition-colors",
-              category === cat
-                ? "bg-primary text-white shadow-sm"
-                : "text-muted hover:bg-paper2 hover:text-ink"
-            )}
-          >
-            {cat}
-          </button>
-        ))}
-      </div>
-
-      {isLoading && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <Skeleton key={i} className="h-72 w-full rounded-sm" />
+        <div className="tab-rail mb-8">
+          {CATEGORIES.map((cat) => (
+            <button
+              key={cat}
+              type="button"
+              onClick={() => setCategory(cat)}
+              className={cn(
+                "tab-rail-item",
+                category === cat && "tab-rail-item--active"
+              )}
+            >
+              {cat}
+            </button>
           ))}
         </div>
-      )}
 
-      {isError && (
-        <p className="text-muted">Unable to load projects. Please refresh the page.</p>
-      )}
+        {isLoading && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <Skeleton key={i} className="h-72 w-full rounded" />
+            ))}
+          </div>
+        )}
 
-      {!isLoading && !isError && filtered.length === 0 && (
-        <p className="text-muted">No projects in this category yet.</p>
-      )}
+        {isError && (
+          <div className="state-panel">Unable to load projects. Please refresh the page.</div>
+        )}
 
-      {filtered.length > 0 && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filtered.map((project) => (
-            <ProjectCard key={project.id} project={project} />
-          ))}
-        </div>
-      )}
+        {!isLoading && !isError && filtered.length === 0 && (
+          <div className="state-panel">No projects in this category yet.</div>
+        )}
+
+        {filtered.length > 0 && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {filtered.map((project) => (
+              <ProjectCard key={project.id} project={project} />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
