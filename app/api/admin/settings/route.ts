@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from "next/server";
-import { apiSuccess, apiError, ErrorCode } from "@/lib/api-response";
-import { getSettings, updateSetting } from "@/server/settings";
-import { withAuth } from "@/lib/with-auth";
-import { generateRequestId } from "@/lib/request";
+import { NextResponse } from "next/server";
+import { apiSuccess, apiError, ErrorCode } from "@/backend/lib/api-response";
+import { getSettings, updateSetting } from "@/backend/services/settings";
+import { withAuth } from "@/backend/lib/with-auth";
+import { generateRequestId } from "@/backend/lib/request";
 import { z } from "zod";
 
 const SettingUpdateSchema = z.object({

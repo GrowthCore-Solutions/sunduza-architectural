@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { apiSuccess, apiError, ErrorCode } from "@/lib/api-response";
-import { ProjectCreateSchema } from "@/types/project";
-import { createProject, getProjects } from "@/server/projects";
-import { withAuth } from "@/lib/with-auth";
-import { generateRequestId } from "@/lib/request";
+import { apiSuccess, apiError, ErrorCode } from "@/backend/lib/api-response";
+import { ProjectCreateSchema } from "@/shared/types/project";
+import { createProject, getProjects } from "@/backend/services/projects";
+import { withAuth } from "@/backend/lib/with-auth";
+import { generateRequestId } from "@/backend/lib/request";
 
 export async function GET(req: NextRequest) {
   const requestId = generateRequestId();

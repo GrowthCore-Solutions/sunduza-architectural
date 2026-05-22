@@ -3,7 +3,7 @@
 import * as React from "react";
 import { ArrowLeft, RefreshCw } from "lucide-react";
 import Link from "next/link";
-import { Button } from "@/src/client/components/ui/button";
+import { Button } from "@/frontend/components/ui/button";
 
 export default function Error({
   error,
