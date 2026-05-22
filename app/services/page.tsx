@@ -1,77 +1,391 @@
 import Link from "next/link";
-import { ArrowRight, Building2, Check, Layers, PenTool, Ruler } from "lucide-react";
-import { PageHeader } from "@/frontend/components/features/PageHeader";
+import {
+  ArrowRight,
+  Building2,
+  Check,
+  ClipboardList,
+  Layers,
+  PenTool,
+  Ruler,
+  Workflow,
+} from "lucide-react";
 import { SERVICES } from "@/frontend/data/services";
 import { Button } from "@/frontend/components/ui/button";
 
 const SERVICE_ICONS = [Building2, PenTool, Ruler, Layers] as const;
 
+const SERVICE_PROCESS: Record<string, { title: string; body: string }[]> = {
+  house_planning: [
+    { title: "Brief & site analysis", body: "We map zoning, orientation, and site constraints before drawing a single line." },
+    { title: "Concept design", body: "Floor plan options and 3D massing studies until the layout sings." },
+    { title: "Working drawings", body: "SANS-compliant plans, elevations, and sections ready for council." },
+    { title: "Council submission", body: "We package, submit, and respond to comments through to approval." },
+  ],
+  arch_drawings: [
+    { title: "Drawing brief", body: "Scope discussion: what builders need on site to deliver your design." },
+    { title: "Dimensioning & detail", body: "Full dimensioned set with material and finish schedules." },
+    { title: "Construction details", body: "Sections, junctions, and standard details for clean construction." },
+    { title: "Issue & support", body: "Drawings issued in DWG and PDF, with RFI support during build." },
+  ],
+  drafting_services: [
+    { title: "Source intake", body: "We work from sketches, hand drawings, or measured surveys you provide." },
+    { title: "CAD drafting", body: "Clean, structured CAD files prepared to your standard or template." },
+    { title: "Review cycle", body: "Iterations with redlines and revisions until the set is correct." },
+    { title: "Final deliverables", body: "Stamped, layer-organised files in DWG plus archival PDF set." },
+  ],
+  dev_project_planning: [
+    { title: "Feasibility", body: "Coverage, FAR, and massing assessment against zoning and site capacity." },
+    { title: "Concept masterplan", body: "Unit mix, road layouts, and bulk services strategy." },
+    { title: "Development application", body: "Town planning drawings and supporting documentation for submission." },
+    { title: "Coordination", body: "Civil, structural, and municipal liaison through approval." },
+  ],
+};
+
+const SERVICE_IDEAL: Record<string, string> = {
+  house_planning: "New residential builds",
+  arch_drawings: "Builders & contractors",
+  drafting_services: "Sketch-to-CAD conversions",
+  dev_project_planning: "Multi-unit developments",
+};
+
+const LIFECYCLE = [
+  { num: "01", title: "Brief & site", tags: ["House Planning", "Development"] },
+  { num: "02", title: "Concept design", tags: ["House Planning", "Development"] },
+  { num: "03", title: "Documentation", tags: ["House Planning", "Drawings", "Drafting"] },
+  { num: "04", title: "Council submission", tags: ["House Planning", "Development"] },
+  { num: "05", title: "Build support", tags: ["Drawings", "Drafting"] },
+] as const;
+
+const SCENARIOS = [
+  {
+    eyebrow: "Scenario 01",
+    title: "I'm building a new home from scratch.",
+    serviceId: "house_planning",
+    serviceLabel: "House Planning",
+  },
+  {
+    eyebrow: "Scenario 02",
+    title: "I have plans, I need builder drawings.",
+    serviceId: "arch_drawings",
+    serviceLabel: "Architectural Drawings",
+  },
+  {
+    eyebrow: "Scenario 03",
+    title: "I have sketches, I need them in CAD.",
+    serviceId: "drafting_services",
+    serviceLabel: "Drafting Services",
+  },
+  {
+    eyebrow: "Scenario 04",
+    title: "I'm planning a multi-unit development.",
+    serviceId: "dev_project_planning",
+    serviceLabel: "Development Projects",
+  },
+] as const;
+
+const COMPARE_ROWS = [
+  { label: "Initial consultation", values: [true, true, true, true] },
+  { label: "Site analysis & zoning review", values: [true, false, false, true] },
+  { label: "Floor plans, elevations & sections", values: [true, true, false, true] },
+  { label: "Council submission package", values: [true, false, true, true] },
+  { label: "Construction details", values: [true, true, true, false] },
+  { label: "Material & finish schedules", values: [false, true, true, false] },
+  { label: "CAD file deliverables (DWG)", values: [true, true, true, true] },
+  { label: "Municipal coordination", values: [true, false, false, true] },
+] as const;
+
 export const metadata = {
   title: "Services",
   description:
-    "Professional architectural services: house planning, drawings, drafting, and development projects.",
+    "Professional architectural services: house planning, working drawings, drafting, and development projects across South Africa.",
 };
 
 export default function ServicesPage() {
   return (
-    <div className="paper-grain">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 py-16 md:py-24">
-        <PageHeader
-          eyebrow="What we offer"
-          title="Architectural services"
-          description="End-to-end documentation and planning for residential and development projects across South Africa."
-        />
+    <>
+      {/* ── Hero ─────────────────────────────────────────────────────── */}
+      <section className="services-hero" aria-label="What we offer">
+        <div className="services-hero-inner">
+          <div className="services-hero-grid">
+            <div>
+              <p className="type-eyebrow">What we offer</p>
+              <h1 className="services-hero-title">
+                Architecture,<br />
+                <em>end&#8209;to&#8209;end</em>
+              </h1>
+              <p className="services-hero-sub">
+                From the first site visit through to council approval and construction support —
+                four focused services delivered with the same craft, precision, and care across
+                every project we touch.
+              </p>
+            </div>
 
-        <div className="space-y-5">
-          {SERVICES.map((service, index) => {
-            const Icon = SERVICE_ICONS[index];
-            const num = String(index + 1).padStart(2, "0");
-            return (
-              <section
-                key={service.id}
-                id={service.id}
-                className="service-section"
-              >
-                <div>
-                  <div className="mb-6 flex items-center justify-between">
-                    <div className="flex h-12 w-12 items-center justify-center rounded bg-paper2 text-primary">
-                      <Icon className="h-6 w-6" />
+            <aside className="services-hero-aside" aria-label="Quick service navigation">
+              <p className="services-hero-aside-label">Jump to a service</p>
+              <ul className="services-hero-aside-list">
+                {SERVICES.map((s, i) => (
+                  <li key={s.id}>
+                    <a href={`#${s.id}`} className="services-hero-aside-item">
+                      <span className="services-hero-aside-num">
+                        {String(i + 1).padStart(2, "0")}
+                      </span>
+                      <span>{s.title}</span>
+                      <ArrowRight
+                        size={14}
+                        className="services-hero-aside-arrow"
+                        aria-hidden="true"
+                      />
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </aside>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Lifecycle ribbon ─────────────────────────────────────────── */}
+      <section className="services-lifecycle" aria-label="Project lifecycle">
+        <div className="services-lifecycle-inner">
+          <div className="services-lifecycle-header">
+            <div>
+              <p className="services-lifecycle-eyebrow">Where we fit</p>
+              <h2 className="services-lifecycle-title">
+                The lifecycle of a<br />
+                <em>well-built project</em>
+              </h2>
+            </div>
+            <div className="hidden md:flex items-center gap-2 text-xs text-white/50">
+              <Workflow size={14} aria-hidden="true" />
+              <span>Brief → Build</span>
+            </div>
+          </div>
+
+          <div className="services-lifecycle-rail" role="list">
+            {LIFECYCLE.map((step) => (
+              <div key={step.num} className="services-lifecycle-step" role="listitem">
+                <p className="services-lifecycle-step-num">{step.num}</p>
+                <p className="services-lifecycle-step-title">{step.title}</p>
+                <div className="services-lifecycle-step-tags">
+                  {step.tags.map((t) => (
+                    <span key={t} className="services-lifecycle-step-tag">
+                      {t}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Service spreads ─────────────────────────────────────────── */}
+      <div className="services-spreads">
+        {SERVICES.map((service, index) => {
+          const Icon = SERVICE_ICONS[index];
+          const num = String(index + 1).padStart(2, "0");
+          const process = SERVICE_PROCESS[service.id] ?? [];
+          const ideal = SERVICE_IDEAL[service.id] ?? "Architectural commissions";
+
+          return (
+            <section
+              key={service.id}
+              id={service.id}
+              className="services-spread"
+              aria-label={service.title}
+            >
+              <div className="services-spread-inner">
+                <header className="services-spread-header">
+                  <div>
+                    <div className="services-spread-marker">
+                      <span className="services-spread-num" aria-hidden="true">
+                        {num}
+                      </span>
+                      <span className="services-spread-rule" aria-hidden="true" />
                     </div>
-                    <span className="font-serif text-5xl font-light text-rule/60 leading-none select-none">
-                      {num}
+                    <p className="services-spread-eyebrow">Service {num}</p>
+                    <h2 className="services-spread-title">{service.title}</h2>
+                    <p className="services-spread-lead">{service.description}</p>
+                  </div>
+                  <div className="services-spread-icon" aria-hidden="true">
+                    <Icon size={26} strokeWidth={1.5} />
+                  </div>
+                </header>
+
+                <div className="services-spread-body">
+                  <div>
+                    <p className="services-spread-col-eyebrow">What you get</p>
+                    <ul className="services-spread-deliverables">
+                      {service.features.map((feature) => (
+                        <li key={feature} className="services-spread-deliverable">
+                          <Check
+                            size={16}
+                            strokeWidth={2.25}
+                            className="services-spread-deliverable-check"
+                            aria-hidden="true"
+                          />
+                          {feature}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <div>
+                    <p className="services-spread-col-eyebrow">How it goes</p>
+                    <ol className="services-spread-process">
+                      {process.map((step, i) => (
+                        <li key={step.title} className="services-spread-process-step">
+                          <span
+                            className="services-spread-process-num"
+                            aria-hidden="true"
+                          >
+                            {i + 1}
+                          </span>
+                          <div className="services-spread-process-content">
+                            <p className="services-spread-process-title">{step.title}</p>
+                            <p className="services-spread-process-body">{step.body}</p>
+                          </div>
+                        </li>
+                      ))}
+                    </ol>
+                  </div>
+                </div>
+
+                <div className="services-spread-footer">
+                  <div className="services-spread-ideal">
+                    <span>Ideal for</span>
+                    <span className="services-spread-ideal-pill">
+                      <ClipboardList size={12} aria-hidden="true" />
+                      {ideal}
                     </span>
                   </div>
-                  <p className="type-eyebrow mb-3">Service {num}</p>
-                  <h2 className="font-serif text-3xl font-semibold leading-tight tracking-tight text-ink">
-                    {service.title}
-                  </h2>
-                  <p className="mt-4 max-w-lg text-[0.9375rem] leading-relaxed text-muted">
-                    {service.description}
-                  </p>
-                  <Button className="mt-8" asChild>
+                  <Button asChild variant="default" size="lg">
                     <Link href={`/booking?service=${service.id}`}>
-                      Book this service
-                      <ArrowRight className="h-4 w-4" />
+                      Book this service <ArrowRight size={15} />
                     </Link>
                   </Button>
                 </div>
-
-                <ul className="grid content-start gap-3 sm:grid-cols-2">
-                  {service.features.map((feature) => (
-                    <li
-                      key={feature}
-                      className="flex items-start gap-3 rounded border border-rule/60 bg-paper/80 p-4 text-sm leading-relaxed text-ink"
-                    >
-                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            );
-          })}
-        </div>
+              </div>
+            </section>
+          );
+        })}
       </div>
-    </div>
+
+      {/* ── Comparison matrix ────────────────────────────────────────── */}
+      <section className="services-compare" aria-label="Service comparison">
+        <div className="services-compare-inner">
+          <div className="services-compare-header">
+            <p className="type-eyebrow">At a glance</p>
+            <h2 className="services-compare-title">
+              What&rsquo;s included<br />
+              <em>in each service</em>
+            </h2>
+            <p className="services-compare-sub">
+              A quick reference for what&rsquo;s covered across our four services. Customisations
+              are always discussed during your consultation.
+            </p>
+          </div>
+
+          <div className="services-compare-table-wrap">
+            <table className="services-compare-table">
+              <thead>
+                <tr>
+                  <th scope="col">Deliverable</th>
+                  {SERVICES.map((s) => (
+                    <th key={s.id} scope="col">
+                      {s.title}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {COMPARE_ROWS.map((row) => (
+                  <tr key={row.label}>
+                    <td>{row.label}</td>
+                    {row.values.map((v, i) => (
+                      <td key={i}>
+                        {v ? (
+                          <span className="services-compare-check" aria-label="Included">
+                            <Check size={13} strokeWidth={2.5} aria-hidden="true" />
+                          </span>
+                        ) : (
+                          <span className="services-compare-dash" aria-label="Not included">
+                            —
+                          </span>
+                        )}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Scenarios chooser ────────────────────────────────────────── */}
+      <section className="services-scenarios" aria-label="Which service is right for you">
+        <div className="services-scenarios-inner">
+          <div className="services-scenarios-header">
+            <p className="type-eyebrow">Not sure which?</p>
+            <h2 className="services-scenarios-title">
+              Pick the scenario<br />
+              <em>that sounds like you</em>
+            </h2>
+            <p className="services-scenarios-sub">
+              Tap a scenario to start a booking pre-filled with the right service. We&rsquo;ll
+              tailor everything else in the consultation.
+            </p>
+          </div>
+
+          <div className="services-scenarios-grid">
+            {SCENARIOS.map((s) => (
+              <Link
+                key={s.eyebrow}
+                href={`/booking?service=${s.serviceId}`}
+                className="scenario-card"
+              >
+                <p className="scenario-card-eyebrow">{s.eyebrow}</p>
+                <p className="scenario-card-title">{s.title}</p>
+                <div className="scenario-card-service">
+                  <span>{s.serviceLabel}</span>
+                  <ArrowRight
+                    size={14}
+                    className="scenario-card-arrow ml-auto"
+                    aria-hidden="true"
+                  />
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Closing CTA ──────────────────────────────────────────────── */}
+      <section className="portfolio-cta-band" aria-label="Start your project">
+        <div className="portfolio-cta-inner">
+          <div className="portfolio-cta-text">
+            <h2>
+              Still not sure where<br />
+              <em>to begin?</em>
+            </h2>
+            <p>
+              Book a free 20-minute consultation and we&rsquo;ll help you pick the right service
+              for your project — no commitment, no obligation.
+            </p>
+          </div>
+          <div className="portfolio-cta-actions">
+            <Button asChild variant="default" size="lg">
+              <Link href="/booking">
+                Book a consultation <ArrowRight size={15} />
+              </Link>
+            </Button>
+            <Button asChild variant="outline" size="lg">
+              <Link href="/contact">Ask a question</Link>
+            </Button>
+          </div>
+        </div>
+      </section>
+    </>
   );
 }
