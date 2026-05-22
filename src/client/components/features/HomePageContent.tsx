@@ -15,7 +15,9 @@ import {
 import { Button } from "@/src/client/components/ui/button";
 import { Skeleton } from "@/src/client/components/ui/skeleton";
 import { useProjects } from "@/src/client/hooks/useProjects";
+import { useTestimonials } from "@/src/client/hooks/useTestimonials";
 import { ProjectCard } from "@/src/client/components/features/ProjectCard";
+import { StarRating } from "@/src/client/components/features/StarRating";
 import { SERVICES } from "@/src/client/data/services";
 
 const SERVICE_ICONS = [Building2, PenTool, Ruler, Layers] as const;
@@ -33,7 +35,8 @@ const TRUST_POINTS = [
 ];
 
 export function HomePageContent() {
-  const { data: featured, isLoading, isError } = useProjects({ featured: true });
+  const { data: featured, isLoading: projectsLoading, isError: projectsError } = useProjects({ featured: true });
+  const { data: testimonials, isLoading: testimonialsLoading } = useTestimonials();
 
   return (
     <>
