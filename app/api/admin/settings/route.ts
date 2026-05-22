@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { apiSuccess, apiError, ErrorCode } from "@/backend/lib/api-response";
 import { getSettings, updateSetting } from "@/backend/services/settings";
 import { withAuth } from "@/backend/lib/with-auth";
