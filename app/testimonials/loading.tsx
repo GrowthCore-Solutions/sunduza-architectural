@@ -1,4 +1,4 @@
-import { Skeleton } from "@/src/client/components/ui/skeleton";
+import { Skeleton } from "@/frontend/components/ui/skeleton";
 
 export default function TestimonialsLoading() {
   return (

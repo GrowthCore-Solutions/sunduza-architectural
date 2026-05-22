@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import { apiSuccess, apiError, ErrorCode } from "@/lib/api-response";
-import { BookingUpdateSchema } from "@/types/booking";
+import { apiSuccess, apiError, ErrorCode } from "@/backend/lib/api-response";
+import { BookingUpdateSchema } from "@/shared/types/booking";
 import {
   getBookingById,
   updateBookingStatus,
   softDeleteBooking,
-} from "@/server/bookings";
-import { withAuth } from "@/lib/with-auth";
-import { generateRequestId, getClientIp } from "@/lib/request";
+} from "@/backend/services/bookings";
+import { withAuth } from "@/backend/lib/with-auth";
+import { generateRequestId, getClientIp } from "@/backend/lib/request";
 
 export const GET = withAuth(async (_req, _session, context) => {
   const requestId = generateRequestId();

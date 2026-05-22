@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { ArrowRight, Building2, Check, Layers, PenTool, Ruler } from "lucide-react";
-import { PageHeader } from "@/src/client/components/features/PageHeader";
-import { SERVICES } from "@/src/client/data/services";
-import { Button } from "@/src/client/components/ui/button";
+import { PageHeader } from "@/frontend/components/features/PageHeader";
+import { SERVICES } from "@/frontend/data/services";
+import { Button } from "@/frontend/components/ui/button";
 
 const SERVICE_ICONS = [Building2, PenTool, Ruler, Layers] as const;
 

@@ -1,4 +1,4 @@
-import { PageHeader } from "@/src/client/components/features/PageHeader";
+import { PageHeader } from "@/frontend/components/features/PageHeader";
 
 export const metadata = {
   title: "Privacy Policy",

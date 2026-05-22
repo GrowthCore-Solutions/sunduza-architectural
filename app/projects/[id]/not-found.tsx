@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Button } from "@/src/client/components/ui/button";
+import { Button } from "@/frontend/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 
 export default function ProjectNotFound() {

@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { apiSuccess, apiError, ErrorCode } from "@/lib/api-response";
-import { ContactMessageSchema } from "@/types/contact";
-import { createContactMessage } from "@/server/contact";
-import { checkContactRateLimit } from "@/lib/rate-limit";
-import { generateRequestId, getClientIp } from "@/lib/request";
+import { apiSuccess, apiError, ErrorCode } from "@/backend/lib/api-response";
+import { ContactMessageSchema } from "@/shared/types/contact";
+import { createContactMessage } from "@/backend/services/contact";
+import { checkContactRateLimit } from "@/backend/lib/rate-limit";
+import { generateRequestId, getClientIp } from "@/backend/lib/request";
 
 export async function POST(req: NextRequest) {
   const requestId = generateRequestId();

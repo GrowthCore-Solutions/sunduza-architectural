@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { apiSuccess, apiError, apiList, ErrorCode } from "@/lib/api-response";
-import { BookingListQuerySchema, BookingUpdateSchema } from "@/types/booking";
-import { getAdminBookings, updateBookingStatus } from "@/server/bookings";
-import { withAuth } from "@/lib/with-auth";
-import { generateRequestId, getClientIp } from "@/lib/request";
+import { apiSuccess, apiError, apiList, ErrorCode } from "@/backend/lib/api-response";
+import { BookingListQuerySchema, BookingUpdateSchema } from "@/shared/types/booking";
+import { getAdminBookings, updateBookingStatus } from "@/backend/services/bookings";
+import { withAuth } from "@/backend/lib/with-auth";
+import { generateRequestId, getClientIp } from "@/backend/lib/request";
 
 export const GET = withAuth(async (req) => {
   const requestId = generateRequestId();

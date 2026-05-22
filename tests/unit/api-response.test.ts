@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { apiSuccess, apiError, ErrorCode } from "@/lib/api-response";
+import { apiSuccess, apiError, ErrorCode } from "@/backend/lib/api-response";
 
 describe("api-response", () => {
   it("apiSuccess wraps data", () => {
