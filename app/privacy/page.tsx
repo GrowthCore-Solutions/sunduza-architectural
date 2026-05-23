@@ -11,6 +11,7 @@ import {
   Lock,
 } from "lucide-react";
 import { Button } from "@/frontend/components/ui/button";
+import { CONTACT } from "@/shared/constants/contact";
 
 export const metadata = {
   title: "Privacy Policy",
@@ -351,8 +352,8 @@ export default function PrivacyPage() {
               <div>
                 <p className="privacy-contact-row-label">Email</p>
                 <p className="privacy-contact-row-value">
-                  <a href="mailto:xivutisokevinsunduza@gmail.com">
-                    xivutisokevinsunduza@gmail.com
+                  <a href={`mailto:${CONTACT.EMAIL}`}>
+                    {CONTACT.EMAIL}
                   </a>
                 </p>
               </div>

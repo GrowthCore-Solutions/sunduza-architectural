@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, Clock, Mail, MapPin, Phone } from "lucide-react";
+import { CONTACT } from "@/shared/constants/contact";
 
 const SERVICES = [
   { label: "House Planning", href: "/services#house_planning" },
@@ -110,26 +111,26 @@ export function Footer() {
             <ul className="space-y-3 text-sm">
               <li className="flex gap-2.5">
                 <Phone className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                <a href="tel:+27786723364" className="text-white/60 transition-colors hover:text-primary">
-                  +27 78 672 3364
+                <a href={`tel:${CONTACT.PHONE_E164}`} className="text-white/60 transition-colors hover:text-primary">
+                  {CONTACT.PHONE_DISPLAY}
                 </a>
               </li>
               <li className="flex gap-2.5">
                 <Mail className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
                 <a
-                  href="mailto:xivutisokevinsunduza@gmail.com"
+                  href={`mailto:${CONTACT.EMAIL}`}
                   className="break-all text-white/60 transition-colors hover:text-primary"
                 >
-                  xivutisokevinsunduza@gmail.com
+                  {CONTACT.EMAIL}
                 </a>
               </li>
               <li className="flex gap-2.5">
                 <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                <span className="text-white/60">South Africa</span>
+                <span className="text-white/60">{CONTACT.LOCATION}</span>
               </li>
               <li className="flex gap-2.5">
                 <Clock className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                <span className="text-white/60">Mon–Fri, 8 am – 5 pm</span>
+                <span className="text-white/60">{CONTACT.HOURS}</span>
               </li>
             </ul>
           </div>
