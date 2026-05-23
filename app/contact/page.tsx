@@ -1,98 +1,176 @@
-import { PageHeader } from "@/frontend/components/features/PageHeader";
+import { Clock, Mail, MapPin, MessageCircle, Phone } from "lucide-react";
 import { ContactForm } from "@/frontend/components/features/ContactForm";
-import { Clock, Mail, MapPin, Phone } from "lucide-react";
 
 export const metadata = {
   title: "Contact",
-  description: "Get in touch with Sunduza Architectural & Projects.",
+  description:
+    "Get in touch with Sunduza Architectural & Projects. We respond to all enquiries within 24 hours.",
 };
 
-const CONTACT_ITEMS = [
+const CHANNELS = [
   {
     icon: Phone,
-    label: "Phone",
+    label: "Call",
     value: "+27 78 672 3364",
+    hint: "Mon–Fri, 8 am – 5 pm",
     href: "tel:+27786723364",
+  },
+  {
+    icon: MessageCircle,
+    label: "WhatsApp",
+    value: "+27 78 672 3364",
+    hint: "Fastest response",
+    href: "https://wa.me/27786723364",
   },
   {
     icon: Mail,
     label: "Email",
     value: "xivutisokevinsunduza@gmail.com",
+    hint: "Reply within 24 hours",
     href: "mailto:xivutisokevinsunduza@gmail.com",
-    breakAll: true,
   },
   {
     icon: MapPin,
-    label: "Location",
+    label: "Studio",
     value: "South Africa",
+    hint: "By appointment",
+    href: null,
   },
-  {
-    icon: Clock,
-    label: "Hours",
-    value: "Mon–Fri, 8 am – 5 pm",
-  },
+] as const;
+
+const META = [
+  { icon: Clock, label: "Response time", value: "Within 24 hours" },
+  { icon: Mail, label: "Office hours", value: "Mon–Fri, 8 am – 5 pm SAST" },
+];
+
+const WHAT_TO_INCLUDE = [
+  "A short summary of your project or enquiry",
+  "Your preferred contact method and best time to reach you",
+  "Any relevant timelines, budget range, or municipality",
+  "Links to references or inspiration, if available",
 ];
 
 export default function ContactPage() {
   return (
-    <div className="paper-grain min-h-screen">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 py-16 md:py-24">
-        <PageHeader
-          eyebrow="Get in touch"
-          title="Contact us"
-          description="Have a question about your project? Send us a message and we will respond within 24 hours."
-        />
+    <>
+      {/* Hero */}
+      <section className="contact-hero-light" aria-label="Contact Sunduza">
+        <div className="contact-hero-inner">
+          <div className="contact-hero-grid">
+            <div>
+              <p className="type-eyebrow">Get in touch</p>
+              <h1 className="contact-hero-title">
+                Let&rsquo;s start a<br />
+                <em>conversation</em>
+              </h1>
+              <p className="contact-hero-sub">
+                Have a question, a project in mind, or want to understand our process? Reach out
+                through any channel below — we read every message and respond within one business day.
+              </p>
+            </div>
 
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1.6fr_1fr]">
-
-          {/* Form */}
-          <div className="surface-panel p-6 md:p-8">
-            <h2 className="font-serif text-xl font-semibold text-ink mb-6">Send a message</h2>
-            <ContactForm />
+            <div className="contact-hero-meta" role="complementary" aria-label="At a glance">
+              {META.map((m) => {
+                const Icon = m.icon;
+                return (
+                  <div key={m.label} className="contact-hero-meta-row">
+                    <div className="contact-hero-meta-icon" aria-hidden="true">
+                      <Icon size={16} strokeWidth={1.75} />
+                    </div>
+                    <div>
+                      <p className="contact-hero-meta-label">{m.label}</p>
+                      <p className="contact-hero-meta-value">{m.value}</p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
+        </div>
+      </section>
 
-          {/* Contact details */}
-          <aside className="space-y-3">
-            <h2 className="font-serif text-xl font-semibold text-ink mb-5">Contact details</h2>
-            {CONTACT_ITEMS.map((item) => {
-              const Icon = item.icon;
-              return (
-                <div
-                  key={item.label}
-                  className="contact-aside-card flex items-start gap-4"
-                >
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded bg-primary/8 text-primary">
-                    <Icon className="h-4 w-4" />
-                  </div>
-                  <div>
-                    <p className="text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-muted mb-0.5">
-                      {item.label}
-                    </p>
-                    {item.href ? (
-                      <a
-                        href={item.href}
-                        className={`text-sm font-medium text-ink hover:text-primary transition-colors${item.breakAll ? " break-all" : ""}`}
-                      >
-                        {item.value}
-                      </a>
-                    ) : (
-                      <p className="text-sm font-medium text-ink">{item.value}</p>
-                    )}
-                  </div>
+      {/* Channels strip */}
+      <section className="contact-channels" aria-label="Contact channels">
+        <div className="contact-channels-inner">
+          {CHANNELS.map((c) => {
+            const Icon = c.icon;
+            const inner = (
+              <>
+                <div className="contact-channel-icon" aria-hidden="true">
+                  <Icon size={18} strokeWidth={1.75} />
                 </div>
-              );
-            })}
+                <div>
+                  <p className="contact-channel-label">{c.label}</p>
+                  <p className="contact-channel-value">{c.value}</p>
+                  <p className="contact-channel-hint">{c.hint}</p>
+                </div>
+              </>
+            );
 
-            <div className="mt-6 rounded border border-rule/60 bg-paper2/60 p-5 text-sm leading-relaxed text-muted">
-              For project enquiries, the{" "}
-              <a href="/booking" className="font-semibold text-primary hover:underline">
-                booking form
-              </a>{" "}
-              gives us the context we need to respond meaningfully.
+            return c.href ? (
+              <a
+                key={c.label}
+                href={c.href}
+                className="contact-channel-card"
+                {...(c.href.startsWith("http")
+                  ? { target: "_blank", rel: "noopener noreferrer" }
+                  : {})}
+              >
+                {inner}
+              </a>
+            ) : (
+              <div key={c.label} className="contact-channel-card">
+                {inner}
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* Body */}
+      <section className="contact-body" aria-label="Send a message">
+        <div className="contact-body-inner">
+          {/* Aside */}
+          <aside className="contact-aside" aria-label="Guidance and resources">
+            <div>
+              <h2 className="contact-aside-heading">Before you write</h2>
+              <p className="text-sm leading-relaxed text-muted mt-1">
+                A few details help us reply with something useful from the first message.
+              </p>
+            </div>
+
+            <div className="contact-info-card">
+              <p className="contact-info-card-eyebrow">What to include</p>
+              <p className="contact-info-card-title">Tell us a little, get a lot back.</p>
+              <ul className="contact-checklist mt-3">
+                {WHAT_TO_INCLUDE.map((item) => (
+                  <li key={item} className="contact-checklist-item">
+                    <span className="contact-checklist-mark" aria-hidden="true" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="contact-handoff">
+              <p className="text-sm leading-relaxed text-ink">
+                Have a defined project? The <a href="/booking">booking form</a> captures everything
+                we need to prepare a proper consultation — recommended for new commissions.
+              </p>
             </div>
           </aside>
+
+          {/* Form panel */}
+          <div className="contact-form-panel">
+            <p className="contact-form-eyebrow">Send a message</p>
+            <h2 className="contact-form-title">We&rsquo;ll get back to you soon</h2>
+            <p className="contact-form-lead">
+              Fill in the form below and our team will reply within 24 hours during business days.
+            </p>
+            <ContactForm />
+          </div>
         </div>
-      </div>
-    </div>
+      </section>
+    </>
   );
 }
