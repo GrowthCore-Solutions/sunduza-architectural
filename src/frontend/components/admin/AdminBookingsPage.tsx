@@ -1,16 +1,28 @@
 "use client";
 
 import * as React from "react";
+import {
+  Calendar,
+  ChevronDown,
+  ChevronUp,
+  Mail,
+  MapPin,
+  Phone,
+  Search,
+  AlertCircle,
+  ArrowRight,
+} from "lucide-react";
 import { BookingStatus } from "@prisma/client";
-import { useAdminBookings, useUpdateBookingStatus } from "@/frontend/hooks/admin/useAdminBookings";
+import {
+  useAdminBookings,
+  useUpdateBookingStatus,
+} from "@/frontend/hooks/admin/useAdminBookings";
 import { useAdminUI } from "@/frontend/stores/admin-ui";
-import { validNextStatuses, leadScoreColor } from "@/frontend/lib/booking-status";
+import { validNextStatuses } from "@/frontend/lib/booking-status";
 import { ApiClientError } from "@/frontend/lib/api-client";
-import { Badge } from "@/frontend/components/ui/badge";
 import { Button } from "@/frontend/components/ui/button";
 import { Input } from "@/frontend/components/ui/input";
 import { Textarea } from "@/frontend/components/ui/textarea";
-import { cn } from "@/frontend/lib/utils";
 
 const STATUS_TABS: { label: string; value: BookingStatus | "all" }[] = [
   { label: "All", value: "all" },
@@ -21,15 +33,45 @@ const STATUS_TABS: { label: string; value: BookingStatus | "all" }[] = [
   { label: "Rejected", value: BookingStatus.REJECTED },
 ];
 
+const STATUS_TONE: Record<string, "warning" | "info" | "success" | "danger" | "neutral"> = {
+  PENDING: "warning",
+  CONTACTED: "info",
+  CONFIRMED: "success",
+  COMPLETED: "neutral",
+  REJECTED: "danger",
+};
+
+function leadTone(score: number | null): "hot" | "warm" | "cold" | "dead" {
+  if (score === null) return "dead";
+  if (score >= 71) return "hot";
+  if (score >= 41) return "warm";
+  return "cold";
+}
+
+function formatDate(date: Date | string): string {
+  return new Date(date).toLocaleDateString(undefined, {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+}
+
 export function AdminBookingsPage() {
-  const { bookingStatusFilter, setBookingStatusFilter, bookingSearch, setBookingSearch } =
-    useAdminUI();
+  const {
+    bookingStatusFilter,
+    setBookingStatusFilter,
+    bookingSearch,
+    setBookingSearch,
+  } = useAdminUI();
   const [page, setPage] = React.useState(1);
   const [expandedId, setExpandedId] = React.useState<string | null>(null);
   const [notes, setNotes] = React.useState<Record<string, string>>({});
   const [error, setError] = React.useState<string | null>(null);
 
-  const { data, isLoading } = useAdminBookings({ status: bookingStatusFilter, page });
+  const { data, isLoading } = useAdminBookings({
+    status: bookingStatusFilter,
+    page,
+  });
   const updateStatus = useUpdateBookingStatus();
 
   const filtered =
@@ -57,123 +99,263 @@ export function AdminBookingsPage() {
   }
 
   return (
-    <div className="max-w-6xl">
-      <div className="mb-6">
-        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
-          Lead pipeline
-        </p>
-        <h1 className="mt-2 font-serif text-3xl font-black tracking-tight text-ink">
-          Bookings
-        </h1>
-      </div>
-      <div className="mb-4 inline-flex flex-wrap gap-1 rounded-md border border-rule bg-white/90 p-1 shadow-sm shadow-ink/5">
-        {STATUS_TABS.map((tab) => (
-          <button
-            key={tab.value}
-            type="button"
-            onClick={() => {
-              setBookingStatusFilter(tab.value);
-              setPage(1);
-            }}
-            className={cn(
-              "h-9 rounded-sm px-3 text-sm font-semibold transition-colors",
-              bookingStatusFilter === tab.value
-                ? "bg-primary text-white"
-                : "text-muted hover:bg-paper2 hover:text-ink"
-            )}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
-      <Input
-        placeholder="Search name or email..."
-        value={bookingSearch}
-        onChange={(e) => setBookingSearch(e.target.value)}
-        className="max-w-sm mb-6"
-      />
-      {error && <p className="mb-4 text-sm font-medium text-red-700">{error}</p>}
-      {isLoading && <p className="text-muted">Loading...</p>}
-      <div className="space-y-2">
-        {filtered.map((booking) => (
-          <div key={booking.id} className="rounded-md border border-rule/75 bg-white shadow-sm shadow-ink/5">
+    <div className="admin-page">
+      <header className="admin-page-head">
+        <div>
+          <p className="admin-page-head-eyebrow">Lead pipeline</p>
+          <h1 className="admin-page-head-title">
+            Bookings &amp;<br />
+            <em>consultations.</em>
+          </h1>
+          <p className="admin-page-head-sub">
+            Move enquiries through the pipeline &mdash; pending, contacted,
+            confirmed, completed. Search by name, email, or phone.
+          </p>
+        </div>
+        {data && (
+          <div className="admin-page-head-actions">
+            <span className="admin-pill" data-tone="primary">
+              {data.total} total
+            </span>
+          </div>
+        )}
+      </header>
+
+      <div className="admin-filter-bar">
+        <div className="admin-tabs">
+          {STATUS_TABS.map((tab) => (
             <button
+              key={tab.value}
               type="button"
-              className="flex w-full items-center justify-between gap-4 p-4 text-left text-sm"
-              onClick={() =>
-                setExpandedId(expandedId === booking.id ? null : booking.id)
-              }
+              className="admin-tab"
+              data-active={bookingStatusFilter === tab.value}
+              onClick={() => {
+                setBookingStatusFilter(tab.value);
+                setPage(1);
+                setExpandedId(null);
+              }}
             >
-              <div className="min-w-0">
-                <p className="font-semibold text-ink">{booking.name}</p>
-                <p className="text-muted">{booking.email}</p>
-              </div>
-              <div className="flex shrink-0 items-center gap-2">
-                {booking.leadScore !== null && (
-                  <span
-                    className={`rounded-full px-2 py-0.5 text-xs font-medium ${leadScoreColor(booking.leadScore)}`}
-                  >
-                    {booking.leadScore}
-                  </span>
-                )}
-                <Badge>{booking.status}</Badge>
-              </div>
+              {tab.label}
             </button>
-            {expandedId === booking.id && (
-              <div className="space-y-3 border-t border-rule/75 bg-paper/40 p-4 text-sm">
-                <p><strong>Service:</strong> {booking.service}</p>
-                <p><strong>Location:</strong> {booking.location}</p>
-                <p><strong>Description:</strong> {booking.description}</p>
-                <Textarea
-                  placeholder="Admin notes"
-                  value={notes[booking.id] ?? booking.adminNotes ?? ""}
-                  onChange={(e) =>
-                    setNotes((n) => ({ ...n, [booking.id]: e.target.value }))
-                  }
-                  rows={2}
-                />
-                <div className="flex flex-wrap gap-2">
-                  {validNextStatuses(booking.status).map((next) => (
-                    <Button
-                      key={next}
-                      size="sm"
-                      variant="outline"
-                      disabled={updateStatus.isPending}
-                      onClick={() => handleStatusChange(booking.id, next)}
+          ))}
+        </div>
+
+        <div className="admin-search">
+          <Search
+            size={14}
+            strokeWidth={2}
+            className="admin-search-icon"
+            aria-hidden="true"
+          />
+          <Input
+            type="search"
+            placeholder="Search name, email, or phone…"
+            value={bookingSearch}
+            onChange={(e) => setBookingSearch(e.target.value)}
+          />
+        </div>
+      </div>
+
+      {error && (
+        <div className="admin-notice" data-tone="danger" role="alert">
+          <AlertCircle size={15} strokeWidth={2} aria-hidden="true" />
+          <span>{error}</span>
+        </div>
+      )}
+
+      {isLoading && (
+        <div className="admin-list-empty">
+          <span className="admin-list-empty-icon">
+            <Calendar size={18} strokeWidth={1.75} />
+          </span>
+          <p>Loading bookings…</p>
+        </div>
+      )}
+
+      {!isLoading && filtered.length === 0 && (
+        <div className="admin-list-empty" style={{ background: "#fff", border: "1px dashed var(--color-rule)", borderRadius: "var(--radius-md)" }}>
+          <span className="admin-list-empty-icon">
+            <Calendar size={18} strokeWidth={1.75} />
+          </span>
+          <p>No bookings match these filters.</p>
+        </div>
+      )}
+
+      <div>
+        {filtered.map((booking) => {
+          const open = expandedId === booking.id;
+          const transitions = validNextStatuses(booking.status);
+          return (
+            <article
+              key={booking.id}
+              className="admin-booking"
+              data-open={open}
+            >
+              <button
+                type="button"
+                className="admin-booking-summary"
+                onClick={() => setExpandedId(open ? null : booking.id)}
+                aria-expanded={open}
+              >
+                <div className="admin-booking-summary-main">
+                  <p className="admin-booking-summary-name">{booking.name}</p>
+                  <div className="admin-booking-summary-meta">
+                    <span>{booking.service}</span>
+                    <span>{booking.email}</span>
+                    <span>{formatDate(booking.createdAt)}</span>
+                  </div>
+                </div>
+                <div className="admin-booking-summary-side">
+                  {booking.leadScore !== null && (
+                    <span
+                      className="admin-lead"
+                      data-tone={leadTone(booking.leadScore)}
+                      aria-label={`Lead score ${booking.leadScore} out of 100`}
                     >
-                      → {next}
-                    </Button>
-                  ))}
-                  {validNextStatuses(booking.status).length === 0 && (
-                    <p className="text-muted">No further status changes.</p>
+                      {booking.leadScore}
+                      <span className="admin-lead-suffix">/100</span>
+                    </span>
+                  )}
+                  <span
+                    className="admin-pill"
+                    data-tone={STATUS_TONE[booking.status] ?? "neutral"}
+                  >
+                    <span className="admin-pill-dot" aria-hidden="true" />
+                    {booking.status}
+                  </span>
+                  {open ? (
+                    <ChevronUp size={15} strokeWidth={2} aria-hidden="true" />
+                  ) : (
+                    <ChevronDown size={15} strokeWidth={2} aria-hidden="true" />
                   )}
                 </div>
-              </div>
-            )}
-          </div>
-        ))}
+              </button>
+
+              {open && (
+                <div className="admin-booking-body">
+                  <div className="admin-booking-detail-block">
+                    <div className="admin-detail-row">
+                      <span className="admin-detail-key">
+                        <Mail size={11} style={{ display: "inline", verticalAlign: "-1px", marginRight: "0.3rem" }} />
+                        Email
+                      </span>
+                      <span className="admin-detail-val">
+                        <a
+                          href={`mailto:${booking.email}`}
+                          style={{ color: "var(--color-primary)", textDecoration: "none" }}
+                        >
+                          {booking.email}
+                        </a>
+                      </span>
+                    </div>
+                    <div className="admin-detail-row">
+                      <span className="admin-detail-key">
+                        <Phone size={11} style={{ display: "inline", verticalAlign: "-1px", marginRight: "0.3rem" }} />
+                        Phone
+                      </span>
+                      <span className="admin-detail-val">{booking.phone}</span>
+                    </div>
+                    <div className="admin-detail-row">
+                      <span className="admin-detail-key">
+                        <MapPin size={11} style={{ display: "inline", verticalAlign: "-1px", marginRight: "0.3rem" }} />
+                        Location
+                      </span>
+                      <span className="admin-detail-val">{booking.location}</span>
+                    </div>
+                    <div className="admin-detail-row">
+                      <span className="admin-detail-key">Service</span>
+                      <span className="admin-detail-val">{booking.service}</span>
+                    </div>
+                    <div className="admin-detail-row">
+                      <span className="admin-detail-key">Brief</span>
+                      <span className="admin-detail-val">
+                        {booking.description}
+                      </span>
+                    </div>
+                    <div className="admin-detail-row">
+                      <span className="admin-detail-key">Received</span>
+                      <span className="admin-detail-val">
+                        {formatDate(booking.createdAt)}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="admin-booking-actions">
+                    <div>
+                      <p className="admin-action-block-title">Admin notes</p>
+                      <Textarea
+                        placeholder="Internal notes &mdash; only visible here"
+                        value={notes[booking.id] ?? booking.adminNotes ?? ""}
+                        onChange={(e) =>
+                          setNotes((n) => ({
+                            ...n,
+                            [booking.id]: e.target.value,
+                          }))
+                        }
+                        rows={3}
+                      />
+                    </div>
+
+                    <div>
+                      <p className="admin-action-block-title">Move to</p>
+                      {transitions.length === 0 ? (
+                        <p
+                          style={{
+                            fontSize: "0.85rem",
+                            color: "var(--color-muted)",
+                            fontStyle: "italic",
+                          }}
+                        >
+                          No further transitions available.
+                        </p>
+                      ) : (
+                        <div className="admin-transition-list">
+                          {transitions.map((next) => (
+                            <Button
+                              key={next}
+                              size="sm"
+                              variant="outline"
+                              disabled={updateStatus.isPending}
+                              onClick={() => handleStatusChange(booking.id, next)}
+                            >
+                              {next} <ArrowRight size={12} />
+                            </Button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </article>
+          );
+        })}
       </div>
+
       {data && data.totalPages > 1 && (
-        <div className="flex gap-2 mt-6">
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={page <= 1}
-            onClick={() => setPage((p) => p - 1)}
-          >
-            Previous
-          </Button>
-          <span className="text-sm text-muted self-center">
-            Page {page} of {data.totalPages}
+        <div className="admin-pagination">
+          <span className="admin-pagination-info">
+            Page <strong>{page}</strong> of {data.totalPages} &middot;{" "}
+            {data.total} total
           </span>
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={page >= data.totalPages}
-            onClick={() => setPage((p) => p + 1)}
-          >
-            Next
-          </Button>
+          <div className="admin-pagination-actions">
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={page <= 1}
+              onClick={() => setPage((p) => p - 1)}
+            >
+              Previous
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={page >= data.totalPages}
+              onClick={() => setPage((p) => p + 1)}
+            >
+              Next
+            </Button>
+          </div>
         </div>
       )}
     </div>
