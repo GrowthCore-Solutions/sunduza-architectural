@@ -17,6 +17,7 @@ import { writeAuditLog } from "@/backend/services/audit";
 import { calculateLeadScore } from "@/backend/services/lead-score";
 import { canTransition, validNextStatuses } from "@/backend/services/booking-transitions";
 import { getActiveServiceBySlug } from "@/backend/services/services";
+import { upsertLead } from "@/backend/services/leads";
 import { ServiceError } from "@/backend/lib/errors";
 
 export async function createBooking(
@@ -37,53 +38,62 @@ export async function createBooking(
   const leadScore = calculateLeadScore(data);
   const adminEmail = getAdminEmail();
 
-  const [booking] = await db.$transaction([
-    db.booking.create({
-      data: {
-        name: data.name,
-        email: data.email,
-        phone: data.phone,
-        service: data.service,
-        serviceId: service.id,
-        location: data.location,
-        description: data.description,
-        meetingDate: data.meetingDate ? new Date(data.meetingDate) : null,
-        budget: data.budget ?? null,
-        // Convert whole-Rand inputs to cents for the structured columns.
-        // Both columns stay null when the client sends neither.
-        budgetMinCents: data.budgetMinRand != null ? BigInt(data.budgetMinRand) * 100n : null,
-        budgetMaxCents: data.budgetMaxRand != null ? BigInt(data.budgetMaxRand) * 100n : null,
-        budgetCurrency: data.budgetCurrency ?? "ZAR",
-        status: BookingStatus.PENDING,
-        leadScore,
-        consentGiven: true,
-        consentGivenAt: new Date(),
-        utmSource: data.utmSource ?? null,
-        utmMedium: data.utmMedium ?? null,
-        utmCampaign: data.utmCampaign ?? null,
-        utmTerm: data.utmTerm ?? null,
-        utmContent: data.utmContent ?? null,
-        referrerUrl: data.referrerUrl ?? null,
-        landingPage: data.landingPage ?? null,
-        ipAddress: meta.ipAddress,
-        userAgent: meta.userAgent,
-      },
-      select: bookingConfirmSelect,
-    }),
-    db.notification.create({
-      data: {
-        type: "BOOKING_NEW",
-        channel: "email",
-        recipient: adminEmail,
-        payload: {
+  // Lead upsert and booking creation share a single transaction so the
+  // aggregate lead row and the booking row are always consistent.
+  const [booking] = await db.$transaction(async (tx) => {
+    const lead = await upsertLead(tx, {
+      email: data.email,
+      name: data.name,
+      phone: data.phone,
+    });
+
+    return Promise.all([
+      tx.booking.create({
+        data: {
+          leadId: lead.id,
           name: data.name,
           email: data.email,
+          phone: data.phone,
           service: data.service,
+          serviceId: service.id,
+          location: data.location,
+          description: data.description,
+          meetingDate: data.meetingDate ? new Date(data.meetingDate) : null,
+          budget: data.budget ?? null,
+          budgetMinCents: data.budgetMinRand != null ? BigInt(data.budgetMinRand) * 100n : null,
+          budgetMaxCents: data.budgetMaxRand != null ? BigInt(data.budgetMaxRand) * 100n : null,
+          budgetCurrency: data.budgetCurrency ?? "ZAR",
+          status: BookingStatus.PENDING,
           leadScore,
+          consentGiven: true,
+          consentGivenAt: new Date(),
+          utmSource: data.utmSource ?? null,
+          utmMedium: data.utmMedium ?? null,
+          utmCampaign: data.utmCampaign ?? null,
+          utmTerm: data.utmTerm ?? null,
+          utmContent: data.utmContent ?? null,
+          referrerUrl: data.referrerUrl ?? null,
+          landingPage: data.landingPage ?? null,
+          ipAddress: meta.ipAddress,
+          userAgent: meta.userAgent,
         },
-      },
-    }),
-  ]);
+        select: bookingConfirmSelect,
+      }),
+      tx.notification.create({
+        data: {
+          type: "BOOKING_NEW",
+          channel: "email",
+          recipient: adminEmail,
+          payload: {
+            name: data.name,
+            email: data.email,
+            service: data.service,
+            leadScore,
+          },
+        },
+      }),
+    ]);
+  });
 
   await writeAuditLog({
     action: AuditAction.BOOKING_CREATE,

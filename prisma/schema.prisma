@@ -231,9 +231,41 @@ model VerificationToken {
   @@map("verification_tokens")
 }
 
+// ─── LEAD ─────────────────────────────────────────────────────────────────────
+// One row per unique visitor email across all bookings and contact messages.
+// Collapses repeat submissions so the admin sees "Zanele has submitted 3 times"
+// rather than 3 unrelated rows. The lead is created or updated atomically with
+// every new booking inside the same transaction.
+//
+// `name` and `phone` hold the values from the very first submission — an
+// immutable snapshot of first contact. The most-recent values are always
+// available by querying the latest booking for this lead.
+//
+// `booking_count` is a denormalized counter for fast "top leads" queries
+// without a GROUP BY across the bookings table.
+
+model Lead {
+  id           String    @id @default(cuid())
+  email        String    @unique @db.Citext
+  name         String
+  phone        String?
+  firstSeenAt  DateTime  @map("first_seen_at")
+  lastSeenAt   DateTime  @map("last_seen_at")
+  bookingCount Int       @default(1) @map("booking_count")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+  deletedAt    DateTime? @map("deleted_at")
+
+  bookings Booking[]
+
+  // Partial indexes (WHERE deleted_at IS NULL) defined in raw migration:
+  //   (email)             — primary lookup key
+  //   (last_seen_at DESC) — admin "recently active" view
+  //   (booking_count DESC)— admin "most engaged" view
+  @@map("leads")
+}
+
 // ─── BOOKING ──────────────────────────────────────────────────────────────────
-// Core lead entity. Island entity — no FK to User or Project (S5.1).
-// Booking is anonymous: visitors submit without an account.
 // POPIA: consent_given + consent_given_at required (BR-009).
 // Lead score: stored computed value, calculated on creation (S5.19 denormalization).
 // UTM: all 5 dimensions captured from query params (marketing attribution).
@@ -245,10 +277,13 @@ model Booking {
   // retention window returns the original record instead of duplicating.
   idempotencyKey String? @unique @map("idempotency_key")
 
-  // Visitor contact (denormalized — no Visitor entity in v1)
-  name  String
-  email String @db.Citext
-  phone String
+  // Visitor contact — kept denormalized on the booking as an immutable record
+  // of what was submitted. `leadId` links to the aggregate Lead row for CRM
+  // queries; SET NULL so the booking survives if the lead is ever purged.
+  leadId String? @map("lead_id")
+  name   String
+  email  String  @db.Citext
+  phone  String
 
   // Project details
   // `service`   — immutable slug snapshot of what the visitor selected.
@@ -300,6 +335,7 @@ model Booking {
   updatedAt DateTime  @updatedAt @map("updated_at")
   deletedAt DateTime? @map("deleted_at")
 
+  lead       Lead?    @relation(fields: [leadId], references: [id], onDelete: SetNull)
   serviceRef Service? @relation(fields: [serviceId], references: [id], onDelete: SetNull)
 
   // Hot-path indexes are PARTIAL (WHERE deleted_at IS NULL) and live in the

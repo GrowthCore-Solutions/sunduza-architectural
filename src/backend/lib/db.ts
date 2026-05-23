@@ -21,6 +21,7 @@ import { Prisma, PrismaClient } from "@prisma/client";
 const SOFT_DELETE_MODELS = new Set<string>([
   "User",
   "Booking",
+  "Lead",
   "Project",
   "Testimonial",
   "ContactMessage",
