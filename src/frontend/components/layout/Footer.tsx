@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Clock, Mail, MapPin, Phone } from "lucide-react";
+import { ArrowRight, Clock, Facebook, Instagram, Linkedin, Mail, MapPin, Phone } from "lucide-react";
 import { CONTACT } from "@/shared/constants/contact";
 
 const SERVICES = [
@@ -18,6 +18,12 @@ const QUICK_LINKS = [
   { label: "Privacy Policy", href: "/privacy" },
 ];
 
+const SOCIALS = [
+  { label: "Instagram", href: "https://instagram.com/", Icon: Instagram },
+  { label: "Facebook", href: "https://facebook.com/", Icon: Facebook },
+  { label: "LinkedIn", href: "https://linkedin.com/", Icon: Linkedin },
+];
+
 export function Footer() {
   return (
     <footer className="bg-ink text-white">
@@ -25,12 +31,12 @@ export function Footer() {
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         {/* Editorial top band */}
-        <div className="grid grid-cols-1 gap-6 border-b border-white/10 py-14 md:grid-cols-2 md:items-end">
+        <div className="grid grid-cols-1 gap-6 border-b border-white/10 py-10 md:grid-cols-2 md:items-end md:py-14">
           <div>
             <p className="text-[0.65rem] font-semibold uppercase tracking-[0.28em] text-primary">
-              Sunduza Architectural & Projects
+              Sunduza Architectural &amp; Projects
             </p>
-            <h2 className="mt-4 max-w-xl font-serif text-3xl font-light italic leading-tight text-white md:text-4xl">
+            <h2 className="mt-4 max-w-xl font-serif text-[1.75rem] font-light italic leading-tight text-white sm:text-3xl md:text-4xl">
               Start with drawings that<br className="hidden sm:block" /> make the build clearer.
             </h2>
           </div>
@@ -48,9 +54,9 @@ export function Footer() {
           </div>
         </div>
 
-        {/* Link columns */}
-        <div className="grid grid-cols-2 gap-10 py-12 md:grid-cols-[1.6fr_1fr_1fr_1.2fr]">
-          <div className="col-span-2 md:col-span-1">
+        {/* Link columns — vertical stack on mobile, multi-col on md+ */}
+        <div className="grid grid-cols-1 gap-10 py-10 sm:grid-cols-2 md:grid-cols-[1.6fr_1fr_1fr_1.2fr] md:gap-10 md:py-12">
+          <div className="sm:col-span-2 md:col-span-1">
             <div className="flex items-center gap-3">
               <span className="flex h-10 w-10 items-center justify-center rounded bg-white text-[0.65rem] font-black tracking-[0.18em] text-ink">
                 SA
@@ -58,14 +64,30 @@ export function Footer() {
               <div>
                 <p className="font-serif text-xl font-semibold text-white">Sunduza</p>
                 <p className="text-[0.6rem] font-medium uppercase tracking-[0.2em] text-white/40">
-                  Architectural & Projects
+                  Architectural &amp; Projects
                 </p>
               </div>
             </div>
-            <p className="mt-5 max-w-xs text-sm leading-relaxed text-white/55">
+            <p className="mt-5 max-w-sm text-sm leading-relaxed text-white/55">
               Professional house planning, architectural drawings, drafting, and
               development project support across South Africa.
             </p>
+
+            {/* Social icons */}
+            <div className="mt-6 flex items-center gap-2">
+              {SOCIALS.map(({ label, href, Icon }) => (
+                <a
+                  key={label}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={label}
+                  className="flex h-10 w-10 items-center justify-center rounded border border-white/10 bg-white/[0.03] text-white/55 transition-colors hover:border-primary/60 hover:bg-white/[0.06] hover:text-primary"
+                >
+                  <Icon className="h-4 w-4" />
+                </a>
+              ))}
+            </div>
           </div>
 
           <div>
@@ -139,10 +161,10 @@ export function Footer() {
         {/* Bottom bar */}
         <div className="flex flex-col items-start justify-between gap-3 border-t border-white/8 py-6 text-xs text-white/35 md:flex-row md:items-center">
           <p>
-            &copy; {new Date().getFullYear()} Sunduza Architectural & Projects (Pty) Ltd.
+            &copy; {new Date().getFullYear()} Sunduza Architectural &amp; Projects (Pty) Ltd.
             All rights reserved.
           </p>
-          <p>Design & Build by KSDRILL SA</p>
+          <p>Design &amp; Build by KSDRILL SA</p>
         </div>
       </div>
     </footer>

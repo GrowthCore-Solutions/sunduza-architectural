@@ -18,19 +18,47 @@ const NAV_ITEMS = [
 export function Header() {
   const pathname = usePathname();
   const [scrolled, setScrolled] = React.useState(false);
+  const [hidden, setHidden] = React.useState(false);
+  const lastYRef = React.useRef(0);
+  const activeMobLinkRef = React.useRef<HTMLAnchorElement | null>(null);
 
+  // Track scroll position + direction (hide on scroll-down, show on scroll-up).
   React.useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 16);
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
+    const onScroll = () => {
+      const y = window.scrollY;
+      setScrolled(y > 16);
+      // Only hide after we're past the header itself, and only when scrolling
+      // down meaningfully (>8px). Scroll up reveals immediately.
+      if (y < 120) {
+        setHidden(false);
+      } else if (y > lastYRef.current + 8) {
+        setHidden(true);
+      } else if (y < lastYRef.current - 4) {
+        setHidden(false);
+      }
+      lastYRef.current = y;
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  // Auto-scroll the active link into view in the mobile strip on route change.
+  React.useEffect(() => {
+    if (!activeMobLinkRef.current) return;
+    activeMobLinkRef.current.scrollIntoView({
+      behavior: "smooth",
+      inline: "center",
+      block: "nearest",
+    });
+  }, [pathname]);
 
   if (pathname.startsWith("/admin")) return null;
 
   return (
     <header
       className={cn(
-        "sticky top-0 z-50 w-full transition-all duration-300",
+        "sticky top-0 z-50 w-full transition-[transform,background-color,box-shadow,border-color] duration-300 will-change-transform",
+        hidden ? "-translate-y-full" : "translate-y-0",
         scrolled
           ? "border-b border-rule/60 bg-paper/96 shadow-[0_1px_16px_-3px_rgb(15_26_34/0.09)] backdrop-blur-md"
           : "border-b border-rule/35 bg-paper/92 backdrop-blur-sm"
@@ -101,10 +129,7 @@ export function Header() {
       {/* ── Mobile nav strip (horizontal scroll, hidden on md+) ── */}
       <div className="relative md:hidden">
         <div className="h-px w-full bg-rule/25" />
-        <nav
-          className="mob-nav-rail"
-          aria-label="Mobile navigation"
-        >
+        <nav className="mob-nav-rail" aria-label="Mobile navigation">
           <div className="mob-nav-inner">
             {NAV_ITEMS.map((item) => {
               const active =
@@ -115,6 +140,7 @@ export function Header() {
                 <Link
                   key={item.href}
                   href={item.href}
+                  ref={active ? activeMobLinkRef : undefined}
                   className={cn("mob-nav-link", active && "mob-nav-link--active")}
                 >
                   {item.label}
@@ -123,8 +149,9 @@ export function Header() {
             })}
           </div>
         </nav>
-        {/* Right-edge scroll hint */}
-        <div className="mob-nav-fade" aria-hidden="true" />
+        {/* Edge scroll-hint fades */}
+        <div className="mob-nav-fade mob-nav-fade--left" aria-hidden="true" />
+        <div className="mob-nav-fade mob-nav-fade--right" aria-hidden="true" />
       </div>
     </header>
   );
