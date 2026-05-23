@@ -11,6 +11,8 @@ import {
 } from "lucide-react";
 import { SERVICES } from "@/frontend/data/services";
 import { Button } from "@/frontend/components/ui/button";
+import { JsonLd } from "@/frontend/components/seo/JsonLd";
+import { SITE_URL } from "@/shared/constants/site";
 
 const SERVICE_ICONS = [Building2, PenTool, Ruler, Layers] as const;
 
@@ -100,9 +102,33 @@ export const metadata = {
     "Professional architectural services: house planning, working drawings, drafting, and development projects across South Africa.",
 };
 
+const servicesSchema = {
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  name: "Architectural Services — Sunduza Architectural & Projects",
+  url: `${SITE_URL}/services`,
+  itemListElement: SERVICES.map((svc, i) => ({
+    "@type": "ListItem",
+    position: i + 1,
+    item: {
+      "@type": "Service",
+      name: svc.title,
+      description: svc.description,
+      url: `${SITE_URL}/services#${svc.id}`,
+      provider: {
+        "@type": "LocalBusiness",
+        name: "Sunduza Architectural & Projects (Pty) Ltd",
+        url: SITE_URL,
+      },
+      areaServed: { "@type": "Country", name: "South Africa" },
+    },
+  })),
+};
+
 export default function ServicesPage() {
   return (
     <>
+      <JsonLd schema={servicesSchema} />
       {/* ── Hero ─────────────────────────────────────────────────────── */}
       <section className="services-hero" aria-label="What we offer">
         <div className="services-hero-inner">
