@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { BookingForm } from "@/frontend/components/features/BookingForm";
 import { Skeleton } from "@/frontend/components/ui/skeleton";
+import { CONTACT } from "@/shared/constants/contact";
 
 export const metadata = {
   title: "Book a Consultation",
@@ -95,8 +96,8 @@ export default function BookingPage() {
 
             <address className="booking-contact-note" aria-label="Direct contact options">
               <p className="booking-contact-note-label">Prefer to call?</p>
-              <a href="tel:+27786723364" className="booking-contact-link">
-                +27 78 672 3364
+              <a href={`tel:${CONTACT.PHONE_E164}`} className="booking-contact-link">
+                {CONTACT.PHONE_DISPLAY}
               </a>
               <a href="mailto:info@sunduza.co.za" className="booking-contact-link">
                 info@sunduza.co.za

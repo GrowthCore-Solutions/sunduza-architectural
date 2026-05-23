@@ -7,6 +7,7 @@ import { FloatingWhatsApp } from "@/frontend/components/layout/FloatingWhatsApp"
 import { Providers } from "@/frontend/components/providers";
 import { unstable_cache } from "next/cache";
 import { getSetting } from "@/backend/services/settings";
+import { CONTACT } from "@/shared/constants/contact";
 
 const cormorant = Cormorant_Garamond({
   subsets: ["latin"],
@@ -52,9 +53,9 @@ export const metadata: Metadata = {
 const getWhatsAppNumber = unstable_cache(
   async () => {
     try {
-      return (await getSetting("whatsapp_number")) ?? "27786723364";
+      return (await getSetting("whatsapp_number")) ?? CONTACT.WHATSAPP_NUMBER;
     } catch {
-      return "27786723364";
+      return CONTACT.WHATSAPP_NUMBER;
     }
   },
   ["whatsapp-number"],

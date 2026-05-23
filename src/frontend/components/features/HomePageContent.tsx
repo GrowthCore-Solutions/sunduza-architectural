@@ -27,6 +27,7 @@ import { useTestimonials } from "@/frontend/hooks/useTestimonials";
 import { ProjectCard } from "@/frontend/components/features/ProjectCard";
 import { StarRating } from "@/frontend/components/features/StarRating";
 import { SERVICES } from "@/frontend/data/services";
+import { CONTACT } from "@/shared/constants/contact";
 
 const SERVICE_ICONS = [Building2, PenTool, Ruler, Layers] as const;
 
@@ -704,21 +705,21 @@ export function HomePageContent() {
               <p className="contact-tile-label">Book a consultation</p>
               <p className="contact-tile-value">Free 30-minute call</p>
             </Link>
-            <a href="tel:+27786723364" className="contact-tile">
+            <a href={`tel:${CONTACT.PHONE_E164}`} className="contact-tile">
               <div className="contact-tile-head">
                 <Phone className="h-5 w-5" />
                 <ArrowUpRight className="h-4 w-4" />
               </div>
               <p className="contact-tile-label">Call the studio</p>
-              <p className="contact-tile-value">+27 78 672 3364</p>
+              <p className="contact-tile-value">{CONTACT.PHONE_DISPLAY}</p>
             </a>
-            <a href="mailto:xivutisokevinsunduza@gmail.com" className="contact-tile">
+            <a href={`mailto:${CONTACT.EMAIL}`} className="contact-tile">
               <div className="contact-tile-head">
                 <Mail className="h-5 w-5" />
                 <ArrowUpRight className="h-4 w-4" />
               </div>
               <p className="contact-tile-label">Email us</p>
-              <p className="contact-tile-value">xivutisokevinsunduza@gmail.com</p>
+              <p className="contact-tile-value">{CONTACT.EMAIL}</p>
             </a>
             <Link href="/projects" className="contact-tile">
               <div className="contact-tile-head">
