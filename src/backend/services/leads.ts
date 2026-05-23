@@ -62,7 +62,7 @@ export async function upsertLead(
       phone: input.phone,
       firstSeenAt: now,
       lastSeenAt: now,
-      bookingCount: 1,
+      bookingCount: 0,
     },
     select: leadSelect,
   });
