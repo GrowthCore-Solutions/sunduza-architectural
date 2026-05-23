@@ -15,10 +15,12 @@ const SIGNALS = {
 export function calculateLeadScore(data: BookingInput): number {
   let score = 0;
 
-  if (data.budget) {
+  // Prefer structured cents; fall back to parsing the legacy text snapshot.
+  const hasBudget = data.budgetMinRand != null || !!data.budget;
+  if (hasBudget) {
     score += SIGNALS.hasBudget;
-    const amount = parseInt(data.budget.replace(/\D/g, ""), 10);
-    if (!isNaN(amount) && amount >= 500_000) score += SIGNALS.largeBudget;
+    const minRand = data.budgetMinRand ?? parseInt((data.budget ?? "").replace(/\D/g, ""), 10);
+    if (!isNaN(minRand) && minRand >= 500_000) score += SIGNALS.largeBudget;
   }
 
   if (data.meetingDate) score += SIGNALS.hasMeetingDate;

@@ -44,7 +44,14 @@ export const BookingSchema = z.object({
     .string()
     .refine((v) => !v || /^\d{4}-\d{2}-\d{2}$/.test(v), "Must be YYYY-MM-DD")
     .optional(),
-  budget: z.string().optional(),
+  // Legacy free-text snapshot — accepted from old clients still sending a
+  // plain string. The service writes it to `budget` (snapshot) unchanged.
+  budget: z.string().max(200).optional(),
+  // Structured budget range in whole Rand (the service converts to cents).
+  // Both optional; both null means "no preference / not sure".
+  budgetMinRand: z.number().int().min(0).optional(),
+  budgetMaxRand: z.number().int().min(0).optional(),
+  budgetCurrency: z.string().length(3).regex(/^[A-Z]{3}$/).default("ZAR").optional(),
   // POPIA consent — required field, must be true to submit (BR-009)
   consentGiven: z.literal(true, {
     error: "You must accept the privacy policy to submit",

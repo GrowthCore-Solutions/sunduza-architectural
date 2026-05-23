@@ -49,6 +49,11 @@ export async function createBooking(
         description: data.description,
         meetingDate: data.meetingDate ? new Date(data.meetingDate) : null,
         budget: data.budget ?? null,
+        // Convert whole-Rand inputs to cents for the structured columns.
+        // Both columns stay null when the client sends neither.
+        budgetMinCents: data.budgetMinRand != null ? BigInt(data.budgetMinRand) * 100n : null,
+        budgetMaxCents: data.budgetMaxRand != null ? BigInt(data.budgetMaxRand) * 100n : null,
+        budgetCurrency: data.budgetCurrency ?? "ZAR",
         status: BookingStatus.PENDING,
         leadScore,
         consentGiven: true,
