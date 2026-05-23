@@ -18,7 +18,7 @@ export function FloatingWhatsApp({
   const [visible, setVisible] = React.useState(false);
 
   React.useEffect(() => {
-    const timer = setTimeout(() => setVisible(true), 1500);
+    const timer = setTimeout(() => setVisible(true), 400);
     return () => clearTimeout(timer);
   }, []);
 
