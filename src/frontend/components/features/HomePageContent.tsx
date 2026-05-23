@@ -4,13 +4,21 @@ import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowRight,
+  ArrowUpRight,
   Building2,
   CheckCircle2,
+  ClipboardCheck,
+  Compass,
+  FileText,
   Layers,
+  Mail,
   MapPin,
   PenTool,
+  Phone,
+  Plus,
   Ruler,
   ShieldCheck,
+  Sparkles,
 } from "lucide-react";
 import { Button } from "@/frontend/components/ui/button";
 import { Skeleton } from "@/frontend/components/ui/skeleton";
@@ -34,15 +42,86 @@ const TRUST_POINTS = [
   { label: "Serving South Africa", icon: MapPin },
 ];
 
+const APPROACH = [
+  {
+    icon: Compass,
+    title: "Brief & site",
+    description:
+      "We walk through your vision, budget, and site constraints. Zoning, services, and orientation are mapped before a line is drawn.",
+  },
+  {
+    icon: PenTool,
+    title: "Concept design",
+    description:
+      "Massing, layouts, and elevations are explored until the plan resolves on paper and on the ground. You see every revision.",
+  },
+  {
+    icon: FileText,
+    title: "Documentation",
+    description:
+      "Full working drawings, schedules, and SANS-compliant documentation ready for council submission and the build team.",
+  },
+  {
+    icon: ClipboardCheck,
+    title: "Submission & build",
+    description:
+      "We coordinate council revisions through approval and remain available to the build team for queries and clarifications.",
+  },
+];
+
+const DIFFERENTIATORS = [
+  {
+    icon: ShieldCheck,
+    title: "Submission-ready, every time",
+    description:
+      "Every drawing leaves the studio meeting SANS 10400 and municipal standards. No re-submissions. No surprises.",
+  },
+  {
+    icon: Sparkles,
+    title: "Drawings that build cleanly",
+    description:
+      "Builders work from our documentation without guesswork. Dimensions, schedules, and details are resolved before you break ground.",
+  },
+  {
+    icon: ClipboardCheck,
+    title: "Direct contact with the architect",
+    description:
+      "You speak to the person drawing your plans — not a junior, not a call centre. Decisions happen quickly and without dilution.",
+  },
+];
+
+const FAQS = [
+  {
+    q: "How long does a typical house plan take?",
+    a: "From brief to council-ready drawings, expect 3–6 weeks depending on the scope, site complexity, and how quickly revisions are signed off. Larger developments take longer.",
+  },
+  {
+    q: "Do you handle council submission?",
+    a: "Yes. We prepare the full submission package, lodge it with the municipality, and manage revisions through to approval — so you don't have to navigate council yourself.",
+  },
+  {
+    q: "What areas of South Africa do you serve?",
+    a: "We work across several provinces, with most projects in Gauteng, Limpopo, Mpumalanga, and KwaZulu-Natal. Remote consultations are available country-wide.",
+  },
+  {
+    q: "Can you work with my existing builder or contractor?",
+    a: "Absolutely. Our drawings are prepared to construction-issue standard, so any competent builder can build from them. We're available to answer queries during the build.",
+  },
+  {
+    q: "How are your services priced?",
+    a: "Pricing is project-based, calculated on scope and area. After your free consultation, you'll receive a fixed-fee quotation — no hourly billing, no surprises.",
+  },
+];
+
 export function HomePageContent() {
   const { data: featured, isLoading: projectsLoading, isError: projectsError } = useProjects({ featured: true });
   const { data: testimonials, isLoading: testimonialsLoading } = useTestimonials();
+  const spotlight = featured?.[0];
 
   return (
     <>
       {/* ─── Hero ─────────────────────────────────────────────────────── */}
-      <section className="hero-band">
-        {/* Mobile image */}
+      <section className="hero-band" aria-label="Introduction">
         <Image
           src="/images/hero/hero-mobile.png"
           alt=""
@@ -52,7 +131,6 @@ export function HomePageContent() {
           className="hero-band-media md:hidden"
           aria-hidden="true"
         />
-        {/* Desktop image */}
         <Image
           src="/images/hero/hero-desktop.png"
           alt=""
@@ -66,22 +144,29 @@ export function HomePageContent() {
         <div className="hero-grid architectural-grid" />
 
         <div className="hero-inner">
-          <div className="max-w-[52rem]">
-            <p className="type-eyebrow-hero mb-6">
-              Plans, drawings &amp; project support
-            </p>
-            <h1 className="font-serif text-5xl font-semibold leading-[1.0] tracking-[-0.025em] text-white sm:text-6xl md:text-[5.5rem]">
-              Sunduza<br />
-              <span className="font-light italic text-white/90">Architectural</span><br />
-              <span className="font-semibold">&amp; Projects</span>
+          <div className="max-w-[58rem]">
+            <div className="hero-meta-row">
+              <span className="hero-status-pill">Now booking 2026 consultations</span>
+              <span className="hero-meta-rule" aria-hidden="true" />
+              <span className="text-[0.6875rem] font-medium uppercase tracking-[0.22em] text-white/55">
+                Est. 2020 · South Africa
+              </span>
+            </div>
+
+            <h1 className="hero-headline">
+              House plans,<br />
+              <span className="hero-headline-italic">drawn with</span><br />
+              <span>precision.</span>
             </h1>
-            <p className="mt-6 max-w-xl text-base leading-relaxed text-white/70 md:mt-8 md:text-lg">
-              House plans, architectural drawings, drafting, and development
-              planning prepared with the clarity your builder, municipality,
-              and project team need from day one.
+
+            <p className="mt-7 max-w-[34rem] text-base leading-relaxed text-white/72 md:text-[1.0625rem] md:leading-[1.7]">
+              Sunduza Architectural &amp; Projects prepares house plans, architectural
+              drawings, drafting, and development documentation that read clearly to
+              builders, satisfy council, and stay faithful to the client&rsquo;s
+              brief — from the first sketch to the day the slab is cast.
             </p>
 
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row md:mt-10">
+            <div className="hero-cta-row">
               <Button size="lg" asChild>
                 <Link href="/booking">
                   Book a consultation
@@ -94,14 +179,17 @@ export function HomePageContent() {
                 className="border-white/25 bg-white/8 text-white hover:bg-white/15 hover:border-white/40 hover:text-white"
                 asChild
               >
-                <Link href="/projects">View our work</Link>
+                <Link href="/projects">
+                  View our work
+                  <ArrowUpRight className="h-4 w-4" />
+                </Link>
               </Button>
             </div>
 
-            <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:gap-6 md:mt-12">
+            <div className="hero-trust-strip">
               {TRUST_POINTS.map(({ label, icon: Icon }) => (
-                <div key={label} className="flex items-center gap-2 text-[0.8125rem] text-white/65">
-                  <Icon className="h-4 w-4 shrink-0 text-primary" />
+                <div key={label} className="hero-trust-item">
+                  <Icon aria-hidden="true" />
                   <span>{label}</span>
                 </div>
               ))}
@@ -109,36 +197,91 @@ export function HomePageContent() {
           </div>
         </div>
 
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 hidden md:flex flex-col items-center gap-1.5 text-white/30">
-          <div className="h-8 w-px bg-gradient-to-b from-transparent to-white/30" />
-          <span className="text-[0.6rem] uppercase tracking-[0.22em]">Scroll</span>
+        <div className="hero-scroll-cue" aria-hidden="true">
+          <div className="hero-scroll-cue-line" />
+          <span className="text-[0.6rem] uppercase tracking-[0.24em]">Scroll</span>
+        </div>
+      </section>
+
+      {/* ─── Press / credentials strip ────────────────────────────────── */}
+      <section className="press-strip" aria-label="What we deliver">
+        <div className="press-strip-inner">
+          <p className="press-strip-label">What we deliver</p>
+          <div className="press-strip-items">
+            <span className="press-strip-item">House plans <span>Residential</span></span>
+            <span className="press-strip-item">Council submissions <span>Municipal</span></span>
+            <span className="press-strip-item">Working drawings <span>Construction</span></span>
+            <span className="press-strip-item">Development plans <span>Multi-unit</span></span>
+            <span className="press-strip-item">As-built drawings <span>Compliance</span></span>
+          </div>
         </div>
       </section>
 
       {/* ─── Stats strip ──────────────────────────────────────────────── */}
-      <section className="stats-strip">
+      <section className="stats-strip" aria-label="Studio at a glance">
         <div className="stats-strip-inner">
           {STATS.map((stat) => (
             <div key={stat.label} className="stats-cell">
-              <p className="font-serif text-[3.25rem] font-semibold leading-none tracking-[-0.03em] text-ink">
+              <p className="font-serif text-[3.5rem] font-semibold leading-none tracking-[-0.03em] text-ink">
                 {stat.value}
               </p>
-              <p className="mt-2 text-sm font-medium text-ink">{stat.label}</p>
-              <p className="mt-0.5 text-xs text-muted">{stat.detail}</p>
+              <p className="mt-3 text-sm font-semibold text-ink">{stat.label}</p>
+              <p className="mt-1 text-xs uppercase tracking-[0.14em] text-muted">{stat.detail}</p>
             </div>
           ))}
         </div>
       </section>
 
+      {/* ─── Approach / process ───────────────────────────────────────── */}
+      <section className="approach-section" aria-label="Our approach">
+        <div className="approach-inner">
+          <div className="section-intro">
+            <div className="section-intro-stack">
+              <div className="section-divider-rule">
+                <p className="type-eyebrow">How we work</p>
+              </div>
+              <h2 className="font-serif text-4xl font-semibold leading-[1.05] tracking-tight text-ink md:text-5xl">
+                A clear path from<br className="hidden sm:block" />
+                <span className="font-light italic"> brief to building.</span>
+              </h2>
+              <p className="mt-5 max-w-2xl text-[0.9375rem] leading-relaxed text-muted md:text-base">
+                Four stages, no shortcuts. Each one is sign-off driven so you always
+                know what you&rsquo;re approving — and what comes next.
+              </p>
+            </div>
+          </div>
+
+          <ol className="approach-grid" aria-label="Project stages">
+            {APPROACH.map((step, i) => {
+              const Icon = step.icon;
+              return (
+                <li key={step.title} className="approach-step">
+                  <div className="approach-step-head">
+                    <span className="approach-step-number">{String(i + 1).padStart(2, "0")}</span>
+                    <span className="approach-step-icon" aria-hidden="true">
+                      <Icon className="h-5 w-5" />
+                    </span>
+                  </div>
+                  <h3>{step.title}</h3>
+                  <p>{step.description}</p>
+                </li>
+              );
+            })}
+          </ol>
+        </div>
+      </section>
+
       {/* ─── Services ─────────────────────────────────────────────────── */}
-      <section className="paper-grain py-24">
+      <section className="paper-grain py-24" aria-label="Services">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="section-intro">
             <div className="section-intro-stack">
-              <p className="type-eyebrow mb-3">What we do</p>
+              <div className="section-divider-rule">
+                <p className="type-eyebrow">What we do</p>
+              </div>
               <h2 className="font-serif text-4xl font-semibold leading-tight tracking-tight text-ink md:text-5xl">
                 Practical architectural<br className="hidden sm:block" />
-                <span className="font-light italic"> services for real projects</span>
+                <span className="font-light italic"> services for real projects.</span>
               </h2>
             </div>
             <Button variant="ghost" asChild className="hidden sm:inline-flex text-sm">
@@ -154,10 +297,7 @@ export function HomePageContent() {
               const Icon = SERVICE_ICONS[index];
               const num = String(index + 1).padStart(2, "0");
               return (
-                <article
-                  key={service.id}
-                  className="surface-interactive service-card group"
-                >
+                <article key={service.id} className="surface-interactive service-card group">
                   <div className="mb-6 flex items-start justify-between">
                     <div className="service-card-icon">
                       <Icon className="h-5 w-5" />
@@ -195,12 +335,108 @@ export function HomePageContent() {
         </div>
       </section>
 
-      {/* ─── About the founder ────────────────────────────────────────── */}
-      <section className="bg-ink py-24">
+      {/* ─── Spotlight project ────────────────────────────────────────── */}
+      {spotlight && (
+        <section className="spotlight-band" aria-label="Featured project">
+          <div className="spotlight-inner">
+            <div className="spotlight-frame">
+              {spotlight.imagePath ? (
+                <Image
+                  src={spotlight.imagePath}
+                  alt={spotlight.title}
+                  fill
+                  sizes="(min-width: 1024px) 55vw, 100vw"
+                  className="object-cover img-project"
+                />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center text-white/30">
+                  <Building2 className="h-16 w-16" />
+                </div>
+              )}
+            </div>
+            <div>
+              <p className="spotlight-tag">Featured project</p>
+              <h2 className="spotlight-title">{spotlight.title}</h2>
+              {spotlight.description && (
+                <p className="mt-5 text-base leading-relaxed text-white/65 md:text-[1.0625rem]">
+                  {spotlight.description}
+                </p>
+              )}
+
+              <div className="spotlight-meta-grid">
+                {spotlight.category && (
+                  <div>
+                    <p className="spotlight-meta-key">Category</p>
+                    <p className="spotlight-meta-value capitalize">
+                      {spotlight.category.replace(/_/g, " ")}
+                    </p>
+                  </div>
+                )}
+                <div>
+                  <p className="spotlight-meta-key">Year</p>
+                  <p className="spotlight-meta-value">
+                    {new Date(spotlight.createdAt).getFullYear()}
+                  </p>
+                </div>
+                <div>
+                  <p className="spotlight-meta-key">Region</p>
+                  <p className="spotlight-meta-value">South Africa</p>
+                </div>
+                <div>
+                  <p className="spotlight-meta-key">Status</p>
+                  <p className="spotlight-meta-value">Delivered</p>
+                </div>
+              </div>
+
+              <Button
+                size="lg"
+                variant="outline"
+                className="mt-10 border-white/25 bg-white/8 text-white hover:bg-white/15 hover:border-white/40 hover:text-white"
+                asChild
+              >
+                <Link href={`/projects/${spotlight.id}`}>
+                  Inside the project
+                  <ArrowUpRight className="h-4 w-4" />
+                </Link>
+              </Button>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ─── Why Sunduza ───────────────────────────────────────────────── */}
+      <section className="diff-section" aria-label="Why Sunduza">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6">
+          <div className="section-intro">
+            <div className="section-intro-stack">
+              <div className="section-divider-rule">
+                <p className="type-eyebrow">Why Sunduza</p>
+              </div>
+              <h2 className="font-serif text-4xl font-semibold leading-tight tracking-tight text-ink md:text-5xl">
+                Drawings that builders trust,<br className="hidden sm:block" />
+                <span className="font-light italic"> and councils approve.</span>
+              </h2>
+            </div>
+          </div>
+
+          <div className="diff-grid">
+            {DIFFERENTIATORS.map(({ icon: Icon, title, description }) => (
+              <article key={title} className="diff-card">
+                <span className="diff-card-icon" aria-hidden="true">
+                  <Icon className="h-5 w-5" />
+                </span>
+                <h3>{title}</h3>
+                <p>{description}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ─── Founder ──────────────────────────────────────────────────── */}
+      <section className="bg-ink py-24" aria-label="About the founder">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="grid grid-cols-1 gap-12 lg:grid-cols-2 lg:items-center">
-
-            {/* Portrait */}
             <div className="relative mx-auto w-full max-w-sm lg:max-w-none">
               <div className="relative aspect-[3/4] overflow-hidden rounded bg-paper2">
                 <Image
@@ -212,18 +448,17 @@ export function HomePageContent() {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-ink/60 via-transparent to-transparent" />
               </div>
-              {/* Decorative corner rule */}
               <div className="absolute -bottom-4 -right-4 h-24 w-24 border-b-2 border-r-2 border-primary/40 rounded-br hidden lg:block" />
             </div>
 
-            {/* Content */}
             <div>
-              <p className="type-eyebrow mb-5">About the founder</p>
+              <div className="section-divider-rule">
+                <p className="type-eyebrow">About the founder</p>
+              </div>
               <h2 className="font-serif text-4xl font-semibold leading-tight text-white md:text-5xl">
                 Xivutiso Kevin<br />
                 <span className="font-light italic text-white/85">Sunduza</span>
               </h2>
-              <div className="mt-2 h-px w-16 bg-primary" />
 
               <p className="mt-7 text-[1.0625rem] leading-relaxed text-white/65">
                 With over five years of hands-on experience in residential and development
@@ -231,11 +466,11 @@ export function HomePageContent() {
                 precision and clarity to every project — from a single house plan to a
                 full development application.
               </p>
-              <p className="mt-4 text-[1.0625rem] leading-relaxed text-white/65">
-                Every drawing that leaves the practice is personally reviewed to ensure
-                it meets council requirements, builder expectations, and the client&rsquo;s
-                original vision — without compromise.
-              </p>
+
+              <blockquote className="founder-quote">
+                &ldquo;A good plan is one a builder can hand to their team and not
+                phone the architect every second day. That&rsquo;s the bar.&rdquo;
+              </blockquote>
 
               <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3">
                 {[
@@ -250,6 +485,11 @@ export function HomePageContent() {
                 ))}
               </div>
 
+              <div className="founder-signature">
+                <span className="founder-signature-mark">— X. K. Sunduza</span>
+                <span className="founder-signature-meta">Founder &amp; Lead Architect</span>
+              </div>
+
               <Button className="mt-10" asChild>
                 <Link href="/booking">
                   Work with Kevin
@@ -261,14 +501,16 @@ export function HomePageContent() {
         </div>
       </section>
 
-      {/* ─── Featured projects ─────────────────────────────────────────── */}
-      <section className="mist-section py-24">
+      {/* ─── Featured projects grid ───────────────────────────────────── */}
+      <section className="mist-section py-24" aria-label="Featured projects">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="section-intro">
             <div className="section-intro-stack">
-              <p className="type-eyebrow mb-3">Portfolio</p>
+              <div className="section-divider-rule">
+                <p className="type-eyebrow">Portfolio</p>
+              </div>
               <h2 className="font-serif text-4xl font-semibold tracking-tight text-ink md:text-5xl">
-                Featured projects
+                Selected work
               </h2>
             </div>
             <Button variant="outline" asChild className="hidden sm:inline-flex">
@@ -300,9 +542,9 @@ export function HomePageContent() {
             </div>
           )}
 
-          {featured && featured.length > 0 && (
+          {featured && featured.length > 1 && (
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {featured.slice(0, 3).map((project) => (
+              {featured.slice(1, 4).map((project) => (
                 <ProjectCard key={project.id} project={project} />
               ))}
             </div>
@@ -319,12 +561,14 @@ export function HomePageContent() {
         </div>
       </section>
 
-      {/* ─── Testimonials preview ─────────────────────────────────────── */}
-      <section className="paper-grain py-24">
+      {/* ─── Testimonials ─────────────────────────────────────────────── */}
+      <section className="paper-grain py-24" aria-label="Client reviews">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="section-intro">
             <div className="section-intro-stack">
-              <p className="type-eyebrow mb-3">Client reviews</p>
+              <div className="section-divider-rule">
+                <p className="type-eyebrow">Client reviews</p>
+              </div>
               <h2 className="font-serif text-4xl font-semibold tracking-tight text-ink md:text-5xl">
                 What our clients say
               </h2>
@@ -348,18 +592,21 @@ export function HomePageContent() {
           {!testimonialsLoading && testimonials && testimonials.length > 0 && (
             <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
               {testimonials.slice(0, 3).map((t) => (
-                <div key={t.id} className="quote-card">
+                <figure key={t.id} className="quote-card-rich">
                   {t.rating && <StarRating rating={t.rating} className="mb-4" />}
-                  <p className="font-serif text-[1.05rem] leading-relaxed text-ink line-clamp-4">
+                  <blockquote className="font-serif text-[1.05rem] leading-relaxed text-ink line-clamp-5">
                     &ldquo;{t.review}&rdquo;
-                  </p>
-                  <div className="mt-5 flex items-center gap-3 border-t border-rule/50 pt-4">
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-[0.65rem] font-bold uppercase tracking-wide text-primary">
+                  </blockquote>
+                  <figcaption className="mt-auto flex items-center gap-3 border-t border-rule/50 pt-4">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-[0.65rem] font-bold uppercase tracking-wide text-primary">
                       {t.clientName.slice(0, 2)}
                     </div>
-                    <p className="text-sm font-semibold text-ink">{t.clientName}</p>
-                  </div>
-                </div>
+                    <div>
+                      <p className="text-sm font-semibold text-ink">{t.clientName}</p>
+                      <p className="text-xs uppercase tracking-[0.14em] text-muted">Verified client</p>
+                    </div>
+                  </figcaption>
+                </figure>
               ))}
             </div>
           )}
@@ -381,27 +628,107 @@ export function HomePageContent() {
         </div>
       </section>
 
-      {/* ─── CTA ───────────────────────────────────────────────────────── */}
-      <section className="cta-band">
-        <div className="cta-band-inner">
-          <div className="max-w-2xl">
-            <p className="mb-4 flex items-center gap-2 text-[0.75rem] font-semibold uppercase tracking-[0.22em] text-primary">
-              <CheckCircle2 className="h-4 w-4" />
-              Project-ready drawings start here
-            </p>
-            <h2 className="font-serif text-4xl font-light italic leading-tight text-white md:text-5xl">
-              Tell us what you want to build.{" "}
-              <span className="font-semibold not-italic text-white">
-                We will shape the next step.
-              </span>
-            </h2>
+      {/* ─── FAQ ──────────────────────────────────────────────────────── */}
+      <section className="faq-section" aria-label="Frequently asked questions">
+        <div className="mx-auto max-w-4xl px-4 sm:px-6">
+          <div className="section-divider-rule">
+            <p className="type-eyebrow">FAQ</p>
           </div>
-          <Button size="lg" variant="secondary" asChild className="shrink-0 bg-primary hover:bg-primary-dark text-white">
-            <Link href="/booking">
-              Book a consultation
-              <ArrowRight className="h-4 w-4" />
+          <h2 className="font-serif text-4xl font-semibold tracking-tight text-ink md:text-5xl">
+            Questions, answered.
+          </h2>
+          <p className="mt-4 text-[0.9375rem] leading-relaxed text-muted md:text-base">
+            The most common questions we get before the first consultation. If
+            yours isn&rsquo;t here, send it through on the booking form.
+          </p>
+
+          <div className="faq-list">
+            {FAQS.map((faq) => (
+              <details key={faq.q} className="faq-item">
+                <summary className="faq-summary">
+                  <span>{faq.q}</span>
+                  <span className="faq-summary-icon" aria-hidden="true">
+                    <Plus className="h-4 w-4" />
+                  </span>
+                </summary>
+                <div className="faq-body">{faq.a}</div>
+              </details>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ─── Contact band (rich CTA) ──────────────────────────────────── */}
+      <section className="contact-band" aria-label="Get in touch">
+        <div className="contact-inner">
+          <div>
+            <div className="section-divider-rule">
+              <p className="type-eyebrow">Start a project</p>
+            </div>
+            <h2 className="contact-headline">
+              Tell us what you want to build.<br />
+              <em>We&rsquo;ll shape the next step.</em>
+            </h2>
+            <p className="mt-6 max-w-xl text-base leading-relaxed text-white/65 md:text-[1.0625rem]">
+              Consultations are obligation-free. Bring a brief, a sketch, a Pinterest
+              board, or just a piece of land. We&rsquo;ll take it from there.
+            </p>
+
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Button size="lg" asChild>
+                <Link href="/booking">
+                  Book a consultation
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                className="border-white/25 bg-white/8 text-white hover:bg-white/15 hover:border-white/40 hover:text-white"
+                asChild
+              >
+                <Link href="/contact">
+                  Send a message
+                  <ArrowUpRight className="h-4 w-4" />
+                </Link>
+              </Button>
+            </div>
+          </div>
+
+          <div className="contact-cards">
+            <Link href="/booking" className="contact-tile">
+              <div className="contact-tile-head">
+                <CheckCircle2 className="h-5 w-5" />
+                <ArrowUpRight className="h-4 w-4" />
+              </div>
+              <p className="contact-tile-label">Book a consultation</p>
+              <p className="contact-tile-value">Free 30-minute call</p>
             </Link>
-          </Button>
+            <a href="tel:+27786723364" className="contact-tile">
+              <div className="contact-tile-head">
+                <Phone className="h-5 w-5" />
+                <ArrowUpRight className="h-4 w-4" />
+              </div>
+              <p className="contact-tile-label">Call the studio</p>
+              <p className="contact-tile-value">+27 78 672 3364</p>
+            </a>
+            <a href="mailto:hello@sunduza.co.za" className="contact-tile">
+              <div className="contact-tile-head">
+                <Mail className="h-5 w-5" />
+                <ArrowUpRight className="h-4 w-4" />
+              </div>
+              <p className="contact-tile-label">Email us</p>
+              <p className="contact-tile-value">hello@sunduza.co.za</p>
+            </a>
+            <Link href="/projects" className="contact-tile">
+              <div className="contact-tile-head">
+                <Building2 className="h-5 w-5" />
+                <ArrowUpRight className="h-4 w-4" />
+              </div>
+              <p className="contact-tile-label">View portfolio</p>
+              <p className="contact-tile-value">Selected projects</p>
+            </Link>
+          </div>
         </div>
       </section>
     </>

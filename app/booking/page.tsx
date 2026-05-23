@@ -1,93 +1,117 @@
 import { Suspense } from "react";
-import { CheckCircle2, Clock, FileText, MessageSquare } from "lucide-react";
 import { BookingForm } from "@/frontend/components/features/BookingForm";
 import { Skeleton } from "@/frontend/components/ui/skeleton";
 
 export const metadata = {
   title: "Book a Consultation",
-  description: "Request a consultation with Sunduza Architectural & Projects.",
+  description:
+    "Request a consultation with Sunduza Architectural & Projects. We respond within one business day.",
 };
 
 const PROCESS_STEPS = [
   {
-    icon: MessageSquare,
+    number: "01",
     title: "Submit your request",
     body: "Fill in your project details — the more context, the better prepared we will be.",
   },
   {
-    icon: Clock,
+    number: "02",
     title: "We respond within 1 business day",
-    body: "Our team reviews your submission and schedules a suitable time to connect.",
+    body: "Our team reviews your submission and contacts you to schedule a consultation.",
   },
   {
-    icon: FileText,
+    number: "03",
     title: "Consultation & brief",
     body: "We discuss scope, budget, and timeline, then agree on a clear plan of action.",
   },
   {
-    icon: CheckCircle2,
+    number: "04",
     title: "Drawings delivered",
     body: "Council-ready documentation prepared to the exact standard your project requires.",
   },
 ];
 
+const TRUST_SIGNALS = [
+  { label: "Response time", value: "< 1 day" },
+  { label: "Projects delivered", value: "200+" },
+  { label: "Years in practice", value: "10+" },
+];
+
 export default function BookingPage() {
   return (
-    <div className="paper-grain min-h-screen">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 py-16 md:py-24">
-
-        {/* Page heading */}
-        <div className="mb-14 max-w-2xl">
-          <p className="type-eyebrow mb-4">Start your project</p>
-          <h1 className="font-serif text-[2.75rem] font-semibold leading-tight tracking-[-0.025em] text-ink md:text-6xl">
+    <>
+      {/* Hero */}
+      <section className="booking-hero" aria-label="Book a consultation">
+        <div className="booking-hero-inner">
+          <p className="type-eyebrow" style={{ color: "rgba(255,255,255,0.55)" }}>
+            Start your project
+          </p>
+          <h1 className="booking-hero-title">
             Book a<br />
-            <span className="font-light italic">consultation</span>
+            <em>consultation</em>
           </h1>
-          <p className="mt-5 text-[1.0625rem] leading-relaxed text-muted">
+          <p className="booking-hero-sub">
             Tell us about your project and we will contact you within one business day.
           </p>
-        </div>
-
-        <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1fr_1.4fr]">
-
-          {/* Left: process + note */}
-          <div className="space-y-8">
-            <div>
-              <h2 className="font-serif text-xl font-semibold text-ink mb-5">
-                How it works
-              </h2>
-              <ol className="space-y-5">
-                {PROCESS_STEPS.map((step, i) => {
-                  const Icon = step.icon;
-                  return (
-                    <li key={step.title} className="flex gap-4">
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded bg-paper2 text-primary">
-                        <Icon className="h-4 w-4" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-semibold text-ink">{step.title}</p>
-                        <p className="mt-0.5 text-sm leading-relaxed text-muted">{step.body}</p>
-                      </div>
-                    </li>
-                  );
-                })}
-              </ol>
-            </div>
-
-            <div className="rounded border border-primary/20 bg-primary/5 p-5 text-sm leading-relaxed text-ink">
-              <p className="font-semibold text-primary mb-1.5">Tip for a better first call</p>
-              Share your location, project type, rough budget, and any municipal deadlines — the more we know upfront, the more productive your consultation will be.
-            </div>
+          <div className="booking-trust-row" aria-label="Key figures">
+            {TRUST_SIGNALS.map((s) => (
+              <div key={s.label} className="booking-trust-item">
+                <span className="booking-trust-value">{s.value}</span>
+                <span className="booking-trust-label">{s.label}</span>
+              </div>
+            ))}
           </div>
+        </div>
+      </section>
 
-          {/* Right: form */}
-          <div className="surface-panel p-6 md:p-8">
-            <Suspense fallback={<Skeleton className="h-[32rem] w-full" />}>
+      {/* Main layout */}
+      <section className="booking-body" aria-label="Consultation request form">
+        <div className="booking-body-inner">
+          {/* Sidebar */}
+          <aside className="booking-sidebar" aria-label="How the process works">
+            <h2 className="booking-sidebar-heading">How it works</h2>
+
+            <ol className="booking-steps" aria-label="Process steps">
+              {PROCESS_STEPS.map((step) => (
+                <li key={step.number} className="booking-step">
+                  <span className="booking-step-num" aria-hidden="true">
+                    {step.number}
+                  </span>
+                  <div>
+                    <p className="booking-step-title">{step.title}</p>
+                    <p className="booking-step-body">{step.body}</p>
+                  </div>
+                </li>
+              ))}
+            </ol>
+
+            <div className="booking-tip-card" role="note" aria-label="Tip for a better consultation">
+              <p className="booking-tip-label">Tip for a better first call</p>
+              <p className="booking-tip-body">
+                Share your location, project type, rough budget, and any municipal deadlines — the
+                more we know upfront, the more productive your consultation will be.
+              </p>
+            </div>
+
+            <address className="booking-contact-note" aria-label="Direct contact options">
+              <p className="booking-contact-note-label">Prefer to call?</p>
+              <a href="tel:+27786723364" className="booking-contact-link">
+                +27 78 672 3364
+              </a>
+              <a href="mailto:info@sunduza.co.za" className="booking-contact-link">
+                info@sunduza.co.za
+              </a>
+            </address>
+          </aside>
+
+          {/* Form panel */}
+          <div className="booking-form-panel">
+            <Suspense fallback={<Skeleton className="h-[38rem] w-full rounded-lg" />}>
               <BookingForm />
             </Suspense>
           </div>
         </div>
-      </div>
-    </div>
+      </section>
+    </>
   );
 }
