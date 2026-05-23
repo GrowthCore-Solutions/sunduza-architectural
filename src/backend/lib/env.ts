@@ -5,6 +5,9 @@ import { z } from "zod";
 const envSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
   DATABASE_URL: z.string().min(1, "DATABASE_URL is required"),
+  // Optional in dev (Prisma falls back to DATABASE_URL); strongly recommended
+  // in production behind a connection pooler so migrations bypass PgBouncer.
+  DIRECT_URL: z.string().min(1).optional(),
   NEXTAUTH_URL: z.string().url("NEXTAUTH_URL must be a valid URL"),
   NEXTAUTH_SECRET: z
     .string()
