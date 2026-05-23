@@ -192,7 +192,7 @@ export function Footer() {
             &copy; {new Date().getFullYear()} Sunduza Architectural &amp; Projects (Pty) Ltd.
             All rights reserved.
           </p>
-          <p>Design &amp; Build by KSDRILL SA</p>
+          <p>Design &amp; Build by GrowthCore-Solutions</p>
         </div>
       </div>
     </footer>
