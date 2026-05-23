@@ -25,16 +25,17 @@ import { Skeleton } from "@/frontend/components/ui/skeleton";
 import { useProjects } from "@/frontend/hooks/useProjects";
 import { useTestimonials } from "@/frontend/hooks/useTestimonials";
 import { ProjectCard } from "@/frontend/components/features/ProjectCard";
-import { StarRating } from "@/frontend/components/features/StarRating";
+import { TestimonialsCarousel } from "@/frontend/components/features/TestimonialsCarousel";
+import { CountUp } from "@/frontend/components/ui/CountUp";
 import { SERVICES } from "@/frontend/data/services";
 import { CONTACT } from "@/shared/constants/contact";
 
 const SERVICE_ICONS = [Building2, PenTool, Ruler, Layers] as const;
 
 const STATS = [
-  { label: "Projects completed", value: "50+", detail: "Residential & commercial" },
-  { label: "Years of practice", value: "5+", detail: "Industry expertise" },
-  { label: "Core services", value: "4", detail: "End-to-end delivery" },
+  { label: "Projects completed", end: 50, suffix: "+", detail: "Residential & commercial" },
+  { label: "Years of practice", end: 5, suffix: "+", detail: "Industry expertise" },
+  { label: "Core services", end: 4, suffix: "", detail: "End-to-end delivery" },
 ];
 
 const TRUST_POINTS = [
@@ -223,11 +224,11 @@ export function HomePageContent() {
         <div className="stats-strip-inner">
           {STATS.map((stat) => (
             <div key={stat.label} className="stats-cell">
-              <p className="font-serif text-[3.5rem] font-semibold leading-none tracking-[-0.03em] text-ink">
-                {stat.value}
+              <p className="font-serif text-[2rem] font-semibold leading-none tracking-[-0.03em] text-ink sm:text-[3.5rem]">
+                <CountUp end={stat.end} suffix={stat.suffix} />
               </p>
-              <p className="mt-3 text-sm font-semibold text-ink">{stat.label}</p>
-              <p className="mt-1 text-xs uppercase tracking-[0.14em] text-muted">{stat.detail}</p>
+              <p className="mt-2 text-xs font-semibold text-ink sm:mt-3 sm:text-sm">{stat.label}</p>
+              <p className="mt-0.5 text-[0.625rem] uppercase tracking-[0.1em] text-muted sm:mt-1 sm:text-xs sm:tracking-[0.14em]">{stat.detail}</p>
             </div>
           ))}
         </div>
@@ -273,7 +274,7 @@ export function HomePageContent() {
       </section>
 
       {/* ─── Services ─────────────────────────────────────────────────── */}
-      <section className="paper-grain py-24" aria-label="Services">
+      <section className="paper-grain py-16 md:py-24" aria-label="Services">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="section-intro">
             <div className="section-intro-stack">
@@ -435,7 +436,7 @@ export function HomePageContent() {
       </section>
 
       {/* ─── Founder ──────────────────────────────────────────────────── */}
-      <section className="bg-ink py-24" aria-label="About the founder">
+      <section className="bg-ink py-16 md:py-24" aria-label="About the founder">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="grid grid-cols-1 gap-12 lg:grid-cols-2 lg:items-center">
             <div className="relative mx-auto w-full max-w-sm lg:max-w-none">
@@ -473,15 +474,22 @@ export function HomePageContent() {
                 phone the architect every second day. That&rsquo;s the bar.&rdquo;
               </blockquote>
 
-              <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3">
+              <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3">
                 {[
                   { label: "Council submissions", value: "50+" },
                   { label: "Years in practice", value: "5+" },
                   { label: "Provinces served", value: "4+" },
                 ].map((item) => (
-                  <div key={item.label} className="border-l-2 border-primary/40 pl-4">
-                    <p className="font-serif text-2xl font-semibold text-white">{item.value}</p>
-                    <p className="mt-0.5 text-xs text-white/45 uppercase tracking-[0.14em]">{item.label}</p>
+                  <div
+                    key={item.label}
+                    className="rounded border border-white/10 bg-white/[0.04] px-4 py-3 transition-colors hover:border-primary/50 hover:bg-white/[0.07]"
+                  >
+                    <p className="font-serif text-[1.6rem] font-semibold leading-none text-primary-light">
+                      {item.value}
+                    </p>
+                    <p className="mt-2 text-[0.625rem] text-white/55 uppercase tracking-[0.16em]">
+                      {item.label}
+                    </p>
                   </div>
                 ))}
               </div>
@@ -503,7 +511,7 @@ export function HomePageContent() {
       </section>
 
       {/* ─── Featured projects grid ───────────────────────────────────── */}
-      <section className="mist-section py-24" aria-label="Featured projects">
+      <section className="mist-section py-16 md:py-24" aria-label="Featured projects">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="section-intro">
             <div className="section-intro-stack">
@@ -563,7 +571,7 @@ export function HomePageContent() {
       </section>
 
       {/* ─── Testimonials ─────────────────────────────────────────────── */}
-      <section className="paper-grain py-24" aria-label="Client reviews">
+      <section className="paper-grain py-16 md:py-24" aria-label="Client reviews">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="section-intro">
             <div className="section-intro-stack">
@@ -591,25 +599,7 @@ export function HomePageContent() {
           )}
 
           {!testimonialsLoading && testimonials && testimonials.length > 0 && (
-            <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
-              {testimonials.slice(0, 3).map((t) => (
-                <figure key={t.id} className="quote-card-rich">
-                  {t.rating && <StarRating rating={t.rating} className="mb-4" />}
-                  <blockquote className="font-serif text-[1.05rem] leading-relaxed text-ink line-clamp-5">
-                    &ldquo;{t.review}&rdquo;
-                  </blockquote>
-                  <figcaption className="mt-auto flex items-center gap-3 border-t border-rule/50 pt-4">
-                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-[0.65rem] font-bold uppercase tracking-wide text-primary">
-                      {t.clientName.slice(0, 2)}
-                    </div>
-                    <div>
-                      <p className="text-sm font-semibold text-ink">{t.clientName}</p>
-                      <p className="text-xs uppercase tracking-[0.14em] text-muted">Verified client</p>
-                    </div>
-                  </figcaption>
-                </figure>
-              ))}
-            </div>
+            <TestimonialsCarousel testimonials={testimonials.slice(0, 3)} />
           )}
 
           {!testimonialsLoading && (!testimonials || testimonials.length === 0) && (

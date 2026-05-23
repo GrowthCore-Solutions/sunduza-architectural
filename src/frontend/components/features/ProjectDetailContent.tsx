@@ -1,11 +1,13 @@
 "use client";
 
+import * as React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, CheckCircle2 } from "lucide-react";
 import { useProject } from "@/frontend/hooks/useProject";
 import { useProjects } from "@/frontend/hooks/useProjects";
 import { Button } from "@/frontend/components/ui/button";
+import { cn } from "@/frontend/lib/utils";
 import type { ProjectRow } from "@/shared/types/db";
 
 const FALLBACK_IMG = "/images/hero/hero-fallback.png";
@@ -112,6 +114,21 @@ export function ProjectDetailContent({ id }: { id: string }) {
   const { data: project, isLoading, isError } = useProject(id);
   const { data: allProjects } = useProjects();
 
+  // Hide the specs bar on scroll-down (saves viewport on mobile)
+  const [specsHidden, setSpecsHidden] = React.useState(false);
+  const lastYRef = React.useRef(0);
+  React.useEffect(() => {
+    const onScroll = () => {
+      const y = window.scrollY;
+      if (y < 240) setSpecsHidden(false);
+      else if (y > lastYRef.current + 8) setSpecsHidden(true);
+      else if (y < lastYRef.current - 4) setSpecsHidden(false);
+      lastYRef.current = y;
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   const related = (allProjects ?? [])
     .filter((p) => p.id !== id && p.category === project?.category)
     .slice(0, 3);
@@ -190,7 +207,13 @@ export function ProjectDetailContent({ id }: { id: string }) {
       </div>
 
       {/* ── Specs bar ─────────────────────────────────────────────────── */}
-      <nav className="project-detail-specs" aria-label="Project specifications">
+      <nav
+        className={cn(
+          "project-detail-specs",
+          specsHidden && "project-detail-specs--hidden"
+        )}
+        aria-label="Project specifications"
+      >
         <div className="project-detail-specs-inner">
           {([
             { label: "Category", value: project.category ?? "Architecture" },

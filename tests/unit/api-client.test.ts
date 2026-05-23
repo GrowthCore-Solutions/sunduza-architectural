@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { api, ApiClientError, ApiErrorCode } from "@/frontend/lib/api-client";
+import { api, ApiErrorCode } from "@/frontend/lib/api-client";
 
 function jsonResponse(body: unknown, init: ResponseInit = {}): Response {
   return new Response(JSON.stringify(body), {

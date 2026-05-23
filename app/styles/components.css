@@ -204,7 +204,23 @@
   flex-direction: column;
   padding: 1.75rem;
   min-height: 280px;
+  position: relative;
+  overflow: hidden;
 }
+
+/* Top accent rule that slides in on hover */
+.service-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--color-primary), color-mix(in srgb, var(--color-primary) 30%, transparent) 70%);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--duration-slow) var(--ease-out);
+}
+
+.surface-interactive:hover .service-card::before { transform: scaleX(1); }
 
 .service-card-icon {
   margin-bottom: 1.25rem;
@@ -218,12 +234,14 @@
   color: var(--color-primary);
   transition:
     background-color var(--duration-base) var(--ease-out),
-    color var(--duration-base) var(--ease-out);
+    color var(--duration-base) var(--ease-out),
+    transform var(--duration-base) var(--ease-out);
 }
 
 .surface-interactive:hover .service-card-icon {
   background-color: var(--color-primary);
   color: #ffffff;
+  transform: rotate(-4deg) scale(1.05);
 }
 
 /* ─── Quote card (testimonials) ──────────────────────────────────────────── */
@@ -410,9 +428,128 @@
 
 @media (prefers-reduced-motion: no-preference) {
   .media-card:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-hover);
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-elevated);
   }
+}
+
+/* ─── Testimonials mobile snap carousel ─────────────────────────────────── */
+.testimonials-scroller {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  gap: 1rem;
+  padding-bottom: 0.25rem;
+}
+
+.testimonials-scroller::-webkit-scrollbar {
+  display: none;
+}
+
+.testimonials-scroller-slide {
+  flex: 0 0 100%;
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
+  display: flex;
+  min-width: 0;
+}
+
+.testimonials-scroller-slide > .quote-card-rich {
+  width: 100%;
+}
+
+/* ─── Mobile nav strip ───────────────────────────────────────────────────── */
+.mob-nav-rail {
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.mob-nav-rail::-webkit-scrollbar {
+  display: none;
+}
+
+.mob-nav-inner {
+  display: flex;
+  align-items: center;
+  gap: 0.125rem;
+  padding: 0.375rem 0.75rem;
+  width: max-content;
+  min-width: 100%;
+}
+
+.mob-nav-link {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  border-radius: var(--radius-md);
+  padding: 0.5rem 0.875rem;
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: 0.005em;
+  color: var(--color-graphite);
+  min-height: 2.75rem;
+  text-decoration: none;
+  transition:
+    background-color var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out);
+}
+
+.mob-nav-link:hover {
+  background-color: var(--color-paper2);
+  color: var(--color-ink);
+}
+
+.mob-nav-link--active {
+  background-color: color-mix(in srgb, var(--color-primary) 11%, transparent);
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+/* Scroll-hint gradient fades on both edges */
+.mob-nav-fade {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2.25rem;
+  pointer-events: none;
+}
+
+.mob-nav-fade--right {
+  right: 0;
+  background: linear-gradient(
+    to left,
+    color-mix(in srgb, var(--color-paper) 96%, transparent),
+    transparent
+  );
+}
+
+.mob-nav-fade--left {
+  left: 0;
+  background: linear-gradient(
+    to right,
+    color-mix(in srgb, var(--color-paper) 96%, transparent),
+    transparent
+  );
+}
+
+/* Underline indicator under the active mobile link */
+.mob-nav-link--active::after {
+  content: "";
+  position: absolute;
+  left: 0.875rem;
+  right: 0.875rem;
+  bottom: 0.25rem;
+  height: 2px;
+  border-radius: 999px;
+  background-color: var(--color-primary);
+}
+
+.mob-nav-link {
+  position: relative;
 }
 
 /* ─── Header / nav atoms ─────────────────────────────────────────────────── */
