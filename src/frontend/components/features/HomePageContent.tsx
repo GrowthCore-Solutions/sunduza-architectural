@@ -223,11 +223,11 @@ export function HomePageContent() {
         <div className="stats-strip-inner">
           {STATS.map((stat) => (
             <div key={stat.label} className="stats-cell">
-              <p className="font-serif text-[3.5rem] font-semibold leading-none tracking-[-0.03em] text-ink">
+              <p className="font-serif text-[2rem] font-semibold leading-none tracking-[-0.03em] text-ink sm:text-[3.5rem]">
                 {stat.value}
               </p>
-              <p className="mt-3 text-sm font-semibold text-ink">{stat.label}</p>
-              <p className="mt-1 text-xs uppercase tracking-[0.14em] text-muted">{stat.detail}</p>
+              <p className="mt-2 text-xs font-semibold text-ink sm:mt-3 sm:text-sm">{stat.label}</p>
+              <p className="mt-0.5 text-[0.625rem] uppercase tracking-[0.1em] text-muted sm:mt-1 sm:text-xs sm:tracking-[0.14em]">{stat.detail}</p>
             </div>
           ))}
         </div>
@@ -273,7 +273,7 @@ export function HomePageContent() {
       </section>
 
       {/* ─── Services ─────────────────────────────────────────────────── */}
-      <section className="paper-grain py-24" aria-label="Services">
+      <section className="paper-grain py-16 md:py-24" aria-label="Services">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="section-intro">
             <div className="section-intro-stack">
@@ -435,7 +435,7 @@ export function HomePageContent() {
       </section>
 
       {/* ─── Founder ──────────────────────────────────────────────────── */}
-      <section className="bg-ink py-24" aria-label="About the founder">
+      <section className="bg-ink py-16 md:py-24" aria-label="About the founder">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="grid grid-cols-1 gap-12 lg:grid-cols-2 lg:items-center">
             <div className="relative mx-auto w-full max-w-sm lg:max-w-none">
@@ -503,7 +503,7 @@ export function HomePageContent() {
       </section>
 
       {/* ─── Featured projects grid ───────────────────────────────────── */}
-      <section className="mist-section py-24" aria-label="Featured projects">
+      <section className="mist-section py-16 md:py-24" aria-label="Featured projects">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="section-intro">
             <div className="section-intro-stack">
@@ -563,7 +563,7 @@ export function HomePageContent() {
       </section>
 
       {/* ─── Testimonials ─────────────────────────────────────────────── */}
-      <section className="paper-grain py-24" aria-label="Client reviews">
+      <section className="paper-grain py-16 md:py-24" aria-label="Client reviews">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="section-intro">
             <div className="section-intro-stack">

@@ -3,18 +3,12 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ArrowRight, Menu, X } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Button } from "@/frontend/components/ui/button";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/frontend/components/ui/sheet";
 import { cn } from "@/frontend/lib/utils";
 
 const NAV_ITEMS = [
+  { label: "Home", href: "/" },
   { label: "Services", href: "/services" },
   { label: "Projects", href: "/projects" },
   { label: "Testimonials", href: "/testimonials" },
@@ -23,7 +17,6 @@ const NAV_ITEMS = [
 
 export function Header() {
   const pathname = usePathname();
-  const [open, setOpen] = React.useState(false);
   const [scrolled, setScrolled] = React.useState(false);
 
   React.useEffect(() => {
@@ -43,29 +36,36 @@ export function Header() {
           : "border-b border-rule/35 bg-paper/92 backdrop-blur-sm"
       )}
     >
+      {/* Gold accent line */}
       <div className="absolute top-0 left-0 right-0 h-[2px] bg-primary" />
-      <div className="mx-auto flex h-[4.5rem] max-w-7xl items-center justify-between px-4 sm:px-6">
+
+      {/* ── Primary bar: logo + desktop nav + CTA ── */}
+      <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 md:h-[4.5rem] md:px-6">
         <Link
           href="/"
-          className="flex shrink-0 items-center gap-3 group"
+          className="flex shrink-0 items-center gap-2.5 group"
           aria-label="Sunduza Architectural home"
         >
-          <span className="flex h-[2.6rem] w-[2.6rem] items-center justify-center rounded bg-ink text-[0.65rem] font-black tracking-[0.2em] text-white shadow-sm transition-colors group-hover:bg-graphite">
+          <span className="flex h-10 w-10 items-center justify-center rounded bg-ink text-[0.65rem] font-black tracking-[0.2em] text-white shadow-sm transition-colors group-hover:bg-graphite md:h-[2.6rem] md:w-[2.6rem]">
             SA
           </span>
           <span className="leading-none">
-            <span className="block font-serif text-[1.3rem] font-semibold tracking-tight text-ink leading-none">
+            <span className="block font-serif text-[1.15rem] font-semibold tracking-tight text-ink leading-none md:text-[1.3rem]">
               Sunduza
             </span>
             <span className="hidden text-[0.6rem] font-medium uppercase tracking-[0.22em] text-muted sm:block mt-[3px]">
-              Architectural & Projects
+              Architectural &amp; Projects
             </span>
           </span>
         </Link>
 
+        {/* Desktop-only nav */}
         <nav className="hidden items-center gap-0.5 md:flex" aria-label="Main navigation">
           {NAV_ITEMS.map((item) => {
-            const active = pathname === item.href || pathname.startsWith(item.href + "/");
+            const active =
+              item.href === "/"
+                ? pathname === "/"
+                : pathname === item.href || pathname.startsWith(item.href + "/");
             return (
               <Link
                 key={item.href}
@@ -84,79 +84,47 @@ export function Header() {
           })}
         </nav>
 
-        <div className="hidden items-center gap-3 md:flex">
-          <Link
-            href="/"
-            className={cn(
-              "px-3.5 py-2 text-[0.8125rem] font-medium tracking-[0.005em] transition-colors duration-200",
-              pathname === "/" ? "text-primary" : "text-graphite hover:text-ink"
-            )}
-          >
-            Home
+        {/* CTA — "Book" on mobile, full label on desktop */}
+        <Button
+          size="sm"
+          asChild
+          className="h-10 gap-1.5 px-3 text-[0.8125rem] md:h-9 md:px-4"
+        >
+          <Link href="/booking">
+            <span className="md:hidden">Book</span>
+            <span className="hidden md:inline">Book Consultation</span>
+            <ArrowRight className="h-3.5 w-3.5" />
           </Link>
-          <Button size="sm" asChild className="h-9 px-4 text-[0.8125rem]">
-            <Link href="/booking">
-              Book Consultation
-              <ArrowRight className="h-3.5 w-3.5" />
-            </Link>
-          </Button>
-        </div>
+        </Button>
+      </div>
 
-        <Sheet open={open} onOpenChange={setOpen}>
-          <SheetTrigger asChild className="md:hidden">
-            <Button variant="ghost" size="icon" className="h-10 w-10" aria-label="Open navigation menu">
-              {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-            </Button>
-          </SheetTrigger>
-
-          <SheetContent side="right" className="w-[300px] p-0">
-            <div className="flex h-full flex-col">
-              <div className="h-[2px] w-full bg-primary" />
-              <SheetHeader className="border-b border-rule px-5 py-4">
-                <SheetTitle className="font-serif text-base font-semibold text-ink text-left">
-                  Sunduza Architectural
-                </SheetTitle>
-              </SheetHeader>
-
-              <nav className="flex flex-1 flex-col gap-0.5 p-4" aria-label="Mobile navigation">
+      {/* ── Mobile nav strip (horizontal scroll, hidden on md+) ── */}
+      <div className="relative md:hidden">
+        <div className="h-px w-full bg-rule/25" />
+        <nav
+          className="mob-nav-rail"
+          aria-label="Mobile navigation"
+        >
+          <div className="mob-nav-inner">
+            {NAV_ITEMS.map((item) => {
+              const active =
+                item.href === "/"
+                  ? pathname === "/"
+                  : pathname === item.href || pathname.startsWith(item.href + "/");
+              return (
                 <Link
-                  href="/"
-                  onClick={() => setOpen(false)}
-                  className={cn(
-                    "rounded px-4 py-2.5 text-sm font-medium transition-colors duration-200",
-                    pathname === "/" ? "bg-paper2 text-primary" : "text-ink hover:bg-paper2 hover:text-primary"
-                  )}
+                  key={item.href}
+                  href={item.href}
+                  className={cn("mob-nav-link", active && "mob-nav-link--active")}
                 >
-                  Home
+                  {item.label}
                 </Link>
-                {NAV_ITEMS.map((item) => (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    onClick={() => setOpen(false)}
-                    className={cn(
-                      "rounded px-4 py-2.5 text-sm font-medium transition-colors duration-200",
-                      pathname === item.href
-                        ? "bg-paper2 text-primary"
-                        : "text-ink hover:bg-paper2 hover:text-primary"
-                    )}
-                  >
-                    {item.label}
-                  </Link>
-                ))}
-              </nav>
-
-              <div className="border-t border-rule p-4">
-                <Button className="w-full" asChild>
-                  <Link href="/booking" onClick={() => setOpen(false)}>
-                    Book Consultation
-                    <ArrowRight className="h-4 w-4" />
-                  </Link>
-                </Button>
-              </div>
-            </div>
-          </SheetContent>
-        </Sheet>
+              );
+            })}
+          </div>
+        </nav>
+        {/* Right-edge scroll hint */}
+        <div className="mob-nav-fade" aria-hidden="true" />
       </div>
     </header>
   );
