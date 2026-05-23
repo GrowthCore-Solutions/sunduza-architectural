@@ -35,10 +35,13 @@ CREATE INDEX "leads_booking_count_active_idx"
   ON "leads"("booking_count" DESC)
   WHERE "deleted_at" IS NULL;
 
--- Sanity: booking_count must be at least 1 while the lead is active.
+-- booking_count starts at 0 on creation; the trigger increments it to 1 when
+-- the first booking row is inserted in the same transaction. Allowing 0 avoids
+-- a constraint violation on the transient state between lead INSERT and the
+-- trigger UPDATE within the same atomic transaction.
 ALTER TABLE "leads"
   ADD CONSTRAINT "leads_booking_count_positive"
-  CHECK ("booking_count" >= 1);
+  CHECK ("booking_count" >= 0);
 
 -- Phone format reuses the pattern from bookings (10+ chars when provided).
 ALTER TABLE "leads"
@@ -115,7 +118,14 @@ UPDATE "bookings" b
  WHERE b."email" = l."email"
    AND b."deleted_at" IS NULL;
 
--- ─── 4. KEEP booking_count IN SYNC ───────────────────────────────────────────
+-- ─── 4. CONTACT_MESSAGES EMAIL INDEX ─────────────────────────────────────────
+-- Allows looking up contact messages by email without a full table scan.
+-- Partial (WHERE deleted_at IS NULL) to match the soft-delete read path.
+CREATE INDEX "contact_messages_email_active_idx"
+  ON "contact_messages"("email")
+  WHERE "deleted_at" IS NULL;
+
+-- ─── 5. KEEP booking_count IN SYNC ───────────────────────────────────────────
 -- Trigger: increment booking_count and refresh last_seen_at on every new booking
 -- that references an existing lead. The application layer upserts the lead row
 -- inside the same transaction, so this trigger is a belt-and-braces guard for
