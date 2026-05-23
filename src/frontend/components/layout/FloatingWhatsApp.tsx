@@ -27,7 +27,8 @@ export function FloatingWhatsApp({
 }: FloatingWhatsAppProps) {
   const pathname = usePathname();
 
-  if (pathname.startsWith("/admin")) return null;
+  const HIDDEN_PREFIXES = ["/admin", "/contact", "/booking"];
+  if (HIDDEN_PREFIXES.some((p) => pathname.startsWith(p))) return null;
   if (!phoneNumber) return null;
 
   const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
