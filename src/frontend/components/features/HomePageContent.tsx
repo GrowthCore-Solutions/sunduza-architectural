@@ -712,13 +712,13 @@ export function HomePageContent() {
               <p className="contact-tile-label">Call the studio</p>
               <p className="contact-tile-value">+27 78 672 3364</p>
             </a>
-            <a href="mailto:hello@sunduza.co.za" className="contact-tile">
+            <a href="mailto:xivutisokevinsunduza@gmail.com" className="contact-tile">
               <div className="contact-tile-head">
                 <Mail className="h-5 w-5" />
                 <ArrowUpRight className="h-4 w-4" />
               </div>
               <p className="contact-tile-label">Email us</p>
-              <p className="contact-tile-value">hello@sunduza.co.za</p>
+              <p className="contact-tile-value">xivutisokevinsunduza@gmail.com</p>
             </a>
             <Link href="/projects" className="contact-tile">
               <div className="contact-tile-head">
