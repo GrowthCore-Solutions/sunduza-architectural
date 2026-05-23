@@ -112,7 +112,7 @@ model Tag {
   updatedAt DateTime  @updatedAt @map("updated_at")
   deletedAt DateTime? @map("deleted_at")
 
-  projects Project[] @relation("ProjectTags")
+  projectTags ProjectTag[]
 
   @@map("tags")
 }
@@ -259,7 +259,19 @@ model Booking {
   location    String
   description String
   meetingDate DateTime? @map("meeting_date")
-  budget      String?
+
+  // Budget — structured range in cents.
+  // `budget`          — kept as the free-text snapshot (historical attribution,
+  //                     backward compat while the front-end migrates to the new
+  //                     structured fields).
+  // `budget_min_cents` / `budget_max_cents` — machine-comparable values for
+  //                     sorting, filtering and lead-score weighting. Currency
+  //                     defaults to ZAR (South African operations).
+  // Both NULL means the visitor chose "no preference / not sure".
+  budget         String? // legacy snapshot — do not use for arithmetic
+  budgetMinCents BigInt? @map("budget_min_cents")
+  budgetMaxCents BigInt? @map("budget_max_cents")
+  budgetCurrency String  @default("ZAR") @map("budget_currency") @db.Char(3)
 
   // Lead management
   status    BookingStatus @default(PENDING)
@@ -288,6 +300,8 @@ model Booking {
   updatedAt DateTime  @updatedAt @map("updated_at")
   deletedAt DateTime? @map("deleted_at")
 
+  serviceRef Service? @relation(fields: [serviceId], references: [id], onDelete: SetNull)
+
   // Hot-path indexes are PARTIAL (WHERE deleted_at IS NULL) and live in the
   // raw SQL migration 20260523210000_db_hardening_tier_1. They cover:
   //   (status, created_at DESC) — admin list paginated by status
@@ -295,7 +309,9 @@ model Booking {
   //   (email)                   — duplicate / repeat lead lookup
   //   (created_at DESC)         — global recency
   //   (utm_source)              — marketing attribution rollups
-  // Plus DB-level CHECK constraints on lead_score and consent consistency.
+  // Plus (service_id) partial index for service-level rollups, defined in the
+  // tier-2a migration. Plus DB-level CHECK constraints on lead_score and
+  // consent consistency.
   @@map("bookings")
 }
 
@@ -318,14 +334,34 @@ model Project {
   deletedAt   DateTime? @map("deleted_at")
 
   testimonials Testimonial[]
-  // Many-to-many via implicit join table `_ProjectTags` (Prisma convention).
-  // Category stays as the denormalized primary axis; tags layer on top for
-  // multi-dimensional classification without redesigning existing queries.
-  tags         Tag[]         @relation("ProjectTags")
+  // Explicit junction (see ProjectTag below). category stays as the
+  // denormalized primary axis; tags add multi-dimensional classification.
+  projectTags  ProjectTag[]
 
   // Partial indexes (WHERE deleted_at IS NULL) defined in raw migration:
   //   (is_featured, sort_order), (sort_order), (category)
   @@map("projects")
+}
+
+// ─── PROJECT TAG ──────────────────────────────────────────────────────────────
+// Explicit junction between Project and Tag. Replaces the Prisma-implicit
+// _ProjectTags so raw SQL queries, BI tools and admin dashboards all see
+// self-describing column names (project_id / tag_id) instead of A / B.
+//
+// Composite primary key enforces uniqueness. Cascades on both sides so the
+// join row disappears when either the project or the tag is hard-deleted.
+
+model ProjectTag {
+  projectId String   @map("project_id")
+  tagId     String   @map("tag_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  tag     Tag     @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([projectId, tagId])
+  @@index([tagId])
+  @@map("project_tags")
 }
 
 // ─── TESTIMONIAL ──────────────────────────────────────────────────────────────
