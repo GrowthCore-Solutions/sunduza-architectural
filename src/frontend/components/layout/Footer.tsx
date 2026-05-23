@@ -1,6 +1,6 @@
 import * as React from "react";
 import Link from "next/link";
-import { ArrowRight, Clock, Facebook, Instagram, Linkedin, Mail, MapPin, Phone } from "lucide-react";
+import { ArrowRight, Clock, Mail, MapPin, Phone } from "lucide-react";
 import { CONTACT } from "@/shared/constants/contact";
 
 // Brand icons (lucide doesn't ship brand marks; inline simple paths)
