@@ -10,8 +10,13 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  // directUrl bypasses the connection pooler (PgBouncer) for migrations and
+  // introspection. In production (Neon), DATABASE_URL points at the pooled
+  // endpoint and DIRECT_URL points at the direct endpoint. In local dev,
+  // both can be the same connection string.
+  directUrl = env("DIRECT_URL")
 }
 
 // ─── ENUMS ────────────────────────────────────────────────────────────────────
@@ -52,7 +57,7 @@ enum AuditAction {
 
 model User {
   id             String    @id @default(cuid())
-  email          String    @unique
+  email          String    @unique @db.Citext
   password       String
   name           String?
   role           UserRole  @default(ADMIN)
@@ -72,7 +77,9 @@ model User {
   auditLogs    AuditLog[]
   siteSettings SiteSettings[]
 
-  @@index([deletedAt])
+  // Partial soft-delete indexes are defined in raw SQL (see migration
+  // 20260523210000_db_hardening_tier_1). Prisma's @@index syntax does not
+  // support WHERE clauses, so partial indexes live in the migration only.
   @@map("users")
 }
 
@@ -141,9 +148,13 @@ model VerificationToken {
 model Booking {
   id String @id @default(cuid())
 
+  // Idempotency: clients submit a stable key per attempt. Same key within the
+  // retention window returns the original record instead of duplicating.
+  idempotencyKey String? @unique @map("idempotency_key")
+
   // Visitor contact (denormalized — no Visitor entity in v1)
   name  String
-  email String
+  email String @db.Citext
   phone String
 
   // Project details
@@ -181,12 +192,14 @@ model Booking {
   updatedAt DateTime  @updatedAt @map("updated_at")
   deletedAt DateTime? @map("deleted_at")
 
-  // Indexes — admin list queries (status + date, status + lead score)
-  @@index([status, createdAt(sort: Desc)])
-  @@index([status, leadScore(sort: Desc)])
-  @@index([email])
-  @@index([createdAt(sort: Desc)])
-  @@index([utmSource])
+  // Hot-path indexes are PARTIAL (WHERE deleted_at IS NULL) and live in the
+  // raw SQL migration 20260523210000_db_hardening_tier_1. They cover:
+  //   (status, created_at DESC) — admin list paginated by status
+  //   (status, lead_score DESC) — admin queue sorted by score
+  //   (email)                   — duplicate / repeat lead lookup
+  //   (created_at DESC)         — global recency
+  //   (utm_source)              — marketing attribution rollups
+  // Plus DB-level CHECK constraints on lead_score and consent consistency.
   @@map("bookings")
 }
 
@@ -210,9 +223,8 @@ model Project {
 
   testimonials Testimonial[]
 
-  @@index([isFeatured, sortOrder])
-  @@index([sortOrder])
-  @@index([category])
+  // Partial indexes (WHERE deleted_at IS NULL) defined in raw migration:
+  //   (is_featured, sort_order), (sort_order), (category)
   @@map("projects")
 }
 
@@ -234,8 +246,8 @@ model Testimonial {
 
   project Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
 
-  @@index([isActive])
-  @@index([projectId])
+  // Partial indexes (WHERE deleted_at IS NULL) defined in raw migration:
+  //   (is_active), (project_id). Plus CHECK (rating BETWEEN 1 AND 5).
   @@map("testimonials")
 }
 
@@ -245,18 +257,20 @@ model Testimonial {
 // read/readAt: admin inbox read-state tracking.
 
 model ContactMessage {
-  id        String    @id @default(cuid())
-  name      String
-  email     String
-  phone     String?
-  message   String
-  read      Boolean   @default(false)
-  readAt    DateTime? @map("read_at")
-  createdAt DateTime  @default(now()) @map("created_at")
-  updatedAt DateTime  @updatedAt @map("updated_at")
-  deletedAt DateTime? @map("deleted_at")
+  id             String    @id @default(cuid())
+  idempotencyKey String?   @unique @map("idempotency_key")
+  name           String
+  email          String    @db.Citext
+  phone          String?
+  message        String
+  read           Boolean   @default(false)
+  readAt         DateTime? @map("read_at")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+  deletedAt      DateTime? @map("deleted_at")
 
-  @@index([read, createdAt(sort: Desc)])
+  // Partial index (read, created_at DESC) WHERE deleted_at IS NULL is in the
+  // raw migration. Inbox queries always run against active rows.
   @@map("contact_messages")
 }
 
@@ -295,7 +309,10 @@ model Notification {
   error     String?
   createdAt DateTime  @default(now()) @map("created_at")
 
+  // Worker scan order — oldest pending first.
   @@index([createdAt(sort: Asc)])
+  // Additional GIN index on payload (jsonb_path_ops) defined in raw migration
+  // so workers can locate rows by entity reference (e.g. booking id) cheaply.
   @@map("notifications")
 }
 
