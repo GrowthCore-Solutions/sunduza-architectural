@@ -8,8 +8,8 @@ import { unwrapApiData, type ApiSuccess } from "@/frontend/lib/api-types";
 export function useProject(id: string) {
   return useQuery({
     queryKey: ["project", id],
-    queryFn: async () => {
-      const res = await api.get<ApiSuccess<{ project: ProjectRow }>>(`/api/projects/${id}`);
+    queryFn: async ({ signal }) => {
+      const res = await api.get<ApiSuccess<{ project: ProjectRow }>>(`/api/projects/${id}`, { signal });
       return unwrapApiData(res).project;
     },
     enabled: Boolean(id),

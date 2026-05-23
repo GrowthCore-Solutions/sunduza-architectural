@@ -9,9 +9,10 @@ import { unwrapApiData, type ApiSuccess } from "@/frontend/lib/api-types";
 export function useAdminTestimonials() {
   return useQuery({
     queryKey: ["admin", "testimonials"],
-    queryFn: async () => {
+    queryFn: async ({ signal }) => {
       const res = await api.get<ApiSuccess<{ testimonials: TestimonialRow[] }>>(
-        "/api/testimonials"
+        "/api/testimonials",
+        { signal }
       );
       return unwrapApiData(res).testimonials;
     },

@@ -9,9 +9,10 @@ import { unwrapApiData, type ApiSuccess } from "@/frontend/lib/api-types";
 export function useAdminProjects() {
   return useQuery({
     queryKey: ["admin", "projects"],
-    queryFn: async () => {
+    queryFn: async ({ signal }) => {
       const res = await api.get<ApiSuccess<{ projects: ProjectRow[]; total: number }>>(
-        "/api/projects"
+        "/api/projects",
+        { signal }
       );
       return unwrapApiData(res).projects;
     },

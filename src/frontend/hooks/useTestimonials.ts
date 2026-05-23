@@ -10,8 +10,8 @@ type TestimonialsResponse = { testimonials: TestimonialRow[]; total: number };
 export function useTestimonials() {
   return useQuery({
     queryKey: ["testimonials"],
-    queryFn: async () => {
-      const res = await api.get<ApiSuccess<TestimonialsResponse>>("/api/testimonials");
+    queryFn: async ({ signal }) => {
+      const res = await api.get<ApiSuccess<TestimonialsResponse>>("/api/testimonials", { signal });
       return unwrapApiData(res).testimonials;
     },
     staleTime: 5 * 60 * 1000,
