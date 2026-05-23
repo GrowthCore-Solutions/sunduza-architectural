@@ -1,5 +1,6 @@
 import { Clock, Mail, MapPin, MessageCircle, Phone } from "lucide-react";
 import { ContactForm } from "@/frontend/components/features/ContactForm";
+import { CONTACT } from "@/shared/constants/contact";
 
 export const metadata = {
   title: "Contact",
@@ -11,28 +12,28 @@ const CHANNELS = [
   {
     icon: Phone,
     label: "Call",
-    value: "+27 78 672 3364",
-    hint: "Mon–Fri, 8 am – 5 pm",
-    href: "tel:+27786723364",
+    value: CONTACT.PHONE_DISPLAY,
+    hint: CONTACT.HOURS,
+    href: `tel:${CONTACT.PHONE_E164}`,
   },
   {
     icon: MessageCircle,
     label: "WhatsApp",
-    value: "+27 78 672 3364",
+    value: CONTACT.PHONE_DISPLAY,
     hint: "Fastest response",
-    href: "https://wa.me/27786723364",
+    href: `https://wa.me/${CONTACT.WHATSAPP_NUMBER}`,
   },
   {
     icon: Mail,
     label: "Email",
-    value: "xivutisokevinsunduza@gmail.com",
+    value: CONTACT.EMAIL,
     hint: "Reply within 24 hours",
-    href: "mailto:xivutisokevinsunduza@gmail.com",
+    href: `mailto:${CONTACT.EMAIL}`,
   },
   {
     icon: MapPin,
     label: "Studio",
-    value: "South Africa",
+    value: CONTACT.LOCATION,
     hint: "By appointment",
     href: null,
   },
@@ -40,7 +41,7 @@ const CHANNELS = [
 
 const META = [
   { icon: Clock, label: "Response time", value: "Within 24 hours" },
-  { icon: Mail, label: "Office hours", value: "Mon–Fri, 8 am – 5 pm SAST" },
+  { icon: Mail, label: "Office hours", value: CONTACT.HOURS_FULL },
 ];
 
 const WHAT_TO_INCLUDE = [
