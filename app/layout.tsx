@@ -8,6 +8,7 @@ import { Providers } from "@/frontend/components/providers";
 import { unstable_cache } from "next/cache";
 import { getSetting } from "@/backend/services/settings";
 import { CONTACT } from "@/shared/constants/contact";
+import { SITE_URL } from "@/shared/constants/site";
 
 const cormorant = Cormorant_Garamond({
   subsets: ["latin"],
@@ -25,6 +26,7 @@ const dmSans = DM_Sans({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "Sunduza Architectural & Projects | Professional Architectural Services",
     template: "%s | Sunduza Architectural",
