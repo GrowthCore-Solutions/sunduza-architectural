@@ -21,8 +21,26 @@ datasource db {
 
 // ─── ENUMS ────────────────────────────────────────────────────────────────────
 
+// EDITOR and VIEWER are reserved for future staff onboarding — no application
+// path uses them yet, but having them in the type means we never need a second
+// migration when the admin panel grows beyond a single operator.
 enum UserRole {
   ADMIN
+  EDITOR
+  VIEWER
+}
+
+// Typed values for site_settings. The admin UI renders the right input control
+// per type, and the service layer parses on read. New types extend this enum
+// without touching the schema of every consumer.
+enum SettingValueType {
+  STRING
+  INTEGER
+  BOOLEAN
+  JSON
+  URL
+  EMAIL
+  PHONE
 }
 
 // S5.9 — Booking lifecycle: PENDING → CONTACTED → CONFIRMED → COMPLETED | REJECTED
@@ -48,6 +66,81 @@ enum AuditAction {
   CONTACT_MESSAGE_CREATE
   CONTACT_MESSAGE_READ
   SETTINGS_UPDATE
+}
+
+// ─── SERVICE ──────────────────────────────────────────────────────────────────
+// Admin-managed catalogue of offerings. Replaces the previous free-text
+// `booking.service` column with a proper lookup. Bookings keep `service`
+// (the slug at submission time, immutable snapshot) AND `serviceId` (live
+// FK, may SET NULL if a service is later removed) so historical attribution
+// never gets lost.
+//
+// Adding, renaming, hiding or reordering a service is a row update — no
+// migration, no deploy.
+
+model Service {
+  id          String    @id @default(cuid())
+  slug        String    @unique
+  name        String
+  description String?
+  icon        String?
+  isActive    Boolean   @default(true) @map("is_active")
+  sortOrder   Int       @default(0) @map("sort_order")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  deletedAt   DateTime? @map("deleted_at")
+
+  bookings Booking[]
+
+  // Partial indexes (WHERE deleted_at IS NULL) defined in raw migration:
+  //   (is_active, sort_order) — public service-picker list
+  @@map("services")
+}
+
+// ─── TAG ──────────────────────────────────────────────────────────────────────
+// Project tagging. Layered on top of the existing Project.category field —
+// category stays as the denormalized primary axis (single value), tags add
+// multi-dimensional classification (location, style, status, etc.).
+
+model Tag {
+  id        String    @id @default(cuid())
+  slug      String    @unique
+  name      String
+  color     String?
+  sortOrder Int       @default(0) @map("sort_order")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  projects Project[] @relation("ProjectTags")
+
+  @@map("tags")
+}
+
+// ─── ATTACHMENT ───────────────────────────────────────────────────────────────
+// Polymorphic file scaffold. Today no code path writes here; tomorrow this
+// is where multi-image projects, testimonial photos, booking blueprints and
+// settings logos all live without yet another join table per entity.
+//
+// (entity_type, entity_id) follows the same pattern as audit_logs — survives
+// soft-delete of the referenced entity by design.
+
+model Attachment {
+  id         String    @id @default(cuid())
+  entityType String    @map("entity_type")
+  entityId   String    @map("entity_id")
+  filePath   String    @map("file_path")
+  mimeType   String?   @map("mime_type")
+  sizeBytes  Int?      @map("size_bytes")
+  altText    String?   @map("alt_text")
+  sortOrder  Int       @default(0) @map("sort_order")
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+  deletedAt  DateTime? @map("deleted_at")
+
+  // Partial composite index (entity_type, entity_id, sort_order)
+  // WHERE deleted_at IS NULL lives in the raw migration.
+  @@map("attachments")
 }
 
 // ─── USER ─────────────────────────────────────────────────────────────────────
@@ -158,8 +251,11 @@ model Booking {
   phone String
 
   // Project details
-  // service values: house_planning | arch_drawings | drafting_services | dev_project_planning
+  // `service`   — immutable slug snapshot of what the visitor selected.
+  // `serviceId` — live FK to the services catalogue (SET NULL on service
+  //               removal, so historical attribution via `service` survives).
   service     String
+  serviceId   String?   @map("service_id")
   location    String
   description String
   meetingDate DateTime? @map("meeting_date")
@@ -222,6 +318,10 @@ model Project {
   deletedAt   DateTime? @map("deleted_at")
 
   testimonials Testimonial[]
+  // Many-to-many via implicit join table `_ProjectTags` (Prisma convention).
+  // Category stays as the denormalized primary axis; tags layer on top for
+  // multi-dimensional classification without redesigning existing queries.
+  tags         Tag[]         @relation("ProjectTags")
 
   // Partial indexes (WHERE deleted_at IS NULL) defined in raw migration:
   //   (is_featured, sort_order), (sort_order), (category)
@@ -276,19 +376,27 @@ model ContactMessage {
 
 // ─── SITE SETTINGS ────────────────────────────────────────────────────────────
 // Key-value runtime configuration. Admin edits through UI — no redeployment.
-// Bounded EAV: fewer than 10 keys in v1, all simple strings (S5.9 justified denorm).
-// updatedBy: accountability trail — which admin last changed each setting.
+// Bounded EAV: fewer than 50 keys expected. `valueType` lets the admin UI
+// render the right input control (text / number / toggle / URL / JSON editor)
+// and the service layer parse on read. `category` groups settings in the UI.
+// `isPublic` flags settings that can be shipped to the browser via the public
+// API; private settings (API keys, internal flags) stay server-only.
 
 model SiteSettings {
-  id          String    @id @default(cuid())
-  key         String    @unique
+  id          String           @id @default(cuid())
+  key         String           @unique
   value       String
+  valueType   SettingValueType @default(STRING) @map("value_type")
+  category    String?
+  isPublic    Boolean          @default(false) @map("is_public")
   description String?
-  updatedAt   DateTime  @updatedAt @map("updated_at")
-  updatedBy   String?   @map("updated_by")
+  updatedAt   DateTime         @updatedAt @map("updated_at")
+  updatedBy   String?          @map("updated_by")
 
   user User? @relation(fields: [updatedBy], references: [id], onDelete: SetNull)
 
+  @@index([category])
+  @@index([isPublic])
   @@map("site_settings")
 }
 

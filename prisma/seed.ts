@@ -39,6 +39,47 @@ async function main() {
   });
   console.log(`✅ Admin seeded: ${admin.email}`);
 
+  // ── 1b. SERVICES CATALOGUE ─────────────────────────────────────────────────
+  // The migration seeds the four baseline services; this block keeps `db:seed`
+  // self-sufficient against fresh databases that don't have the migration data
+  // yet (e.g. `prisma db push` workflows).
+  const services = [
+    {
+      slug: "house_planning",
+      name: "House Planning",
+      description: "Full residential design from concept to council-ready drawings.",
+      sortOrder: 10,
+    },
+    {
+      slug: "arch_drawings",
+      name: "Architectural Drawings",
+      description: "Detailed architectural drawings for submission, construction or both.",
+      sortOrder: 20,
+    },
+    {
+      slug: "drafting_services",
+      name: "Drafting Services",
+      description: "Technical drafting for architects, engineers and contractors.",
+      sortOrder: 30,
+    },
+    {
+      slug: "dev_project_planning",
+      name: "Development Project Planning",
+      description:
+        "Site planning and development documentation for multi-unit and commercial work.",
+      sortOrder: 40,
+    },
+  ];
+
+  for (const svc of services) {
+    await prisma.service.upsert({
+      where: { slug: svc.slug },
+      update: {},
+      create: { id: createId(), ...svc },
+    });
+  }
+  console.log(`✅ Services seeded: ${services.length} entries`);
+
   // ── 2. SITE SETTINGS ───────────────────────────────────────────────────────
   // Runtime config — admin edits through UI, no redeployment needed
   const settings = [
