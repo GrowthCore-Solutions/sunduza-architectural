@@ -24,6 +24,9 @@ const SOFT_DELETE_MODELS = new Set<string>([
   "Project",
   "Testimonial",
   "ContactMessage",
+  "Service",
+  "Tag",
+  "Attachment",
 ]);
 
 // Every Prisma action that exposes a `where` clause on the target model.

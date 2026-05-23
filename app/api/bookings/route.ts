@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { apiSuccess, apiError, ErrorCode } from "@/backend/lib/api-response";
+import { isServiceError } from "@/backend/lib/errors";
 import { BookingSchema } from "@/shared/types/booking";
 import { createBooking } from "@/backend/services/bookings";
 import { checkBookingRateLimit } from "@/backend/lib/rate-limit";
@@ -41,6 +42,12 @@ export async function POST(req: NextRequest) {
       headers: { "X-Request-ID": requestId },
     });
   } catch (err) {
+    if (isServiceError(err)) {
+      return NextResponse.json(
+        apiError(err.message, err.code, err.status, err.details),
+        { status: err.status, headers: { "X-Request-ID": requestId } }
+      );
+    }
     console.error(`[${requestId}] Booking POST error:`, err);
     return NextResponse.json(
       apiError("Something went wrong. Please try again.", ErrorCode.INTERNAL_ERROR, 500),

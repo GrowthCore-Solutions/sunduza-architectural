@@ -1,7 +1,10 @@
 import { z } from "zod";
 import { BookingStatus } from "@prisma/client";
 
-// Booking services — snake_case values match database CHECK constraint
+// Baseline service slugs — also exist as rows in the `services` table after
+// migration 20260523220000_db_extensibility_tier_2a. These constants stay so
+// existing UI dropdowns keep rendering when the dynamic services API is
+// unavailable; the source of truth at runtime is the database.
 export const BOOKING_SERVICES = [
   "house_planning",
   "arch_drawings",
@@ -11,7 +14,8 @@ export const BOOKING_SERVICES = [
 
 export type BookingService = (typeof BOOKING_SERVICES)[number];
 
-// Display labels for booking services (UI only)
+// Display labels — only used as a fallback for the four baseline slugs. New
+// services added through the admin panel ship their own `name` from the DB.
 export const BOOKING_SERVICE_LABELS: Record<BookingService, string> = {
   house_planning: "House Planning",
   arch_drawings: "Architectural Drawings",
@@ -19,11 +23,21 @@ export const BOOKING_SERVICE_LABELS: Record<BookingService, string> = {
   dev_project_planning: "Development Project Planning",
 };
 
+// Slug shape mirrors the DB CHECK constraint on `services.slug`. The booking
+// service performs the existence/active check against the catalogue at write
+// time — Zod only guards the wire format here so admin-added slugs work
+// without a code change.
+const SERVICE_SLUG_REGEX = /^[a-z0-9][a-z0-9_-]*[a-z0-9]$/;
+
 export const BookingSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Invalid email address"),
   phone: z.string().min(10, "Phone number must be at least 10 digits"),
-  service: z.enum(BOOKING_SERVICES, { error: "Invalid service selected" }),
+  service: z
+    .string()
+    .min(2)
+    .max(64)
+    .regex(SERVICE_SLUG_REGEX, "Invalid service identifier"),
   location: z.string().min(2, "Location is required"),
   description: z.string().min(20, "Description must be at least 20 characters"),
   meetingDate: z
