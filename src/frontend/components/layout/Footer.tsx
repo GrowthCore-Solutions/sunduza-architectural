@@ -1,6 +1,34 @@
+import * as React from "react";
 import Link from "next/link";
-import { ArrowRight, Clock, Facebook, Instagram, Linkedin, Mail, MapPin, Phone } from "lucide-react";
+import { ArrowRight, Clock, Mail, MapPin, Phone } from "lucide-react";
 import { CONTACT } from "@/shared/constants/contact";
+
+// Brand icons (lucide doesn't ship brand marks; inline simple paths)
+function InstagramIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <rect x="2" y="2" width="20" height="20" rx="5" />
+      <circle cx="12" cy="12" r="4" />
+      <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
+function FacebookIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" {...props}>
+      <path d="M22 12a10 10 0 1 0-11.56 9.88v-6.99H7.9V12h2.54V9.8c0-2.5 1.49-3.89 3.78-3.89 1.09 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56V12h2.77l-.44 2.89h-2.33v6.99A10 10 0 0 0 22 12z" />
+    </svg>
+  );
+}
+
+function LinkedinIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" {...props}>
+      <path d="M4.98 3.5a2.5 2.5 0 1 1-.02 5.01A2.5 2.5 0 0 1 4.98 3.5zM3 9h4v12H3V9zm7 0h3.8v1.7h.06c.53-.95 1.83-1.95 3.77-1.95 4.03 0 4.77 2.65 4.77 6.1V21h-4v-5.5c0-1.32-.03-3.01-1.84-3.01-1.84 0-2.12 1.43-2.12 2.91V21h-4V9z" />
+    </svg>
+  );
+}
 
 const SERVICES = [
   { label: "House Planning", href: "/services#house_planning" },
@@ -19,9 +47,9 @@ const QUICK_LINKS = [
 ];
 
 const SOCIALS = [
-  { label: "Instagram", href: "https://instagram.com/", Icon: Instagram },
-  { label: "Facebook", href: "https://facebook.com/", Icon: Facebook },
-  { label: "LinkedIn", href: "https://linkedin.com/", Icon: Linkedin },
+  { label: "Instagram", href: "https://instagram.com/", Icon: InstagramIcon },
+  { label: "Facebook", href: "https://facebook.com/", Icon: FacebookIcon },
+  { label: "LinkedIn", href: "https://linkedin.com/", Icon: LinkedinIcon },
 ];
 
 export function Footer() {
