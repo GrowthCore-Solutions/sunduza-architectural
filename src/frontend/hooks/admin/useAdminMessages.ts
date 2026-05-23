@@ -8,9 +8,10 @@ import type { ApiSuccess } from "@/frontend/lib/api-types";
 export function useAdminMessages(unreadOnly?: boolean) {
   return useQuery({
     queryKey: ["admin", "messages", { unreadOnly }],
-    queryFn: async () => {
+    queryFn: async ({ signal }) => {
       const res = await api.get<ApiSuccess<ContactMessageRow[]>>("/api/admin/messages", {
         params: unreadOnly ? { unread: "true" } : undefined,
+        signal,
       });
       return res.data;
     },

@@ -8,8 +8,8 @@ import type { ApiSuccess } from "@/frontend/lib/api-types";
 export function useAdminSettings() {
   return useQuery({
     queryKey: ["admin", "settings"],
-    queryFn: async () => {
-      const res = await api.get<ApiSuccess<SettingRow[]>>("/api/admin/settings");
+    queryFn: async ({ signal }) => {
+      const res = await api.get<ApiSuccess<SettingRow[]>>("/api/admin/settings", { signal });
       return res.data;
     },
   });
