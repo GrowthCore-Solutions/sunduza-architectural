@@ -1,93 +1,226 @@
 "use client";
 
 import Link from "next/link";
-import { Calendar, MessageSquare, FolderOpen, ArrowRight } from "lucide-react";
+import {
+  Calendar,
+  MessageSquare,
+  FolderOpen,
+  Star,
+  ArrowRight,
+  Inbox,
+  TrendingUp,
+} from "lucide-react";
 import { BookingStatus } from "@prisma/client";
 import { useAdminBookings } from "@/frontend/hooks/admin/useAdminBookings";
 import { useAdminMessages } from "@/frontend/hooks/admin/useAdminMessages";
-import { Badge } from "@/frontend/components/ui/badge";
-import { leadScoreColor } from "@/frontend/lib/booking-status";
+import { useAdminProjects } from "@/frontend/hooks/admin/useAdminProjects";
+import { useAdminTestimonials } from "@/frontend/hooks/admin/useAdminTestimonials";
+
+function leadTone(score: number | null): "hot" | "warm" | "cold" | "dead" {
+  if (score === null) return "dead";
+  if (score >= 71) return "hot";
+  if (score >= 41) return "warm";
+  return "cold";
+}
+
+const STATUS_TONE: Record<string, "warning" | "info" | "success" | "danger" | "neutral"> = {
+  PENDING: "warning",
+  CONTACTED: "info",
+  CONFIRMED: "success",
+  COMPLETED: "neutral",
+  REJECTED: "danger",
+};
+
+function formatRelative(date: Date | string): string {
+  const d = new Date(date);
+  const diff = Date.now() - d.getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 60) return `${Math.max(1, mins)}m ago`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  if (days < 30) return `${days}d ago`;
+  return d.toLocaleDateString(undefined, { day: "numeric", month: "short" });
+}
 
 export function AdminDashboard() {
-  const { data: pending } = useAdminBookings({ status: BookingStatus.PENDING, page: 1 });
+  const { data: pending } = useAdminBookings({
+    status: BookingStatus.PENDING,
+    page: 1,
+  });
   const { data: unreadMessages } = useAdminMessages(true);
+  const { data: projects } = useAdminProjects();
+  const { data: testimonials } = useAdminTestimonials();
 
-  const stats = [
+  const pendingCount = pending?.total ?? 0;
+  const unreadCount = unreadMessages?.length ?? 0;
+  const projectCount = projects?.length ?? 0;
+  const testimonialCount = testimonials?.length ?? 0;
+
+  const kpis = [
     {
       label: "Pending bookings",
-      value: pending?.total ?? "—",
-      href: "/admin/bookings?status=PENDING",
+      value: pendingCount,
       icon: Calendar,
+      href: "/admin/bookings?status=PENDING",
+      trend: pendingCount > 0 ? "Needs review" : "All clear",
     },
     {
       label: "Unread messages",
-      value: unreadMessages?.length ?? "—",
+      value: unreadCount,
+      icon: Inbox,
       href: "/admin/messages",
-      icon: MessageSquare,
+      trend: unreadCount > 0 ? `${unreadCount} waiting` : "Inbox zero",
     },
     {
-      label: "Portfolio",
-      value: "Manage",
-      href: "/admin/projects",
+      label: "Portfolio projects",
+      value: projectCount,
       icon: FolderOpen,
+      href: "/admin/projects",
+      trend: "Manage",
+    },
+    {
+      label: "Testimonials",
+      value: testimonialCount,
+      icon: Star,
+      href: "/admin/testimonials",
+      trend: "Social proof",
     },
   ];
 
+  const recentBookings = pending?.bookings.slice(0, 6) ?? [];
+  const recentMessages = unreadMessages?.slice(0, 5) ?? [];
+
   return (
-    <div className="max-w-6xl">
-      <div className="mb-8">
-        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
-          Admin overview
-        </p>
-        <h1 className="mt-2 font-serif text-3xl font-black tracking-tight text-ink">
-          Dashboard
-        </h1>
-      </div>
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 mb-10">
-        {stats.map((stat) => (
-          <Link
-            key={stat.label}
-            href={stat.href}
-            className="rounded-md border border-rule/75 bg-white p-5 shadow-soft transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lift"
-          >
-            <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-md bg-paper2 text-primary">
-              <stat.icon className="h-5 w-5" />
+    <div className="admin-page">
+      <header className="admin-page-head">
+        <div>
+          <p className="admin-page-head-eyebrow">Overview</p>
+          <h1 className="admin-page-head-title">
+            Welcome back,<br />
+            <em>let&rsquo;s get to work.</em>
+          </h1>
+          <p className="admin-page-head-sub">
+            Active leads, fresh enquiries, and the latest activity across the
+            studio &mdash; all in one place.
+          </p>
+        </div>
+      </header>
+
+      {/* KPI strip */}
+      <div className="admin-kpi-grid">
+        {kpis.map((k) => (
+          <Link key={k.label} href={k.href} className="admin-kpi">
+            <div className="admin-kpi-head">
+              <span className="admin-kpi-icon" aria-hidden="true">
+                <k.icon size={15} strokeWidth={1.85} />
+              </span>
+              <span className="admin-kpi-trend">
+                <TrendingUp size={11} strokeWidth={2} />
+                {k.trend}
+              </span>
             </div>
-            <p className="text-3xl font-bold text-ink">{stat.value}</p>
-            <p className="mt-1 text-sm font-medium text-muted">{stat.label}</p>
+            <p className="admin-kpi-value">{k.value}</p>
+            <p className="admin-kpi-label">{k.label}</p>
           </Link>
         ))}
       </div>
-      <h2 className="mb-4 font-serif text-xl font-bold text-ink">Recent bookings</h2>
-      <div className="divide-y divide-rule/70 rounded-md border border-rule/75 bg-white shadow-soft">
-        {pending?.bookings.slice(0, 5).map((b) => (
-          <div key={b.id} className="flex items-center justify-between p-4 text-sm">
-            <div>
-              <p className="font-semibold text-ink">{b.name}</p>
-              <p className="text-muted">{b.service}</p>
-            </div>
-            <div className="flex items-center gap-2">
-              {b.leadScore !== null && (
-                <span
-                  className={`rounded-full px-2 py-0.5 text-xs font-medium ${leadScoreColor(b.leadScore)}`}
-                >
-                  {b.leadScore}
-                </span>
-              )}
-              <Badge variant="secondary">{b.status}</Badge>
-            </div>
+
+      {/* Recent activity: bookings + messages */}
+      <div className="admin-two-col">
+        <div className="admin-card">
+          <div className="admin-card-head">
+            <h2 className="admin-card-title">Pending bookings</h2>
+            <Link href="/admin/bookings" className="admin-card-link">
+              View all <ArrowRight size={13} />
+            </Link>
           </div>
-        ))}
-        {(!pending?.bookings.length) && (
-          <p className="p-6 text-muted text-sm">No pending bookings.</p>
-        )}
+
+          {recentBookings.length === 0 ? (
+            <div className="admin-list-empty">
+              <span className="admin-list-empty-icon">
+                <Calendar size={18} strokeWidth={1.75} />
+              </span>
+              <p>No pending bookings &mdash; you&rsquo;re all caught up.</p>
+            </div>
+          ) : (
+            <div className="admin-list">
+              {recentBookings.map((b) => (
+                <Link
+                  key={b.id}
+                  href="/admin/bookings"
+                  className="admin-list-row"
+                  style={{ textDecoration: "none" }}
+                >
+                  <div className="admin-list-row-main">
+                    <p className="admin-list-row-title">{b.name}</p>
+                    <p className="admin-list-row-sub">
+                      {b.service} &middot; {b.location}
+                    </p>
+                  </div>
+                  <div className="admin-list-row-side">
+                    {b.leadScore !== null && (
+                      <span
+                        className="admin-lead"
+                        data-tone={leadTone(b.leadScore)}
+                      >
+                        {b.leadScore}
+                        <span className="admin-lead-suffix">/100</span>
+                      </span>
+                    )}
+                    <span
+                      className="admin-pill"
+                      data-tone={STATUS_TONE[b.status] ?? "neutral"}
+                    >
+                      <span className="admin-pill-dot" aria-hidden="true" />
+                      {b.status}
+                    </span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="admin-card">
+          <div className="admin-card-head">
+            <h2 className="admin-card-title">Unread messages</h2>
+            <Link href="/admin/messages" className="admin-card-link">
+              View inbox <ArrowRight size={13} />
+            </Link>
+          </div>
+
+          {recentMessages.length === 0 ? (
+            <div className="admin-list-empty">
+              <span className="admin-list-empty-icon">
+                <MessageSquare size={18} strokeWidth={1.75} />
+              </span>
+              <p>Inbox zero. Nicely done.</p>
+            </div>
+          ) : (
+            <div className="admin-list">
+              {recentMessages.map((m) => (
+                <Link
+                  key={m.id}
+                  href="/admin/messages"
+                  className="admin-list-row"
+                  style={{ textDecoration: "none" }}
+                >
+                  <div className="admin-list-row-main">
+                    <p className="admin-list-row-title">{m.name}</p>
+                    <p className="admin-list-row-sub">{m.message}</p>
+                  </div>
+                  <div className="admin-list-row-side">
+                    <span className="admin-pill" data-tone="primary">
+                      {formatRelative(m.createdAt)}
+                    </span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
-      <Link
-        href="/admin/bookings"
-        className="inline-flex items-center gap-1 mt-4 text-sm text-primary hover:underline"
-      >
-        View all bookings <ArrowRight className="h-4 w-4" />
-      </Link>
     </div>
   );
 }
