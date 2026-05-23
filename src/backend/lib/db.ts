@@ -24,6 +24,24 @@ const SOFT_DELETE_MODELS = new Set<string>([
   "Project",
   "Testimonial",
   "ContactMessage",
+  "Service",
+  "Tag",
+  "Attachment",
+]);
+
+// Every Prisma action that exposes a `where` clause on the target model.
+// Keep this list exhaustive — additions to Prisma's API should land here too.
+const FILTERED_ACTIONS = new Set<Prisma.PrismaAction>([
+  "findFirst",
+  "findFirstOrThrow",
+  "findMany",
+  "findUnique",
+  "findUniqueOrThrow",
+  "count",
+  "aggregate",
+  "groupBy",
+  "updateMany",
+  "deleteMany",
 ]);
 
 // Every Prisma action that exposes a `where` clause on the target model.

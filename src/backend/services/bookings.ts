@@ -16,11 +16,24 @@ import {
 import { writeAuditLog } from "@/backend/services/audit";
 import { calculateLeadScore } from "@/backend/services/lead-score";
 import { canTransition, validNextStatuses } from "@/backend/services/booking-transitions";
+import { getActiveServiceBySlug } from "@/backend/services/services";
+import { ServiceError } from "@/backend/lib/errors";
 
 export async function createBooking(
   data: BookingInput,
   meta: { ipAddress: string; userAgent: string }
 ): Promise<BookingConfirm> {
+  // Resolve the slug against the live catalogue. A retired or unknown slug
+  // is a client problem (the form was rendered with stale data), so surface
+  // a 400 rather than letting the FK insert blow up with a 500.
+  const service = await getActiveServiceBySlug(data.service);
+  if (!service) {
+    throw ServiceError.badRequest(
+      "Selected service is not available. Please reload and choose again.",
+      { service: data.service }
+    );
+  }
+
   const leadScore = calculateLeadScore(data);
   const adminEmail = getAdminEmail();
 
@@ -31,6 +44,7 @@ export async function createBooking(
         email: data.email,
         phone: data.phone,
         service: data.service,
+        serviceId: service.id,
         location: data.location,
         description: data.description,
         meetingDate: data.meetingDate ? new Date(data.meetingDate) : null,
