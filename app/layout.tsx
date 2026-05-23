@@ -9,6 +9,7 @@ import { unstable_cache } from "next/cache";
 import { getSetting } from "@/backend/services/settings";
 import { CONTACT } from "@/shared/constants/contact";
 import { SITE_URL } from "@/shared/constants/site";
+import { WebVitals } from "@/frontend/components/seo/WebVitals";
 
 const cormorant = Cormorant_Garamond({
   subsets: ["latin"],
@@ -77,6 +78,7 @@ export default async function RootLayout({
       className={`${cormorant.variable} ${dmSans.variable}`}
     >
       <body className="antialiased bg-paper text-ink flex flex-col min-h-screen">
+        <WebVitals />
         <Providers>
           <Header />
           <main className="flex-1">{children}</main>
