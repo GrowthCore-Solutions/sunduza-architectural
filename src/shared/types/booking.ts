@@ -26,10 +26,10 @@ export const BookingSchema = z.object({
   service: z.enum(BOOKING_SERVICES, { error: "Invalid service selected" }),
   location: z.string().min(2, "Location is required"),
   description: z.string().min(20, "Description must be at least 20 characters"),
-  meetingDate: z.preprocess(
-    (v) => (v === "" ? undefined : v),
-    z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Must be YYYY-MM-DD").optional()
-  ),
+  meetingDate: z
+    .string()
+    .refine((v) => !v || /^\d{4}-\d{2}-\d{2}$/.test(v), "Must be YYYY-MM-DD")
+    .optional(),
   budget: z.string().optional(),
   // POPIA consent — required field, must be true to submit (BR-009)
   consentGiven: z.literal(true, {
