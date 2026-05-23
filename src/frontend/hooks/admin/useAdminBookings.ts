@@ -15,11 +15,11 @@ export function useAdminBookings(options?: {
 
   return useQuery({
     queryKey: ["admin", "bookings", { status, page }],
-    queryFn: async () => {
+    queryFn: async ({ signal }) => {
       const params: Record<string, string> = { page: String(page), limit: "20" };
       if (status && status !== "all") params.status = status;
 
-      const res = await api.get<ApiListSuccess<BookingRow>>("/api/admin/bookings", { params });
+      const res = await api.get<ApiListSuccess<BookingRow>>("/api/admin/bookings", { params, signal });
       return {
         bookings: res.data,
         total: res.count,
