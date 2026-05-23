@@ -288,8 +288,6 @@ model Booking {
   updatedAt DateTime  @updatedAt @map("updated_at")
   deletedAt DateTime? @map("deleted_at")
 
-  serviceRef Service? @relation(fields: [serviceId], references: [id], onDelete: SetNull)
-
   // Hot-path indexes are PARTIAL (WHERE deleted_at IS NULL) and live in the
   // raw SQL migration 20260523210000_db_hardening_tier_1. They cover:
   //   (status, created_at DESC) — admin list paginated by status
@@ -297,9 +295,7 @@ model Booking {
   //   (email)                   — duplicate / repeat lead lookup
   //   (created_at DESC)         — global recency
   //   (utm_source)              — marketing attribution rollups
-  // Plus (service_id) partial index for service-level rollups, defined in the
-  // tier-2a migration. Plus DB-level CHECK constraints on lead_score and
-  // consent consistency.
+  // Plus DB-level CHECK constraints on lead_score and consent consistency.
   @@map("bookings")
 }
 
