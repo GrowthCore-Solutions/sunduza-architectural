@@ -41,7 +41,7 @@ const STATS = [
 const TRUST_POINTS = [
   { label: "Council-ready documentation", icon: ShieldCheck },
   { label: "Residential & development work", icon: Building2 },
-  { label: "Serving South Africa", icon: MapPin },
+  { label: "Based in Malamulele, Limpopo", icon: MapPin },
 ];
 
 const APPROACH = [
@@ -102,8 +102,8 @@ const FAQS = [
     a: "Yes. We prepare the full submission package, lodge it with the municipality, and manage revisions through to approval — so you don't have to navigate council yourself.",
   },
   {
-    q: "What areas of South Africa do you serve?",
-    a: "We work across several provinces, with most projects in Gauteng, Limpopo, Mpumalanga, and KwaZulu-Natal. Remote consultations are available country-wide.",
+    q: "What areas do you serve?",
+    a: "We are based in Malamulele and most of our work is across the Vhembe District — Mhinga, Makuleke, Saselamani, Xikundu, Maphophe and the Malamulele town blocks among others. We travel beyond the district for development-scale projects and offer remote consultations countrywide.",
   },
   {
     q: "Can you work with my existing builder or contractor?",
@@ -151,7 +151,7 @@ export function HomePageContent() {
               <span className="hero-status-pill">Now booking 2026 consultations</span>
               <span className="hero-meta-rule" aria-hidden="true" />
               <span className="text-[0.6875rem] font-medium uppercase tracking-[0.22em] text-white/55">
-                Est. 2020 · South Africa
+                Est. 2020 · Malamulele, Limpopo
               </span>
             </div>
 
@@ -382,7 +382,7 @@ export function HomePageContent() {
                 </div>
                 <div>
                   <p className="spotlight-meta-key">Region</p>
-                  <p className="spotlight-meta-value">South Africa</p>
+                  <p className="spotlight-meta-value">Vhembe District, Limpopo</p>
                 </div>
                 <div>
                   <p className="spotlight-meta-key">Status</p>

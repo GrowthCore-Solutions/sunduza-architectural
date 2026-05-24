@@ -11,5 +11,5 @@ export const CONTACT = {
   EMAIL: "xivutisokevinsunduza@gmail.com",
   HOURS: "Mon–Fri, 8 am – 5 pm",
   HOURS_FULL: "Mon–Fri, 8 am – 5 pm SAST",
-  LOCATION: "South Africa",
+  LOCATION: "Malamulele, Limpopo, South Africa",
 } as const;
