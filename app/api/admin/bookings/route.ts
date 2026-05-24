@@ -1,9 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 import { apiSuccess, apiError, apiList, ErrorCode } from "@/backend/lib/api-response";
 import { BookingListQuerySchema, BookingUpdateSchema } from "@/shared/types/booking";
 import { getAdminBookings, updateBookingStatus } from "@/backend/services/bookings";
 import { withAuth } from "@/backend/lib/with-auth";
 import { generateRequestId, getClientIp } from "@/backend/lib/request";
+
+// Admin PATCH requires an explicit id — extend the shared schema to make it required.
+const AdminBookingUpdateSchema = BookingUpdateSchema.extend({
+  id: z.string().cuid("Invalid booking ID"),
+});
 
 export const GET = withAuth(async (req) => {
   const requestId = generateRequestId();
@@ -32,7 +38,7 @@ export const GET = withAuth(async (req) => {
 export const PATCH = withAuth(async (req, session) => {
   const requestId = generateRequestId();
   const body = await req.json();
-  const parsed = BookingUpdateSchema.safeParse(body);
+  const parsed = AdminBookingUpdateSchema.safeParse(body);
 
   if (!parsed.success) {
     return NextResponse.json(
@@ -45,16 +51,8 @@ export const PATCH = withAuth(async (req, session) => {
     );
   }
 
-  const id = parsed.data.id ?? (body as { id?: string }).id;
-  if (!id) {
-    return NextResponse.json(
-      apiError("Booking id is required", ErrorCode.VALIDATION_ERROR, 400),
-      { status: 400, headers: { "X-Request-ID": requestId } }
-    );
-  }
-
   const result = await updateBookingStatus(
-    id,
+    parsed.data.id,
     { status: parsed.data.status, adminNotes: parsed.data.adminNotes },
     { userId: session.user.id, ipAddress: getClientIp(req) }
   );
