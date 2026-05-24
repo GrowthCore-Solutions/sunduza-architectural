@@ -3,6 +3,7 @@
 import * as React from "react";
 import { StarRating } from "@/frontend/components/features/StarRating";
 import { cn } from "@/frontend/lib/utils";
+import { useDragScroll } from "@/frontend/hooks/useDragScroll";
 import type { TestimonialRow } from "@/shared/types/db";
 
 interface Props {
@@ -14,7 +15,8 @@ interface Props {
  * and as a static 3-column grid on md+ screens.
  */
 export function TestimonialsCarousel({ testimonials }: Props) {
-  const scrollerRef = React.useRef<HTMLDivElement | null>(null);
+  const { ref: dragRef, isDragging } = useDragScroll<HTMLDivElement>();
+  const scrollerRef = dragRef;
   const [active, setActive] = React.useState(0);
 
   // Track the closest snapped slide
@@ -36,7 +38,7 @@ export function TestimonialsCarousel({ testimonials }: Props) {
       cancelAnimationFrame(raf);
       node.removeEventListener("scroll", onScroll);
     };
-  }, [testimonials.length]);
+  }, [scrollerRef, testimonials.length]);
 
   const goTo = (idx: number) => {
     const node = scrollerRef.current;
@@ -48,7 +50,13 @@ export function TestimonialsCarousel({ testimonials }: Props) {
     <>
       {/* Mobile: snap carousel */}
       <div className="md:hidden">
-        <div ref={scrollerRef} className="testimonials-scroller">
+        <div
+          ref={scrollerRef}
+          className={cn(
+            "testimonials-scroller scroll-fade-x",
+            isDragging && "testimonials-scroller--dragging"
+          )}
+        >
           {testimonials.map((t) => (
             <figure key={t.id} className="testimonials-scroller-slide">
               <div className="quote-card-rich">

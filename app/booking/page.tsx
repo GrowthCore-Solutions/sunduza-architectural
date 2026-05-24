@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { BookingForm } from "@/frontend/components/features/BookingForm";
 import { Skeleton } from "@/frontend/components/ui/skeleton";
+import { LiveDot } from "@/frontend/components/ui/LiveDot";
 import { CONTACT } from "@/shared/constants/contact";
 
 export const metadata = {
@@ -44,6 +45,10 @@ export default function BookingPage() {
       {/* Hero */}
       <section className="booking-hero" aria-label="Book a consultation">
         <div className="booking-hero-inner">
+          <p className="booking-hero-status" aria-label="Studio is accepting new consultations">
+            <LiveDot color="bg-primary-light" size={2} />
+            <span>Studio open for 2026 consultations</span>
+          </p>
           <p className="type-eyebrow" style={{ color: "rgba(255,255,255,0.55)" }}>
             Start your project
           </p>

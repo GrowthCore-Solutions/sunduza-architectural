@@ -2889,6 +2889,23 @@
   }
 }
 
+.booking-hero-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.45rem 0.85rem 0.45rem 0.7rem;
+  border-radius: 999px;
+  border: 1px solid rgb(255 255 255 / 0.14);
+  background: rgb(255 255 255 / 0.05);
+  color: rgb(255 255 255 / 0.78);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  margin-bottom: 1.25rem;
+}
+
 .booking-hero-title {
   font-family: var(--font-serif);
   font-size: clamp(2.75rem, 6vw, 5rem);

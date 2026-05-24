@@ -7,6 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowRight, CheckCircle } from "lucide-react";
 import { ContactMessageSchema, type ContactMessageInput } from "@/shared/types/contact";
 import { api, ApiClientError } from "@/frontend/lib/api-client";
+import { useToast } from "@/frontend/components/ui/toast";
 import { Button } from "@/frontend/components/ui/button";
 import { FormField } from "@/frontend/components/ui/form-field";
 import { Input } from "@/frontend/components/ui/input";
@@ -16,6 +17,7 @@ import type { ApiSuccess } from "@/frontend/lib/api-types";
 export function ContactForm() {
   const [submitted, setSubmitted] = React.useState(false);
   const [submitError, setSubmitError] = React.useState<string | null>(null);
+  const toast = useToast();
 
   const {
     register,
@@ -35,6 +37,7 @@ export function ContactForm() {
       const message =
         err instanceof ApiClientError ? err.message : "Something went wrong. Please try again.";
       setSubmitError(message);
+      toast.error(message, { title: "Message could not be sent" });
     }
   }
 
