@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/frontend/components/ui/button";
 import { cn } from "@/frontend/lib/utils";
+import { useDragScroll } from "@/frontend/hooks/useDragScroll";
 
 const NAV_ITEMS = [
   { label: "Home", href: "/" },
@@ -21,6 +22,7 @@ export function Header() {
   const [hidden, setHidden] = React.useState(false);
   const lastYRef = React.useRef(0);
   const activeMobLinkRef = React.useRef<HTMLAnchorElement | null>(null);
+  const { ref: mobNavRef, isDragging: mobNavDragging } = useDragScroll<HTMLElement>();
 
   // Track scroll position + direction (hide on scroll-down, show on scroll-up).
   React.useEffect(() => {
@@ -129,7 +131,11 @@ export function Header() {
       {/* ── Mobile nav strip (horizontal scroll, hidden on md+) ── */}
       <div className="relative md:hidden">
         <div className="h-px w-full bg-rule/25" />
-        <nav className="mob-nav-rail" aria-label="Mobile navigation">
+        <nav
+          ref={mobNavRef}
+          className={cn("mob-nav-rail", mobNavDragging && "mob-nav-rail--dragging")}
+          aria-label="Mobile navigation"
+        >
           <div className="mob-nav-inner">
             {NAV_ITEMS.map((item) => {
               const active =

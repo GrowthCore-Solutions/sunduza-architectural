@@ -471,6 +471,17 @@
   display: none;
 }
 
+/* Cursor affordances for mouse drag-to-scroll (no-op on touch). */
+@media (hover: hover) and (pointer: fine) {
+  .mob-nav-rail {
+    cursor: grab;
+  }
+  .mob-nav-rail--dragging {
+    cursor: grabbing;
+    user-select: none;
+  }
+}
+
 .mob-nav-inner {
   display: flex;
   align-items: center;
