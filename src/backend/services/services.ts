@@ -5,17 +5,12 @@
 // external dependency. The cache is invalidated on every write through this
 // module; out-of-band edits via psql are reflected after the TTL expires.
 
-import { db } from "@/backend/lib/db";
+import "server-only";
 
-export type ServiceRow = {
-  id: string;
-  slug: string;
-  name: string;
-  description: string | null;
-  icon: string | null;
-  isActive: boolean;
-  sortOrder: number;
-};
+import { db } from "@/backend/lib/db";
+import { serviceRowSelect, type ServiceRow } from "@/shared/types/db";
+
+export type { ServiceRow };
 
 const CACHE_TTL_MS = 60_000;
 
@@ -37,15 +32,7 @@ export async function getActiveServices(): Promise<ServiceRow[]> {
   const rows = await db.service.findMany({
     where: { isActive: true },
     orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
-    select: {
-      id: true,
-      slug: true,
-      name: true,
-      description: true,
-      icon: true,
-      isActive: true,
-      sortOrder: true,
-    },
+    select: serviceRowSelect,
   });
 
   cache = { value: rows, expiresAt: Date.now() + CACHE_TTL_MS };
@@ -83,15 +70,7 @@ export async function createService(input: {
       icon: input.icon ?? null,
       sortOrder: input.sortOrder ?? 0,
     },
-    select: {
-      id: true,
-      slug: true,
-      name: true,
-      description: true,
-      icon: true,
-      isActive: true,
-      sortOrder: true,
-    },
+    select: serviceRowSelect,
   });
   invalidate();
   return row;
@@ -107,28 +86,20 @@ export async function updateService(
     sortOrder: number;
   }>
 ): Promise<ServiceRow | null> {
-  const existing = await db.service.findUnique({ where: { id } });
+  const existing = await db.service.findUnique({ where: { id }, select: { id: true } });
   if (!existing) return null;
 
   const row = await db.service.update({
     where: { id },
     data: patch,
-    select: {
-      id: true,
-      slug: true,
-      name: true,
-      description: true,
-      icon: true,
-      isActive: true,
-      sortOrder: true,
-    },
+    select: serviceRowSelect,
   });
   invalidate();
   return row;
 }
 
 export async function softDeleteService(id: string): Promise<boolean> {
-  const existing = await db.service.findUnique({ where: { id } });
+  const existing = await db.service.findUnique({ where: { id }, select: { id: true } });
   if (!existing) return false;
 
   await db.service.update({

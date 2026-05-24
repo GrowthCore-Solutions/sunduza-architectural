@@ -31,7 +31,7 @@ export async function createTestimonial(
   });
 
   await writeAuditLog({
-    action: AuditAction.PROJECT_CREATE,
+    action: AuditAction.TESTIMONIAL_CREATE,
     entityType: "Testimonial",
     entityId: testimonial.id,
     userId: context.userId,
@@ -55,7 +55,7 @@ export async function updateTestimonial(
   });
 
   await writeAuditLog({
-    action: AuditAction.PROJECT_UPDATE,
+    action: AuditAction.TESTIMONIAL_UPDATE,
     entityType: "Testimonial",
     entityId: id,
     userId: context.userId,
@@ -77,7 +77,7 @@ export async function softDeleteTestimonial(
   });
 
   await writeAuditLog({
-    action: AuditAction.PROJECT_DELETE,
+    action: AuditAction.TESTIMONIAL_DELETE,
     entityType: "Testimonial",
     entityId: id,
     userId: context.userId,

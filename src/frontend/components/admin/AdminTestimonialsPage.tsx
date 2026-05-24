@@ -47,12 +47,18 @@ export function AdminTestimonialsPage() {
   const { create, update, remove } = useAdminTestimonialMutations();
   const [showForm, setShowForm] = React.useState(false);
   const [form, setForm] = React.useState(EMPTY_FORM);
+  const [formError, setFormError] = React.useState<string | null>(null);
 
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault();
-    await create.mutateAsync(form);
-    setShowForm(false);
-    setForm(EMPTY_FORM);
+    setFormError(null);
+    try {
+      await create.mutateAsync(form);
+      setShowForm(false);
+      setForm(EMPTY_FORM);
+    } catch {
+      setFormError("Failed to save testimonial. Please try again.");
+    }
   }
 
   const total = testimonials?.length ?? 0;
@@ -177,6 +183,11 @@ export function AdminTestimonialsPage() {
             </label>
           </div>
 
+          {formError && (
+            <p className="text-sm font-medium text-red-700" role="alert">
+              {formError}
+            </p>
+          )}
           <div className="admin-form-foot">
             <Button
               type="button"

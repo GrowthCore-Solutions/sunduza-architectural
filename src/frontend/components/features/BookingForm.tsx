@@ -13,6 +13,7 @@ import {
   type BookingInput,
 } from "@/shared/types/booking";
 import { api, ApiClientError } from "@/frontend/lib/api-client";
+import { useServices } from "@/frontend/hooks/useServices";
 import { Button } from "@/frontend/components/ui/button";
 import { Checkbox } from "@/frontend/components/ui/checkbox";
 import { FormField } from "@/frontend/components/ui/form-field";
@@ -22,12 +23,12 @@ import { Textarea } from "@/frontend/components/ui/textarea";
 import type { ApiSuccess } from "@/frontend/lib/api-types";
 import type { BookingConfirm } from "@/shared/types/db";
 
-const SERVICE_ICONS = {
+const SERVICE_ICONS: Record<string, React.ComponentType<{ size?: number; strokeWidth?: number }>> = {
   house_planning: Home,
   arch_drawings: FileText,
   drafting_services: Ruler,
   dev_project_planning: Building2,
-} as const;
+};
 
 const NEXT_STEPS = [
   "We'll review your request and reach out within one business day to confirm details.",
@@ -41,10 +42,23 @@ export function BookingForm() {
   const [bookingId, setBookingId] = React.useState<string | null>(null);
   const [submitError, setSubmitError] = React.useState<string | null>(null);
 
-  const defaultService =
-    serviceParam && BOOKING_SERVICES.includes(serviceParam as (typeof BOOKING_SERVICES)[number])
-      ? (serviceParam as BookingInput["service"])
-      : undefined;
+  const { data: liveServices } = useServices();
+
+  // Live catalogue from the DB; fall back to the four static baseline slugs so
+  // the form is never empty when the API is cold or unavailable.
+  const services = liveServices ?? BOOKING_SERVICES.map((slug) => ({
+    id: slug,
+    slug,
+    name: BOOKING_SERVICE_LABELS[slug as keyof typeof BOOKING_SERVICE_LABELS] ?? slug,
+    description: null,
+    icon: null,
+    isActive: true,
+    sortOrder: 0,
+  }));
+
+  const defaultService = serviceParam && services.some((s) => s.slug === serviceParam)
+    ? serviceParam
+    : undefined;
 
   const {
     register,
@@ -138,21 +152,23 @@ export function BookingForm() {
           Service<span aria-hidden="true" className="ml-0.5 text-red-600">*</span>
         </legend>
         <div className="service-radio-grid" role="radiogroup" aria-label="Select a service">
-          {BOOKING_SERVICES.map((service) => {
-            const Icon = SERVICE_ICONS[service];
+          {services.map((svc) => {
+            const Icon = SERVICE_ICONS[svc.slug];
             return (
-              <div key={service} className="service-radio-card">
+              <div key={svc.slug} className="service-radio-card">
                 <input
                   type="radio"
-                  id={`service-${service}`}
-                  value={service}
+                  id={`service-${svc.slug}`}
+                  value={svc.slug}
                   {...register("service")}
                 />
-                <label htmlFor={`service-${service}`} className="service-radio-label">
-                  <span className="service-radio-icon" aria-hidden="true">
-                    <Icon size={18} strokeWidth={1.75} />
-                  </span>
-                  <span className="service-radio-name">{BOOKING_SERVICE_LABELS[service]}</span>
+                <label htmlFor={`service-${svc.slug}`} className="service-radio-label">
+                  {Icon && (
+                    <span className="service-radio-icon" aria-hidden="true">
+                      <Icon size={18} strokeWidth={1.75} />
+                    </span>
+                  )}
+                  <span className="service-radio-name">{svc.name}</span>
                 </label>
               </div>
             );

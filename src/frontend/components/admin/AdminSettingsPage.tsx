@@ -8,8 +8,9 @@ import {
 } from "@/frontend/hooks/admin/useAdminSettings";
 import { Button } from "@/frontend/components/ui/button";
 import { Input } from "@/frontend/components/ui/input";
+import type { SettingRow } from "@/shared/types/db";
 
-type Setting = { key: string; value: string; description?: string | null };
+type Setting = SettingRow;
 
 function groupSettings(settings: Setting[]): Record<string, Setting[]> {
   const groups: Record<string, Setting[]> = {};
@@ -24,10 +25,10 @@ function groupSettings(settings: Setting[]): Record<string, Setting[]> {
 function groupTitle(key: string): string {
   const map: Record<string, string> = {
     site: "Site identity",
-    contact: "Contact &amp; channels",
+    contact: "Contact & channels",
     business: "Business information",
     booking: "Booking pipeline",
-    seo: "SEO &amp; metadata",
+    seo: "SEO & metadata",
     general: "General",
   };
   return map[key] ?? key.charAt(0).toUpperCase() + key.slice(1);
@@ -157,10 +158,9 @@ export function AdminSettingsPage() {
 
       {groups.map((group) => (
         <section key={group} className="admin-settings-section">
-          <h2
-            className="admin-settings-section-title"
-            dangerouslySetInnerHTML={{ __html: groupTitle(group) }}
-          />
+          <h2 className="admin-settings-section-title">
+            {groupTitle(group)}
+          </h2>
           {groupSub(group) && (
             <p className="admin-settings-section-sub">{groupSub(group)}</p>
           )}
