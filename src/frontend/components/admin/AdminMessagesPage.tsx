@@ -35,14 +35,11 @@ export function AdminMessagesPage() {
   const markRead = useMarkMessageRead();
   const [selectedId, setSelectedId] = React.useState<string | null>(null);
 
-  const selected = messages?.find((m) => m.id === selectedId);
+  // Effective selection falls back to the first message when nothing has been
+  // explicitly picked — derived in render, no effect-driven state churn.
+  const effectiveSelectedId = selectedId ?? messages?.[0]?.id ?? null;
+  const selected = messages?.find((m) => m.id === effectiveSelectedId);
   const unreadCount = messages?.filter((m) => !m.read).length ?? 0;
-
-  React.useEffect(() => {
-    if (messages?.length && !selectedId) {
-      setSelectedId(messages[0].id);
-    }
-  }, [messages, selectedId]);
 
   return (
     <div className="admin-page">
@@ -121,14 +118,14 @@ export function AdminMessagesPage() {
                 key={m.id}
                 type="button"
                 className="admin-inbox-row"
-                data-active={selectedId === m.id}
+                data-active={effectiveSelectedId === m.id}
                 data-unread={!m.read}
                 onClick={() => {
                   setSelectedId(m.id);
                   if (!m.read) markRead.mutate(m.id);
                 }}
                 role="option"
-                aria-selected={selectedId === m.id}
+                aria-selected={effectiveSelectedId === m.id}
               >
                 <div className="admin-inbox-row-head">
                   <span className="admin-inbox-row-name">
