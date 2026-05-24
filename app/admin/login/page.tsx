@@ -69,7 +69,7 @@ export default function AdminLoginPage() {
 
         <div className="admin-login-brand-foot">
           <strong>Sunduza Architectural &amp; Projects (Pty) Ltd</strong>
-          <span>© {new Date().getFullYear()} &middot; Polokwane, South Africa</span>
+          <span>© {new Date().getFullYear()} &middot; Malamulele, Limpopo</span>
         </div>
       </aside>
 
