@@ -34,13 +34,17 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         password: { label: "Password", type: "password" },
       },
 
-      async authorize(credentials) {
+      async authorize(credentials, request) {
         if (!credentials?.email || !credentials?.password) return null;
 
         const email = credentials.email as string;
         const password = credentials.password as string;
 
-        const clientIp = "default";
+        // Per-IP rate limiting. The Auth.js Credentials provider passes the
+        // incoming Request as the second arg, so the real client IP is taken
+        // from x-forwarded-for (the same header /lib/request.ts uses).
+        const forwardedFor = request?.headers.get("x-forwarded-for");
+        const clientIp = forwardedFor?.split(",")[0]?.trim() || "unknown";
         if (!(await checkAuthRateLimit(clientIp))) {
           return null;
         }

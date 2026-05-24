@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { apiSuccess, apiError, ErrorCode } from "@/backend/lib/api-response";
 import { getSettings, updateSetting } from "@/backend/services/settings";
-import { withAuth } from "@/backend/lib/with-auth";
+import { withAuth, ADMIN_ONLY } from "@/backend/lib/with-auth";
 import { generateRequestId } from "@/backend/lib/request";
 import { z } from "zod";
 
@@ -49,4 +49,4 @@ export const PATCH = withAuth(async (req, session) => {
   return NextResponse.json(apiSuccess(updated), {
     headers: { "X-Request-ID": requestId },
   });
-});
+}, { requireRole: ADMIN_ONLY });

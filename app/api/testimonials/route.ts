@@ -3,7 +3,7 @@ import { apiSuccess, apiError, ErrorCode } from "@/backend/lib/api-response";
 import { TestimonialCreateSchema } from "@/shared/types/testimonial";
 import { auth } from "@/backend/lib/auth";
 import { createTestimonial, getTestimonials, getAllTestimonials } from "@/backend/services/testimonials";
-import { withAuth } from "@/backend/lib/with-auth";
+import { withAuth, WRITE_ROLES } from "@/backend/lib/with-auth";
 import { generateRequestId } from "@/backend/lib/request";
 
 export async function GET() {
@@ -40,4 +40,4 @@ export const POST = withAuth(async (req, session) => {
     status: 201,
     headers: { "X-Request-ID": requestId },
   });
-});
+}, { requireRole: WRITE_ROLES });

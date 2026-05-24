@@ -85,6 +85,19 @@ export type ContactConfirm = Prisma.ContactMessageGetPayload<{
   select: typeof contactConfirmSelect;
 }>;
 
+export const leadRowSelect = {
+  id: true,
+  email: true,
+  name: true,
+  phone: true,
+  firstSeenAt: true,
+  lastSeenAt: true,
+  bookingCount: true,
+  createdAt: true,
+} satisfies Prisma.LeadSelect;
+
+export type LeadRow = Prisma.LeadGetPayload<{ select: typeof leadRowSelect }>;
+
 export const serviceRowSelect = {
   id: true,
   slug: true,
