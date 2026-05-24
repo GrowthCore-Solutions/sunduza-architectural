@@ -13,7 +13,9 @@ import {
   Settings,
   LogOut,
   ExternalLink,
+  Users,
 } from "lucide-react";
+import type { UserRole } from "@prisma/client";
 
 type NavItem = {
   label: string;
@@ -25,6 +27,7 @@ type NavItem = {
 const PRIMARY_NAV: NavItem[] = [
   { label: "Dashboard", href: "/admin", icon: LayoutDashboard, exact: true },
   { label: "Bookings", href: "/admin/bookings", icon: Calendar },
+  { label: "Leads", href: "/admin/leads", icon: Users },
   { label: "Messages", href: "/admin/messages", icon: MessageSquare },
 ];
 
@@ -40,7 +43,14 @@ const SYSTEM_NAV: NavItem[] = [
 interface AdminSidebarProps {
   adminEmail?: string;
   adminName?: string;
+  adminRole?: UserRole;
 }
+
+const ROLE_LABEL: Record<UserRole, string> = {
+  ADMIN: "Administrator",
+  EDITOR: "Editor",
+  VIEWER: "Viewer",
+};
 
 function initials(name?: string, email?: string): string {
   const source = name ?? email ?? "AD";
@@ -53,7 +63,7 @@ function initials(name?: string, email?: string): string {
     .toUpperCase();
 }
 
-export function AdminSidebar({ adminEmail, adminName }: AdminSidebarProps) {
+export function AdminSidebar({ adminEmail, adminName, adminRole }: AdminSidebarProps) {
   const pathname = usePathname();
 
   function isActive(href: string, exact?: boolean) {
@@ -110,7 +120,9 @@ export function AdminSidebar({ adminEmail, adminName }: AdminSidebarProps) {
             <p className="admin-sidebar-user-name" title={adminEmail ?? ""}>
               {adminName ?? adminEmail ?? "Studio admin"}
             </p>
-            <p className="admin-sidebar-user-role">Administrator</p>
+            <p className="admin-sidebar-user-role">
+              {adminRole ? ROLE_LABEL[adminRole] : "Studio staff"}
+            </p>
           </div>
         </div>
 

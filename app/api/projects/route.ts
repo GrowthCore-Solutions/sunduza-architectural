@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { apiSuccess, apiError, ErrorCode } from "@/backend/lib/api-response";
 import { ProjectCreateSchema } from "@/shared/types/project";
 import { createProject, getProjects } from "@/backend/services/projects";
-import { withAuth } from "@/backend/lib/with-auth";
+import { withAuth, WRITE_ROLES } from "@/backend/lib/with-auth";
 import { generateRequestId } from "@/backend/lib/request";
 
 export async function GET(req: NextRequest) {
@@ -39,4 +39,4 @@ export const POST = withAuth(async (req, session) => {
     status: 201,
     headers: { "X-Request-ID": requestId },
   });
-});
+}, { requireRole: WRITE_ROLES });

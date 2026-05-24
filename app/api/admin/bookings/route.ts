@@ -3,7 +3,7 @@ import { z } from "zod";
 import { apiSuccess, apiError, apiList, ErrorCode } from "@/backend/lib/api-response";
 import { BookingListQuerySchema, BookingUpdateSchema } from "@/shared/types/booking";
 import { getAdminBookings, updateBookingStatus } from "@/backend/services/bookings";
-import { withAuth } from "@/backend/lib/with-auth";
+import { withAuth, WRITE_ROLES } from "@/backend/lib/with-auth";
 import { generateRequestId, getClientIp } from "@/backend/lib/request";
 
 // Admin PATCH requires an explicit id — extend the shared schema to make it required.
@@ -67,4 +67,4 @@ export const PATCH = withAuth(async (req, session) => {
   return NextResponse.json(apiSuccess(result.booking), {
     headers: { "X-Request-ID": requestId },
   });
-});
+}, { requireRole: WRITE_ROLES });

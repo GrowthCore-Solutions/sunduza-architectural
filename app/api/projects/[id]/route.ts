@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { apiSuccess, apiError, ErrorCode } from "@/backend/lib/api-response";
 import { ProjectUpdateSchema } from "@/shared/types/project";
 import { getProjectById, updateProject, softDeleteProject } from "@/backend/services/projects";
-import { withAuth } from "@/backend/lib/with-auth";
+import { withAuth, WRITE_ROLES } from "@/backend/lib/with-auth";
 import { generateRequestId } from "@/backend/lib/request";
 
 export async function GET(
@@ -53,7 +53,7 @@ export const PATCH = withAuth(async (req, session, context) => {
   return NextResponse.json(apiSuccess(project), {
     headers: { "X-Request-ID": requestId },
   });
-});
+}, { requireRole: WRITE_ROLES });
 
 export const DELETE = withAuth(async (_req, session, context) => {
   const requestId = generateRequestId();
@@ -70,4 +70,4 @@ export const DELETE = withAuth(async (_req, session, context) => {
   return NextResponse.json(apiSuccess({ deleted: true }), {
     headers: { "X-Request-ID": requestId },
   });
-});
+}, { requireRole: WRITE_ROLES });
