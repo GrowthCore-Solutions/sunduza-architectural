@@ -7,7 +7,7 @@ const base: BookingInput = {
   email: "test@example.com",
   phone: "0821234567",
   service: "house_planning",
-  location: "Johannesburg",
+  location: "Mhinga",
   description: "A".repeat(100),
   consentGiven: true,
 };

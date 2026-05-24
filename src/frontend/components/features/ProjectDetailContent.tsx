@@ -53,6 +53,16 @@ function getDeliverables(category?: string | null): string[] {
   return DELIVERABLES[category] ?? DEFAULT_DELIVERABLES;
 }
 
+// Project titles follow "Type — Location" convention. Em-dash is the
+// canonical separator; fall back to plain hyphen for older entries.
+function parseLocationFromTitle(title: string): string | null {
+  const idx = title.indexOf(" — ");
+  if (idx !== -1) return title.slice(idx + 3).trim() || null;
+  const dash = title.lastIndexOf(" - ");
+  if (dash !== -1) return title.slice(dash + 3).trim() || null;
+  return null;
+}
+
 function serviceSlugFor(category?: string | null): string {
   if (category === "Residential") return "house_planning";
   if (category === "Commercial") return "arch_drawings";
@@ -217,8 +227,8 @@ export function ProjectDetailContent({ id }: { id: string }) {
         <div className="project-detail-specs-inner">
           {([
             { label: "Category", value: project.category ?? "Architecture" },
+            { label: "Location", value: parseLocationFromTitle(project.title) ?? "Limpopo" },
             { label: "Year completed", value: year },
-            { label: "Commission type", value: "Architectural" },
             { label: "Status", value: "Delivered" },
           ] as const).map((s) => (
             <div key={s.label} className="project-detail-spec">
