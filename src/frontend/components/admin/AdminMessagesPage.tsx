@@ -112,7 +112,7 @@ export function AdminMessagesPage() {
 
       {!isLoading && messages && messages.length > 0 && (
         <div className="admin-inbox">
-          <div className="admin-inbox-list" role="listbox">
+          <div className="admin-inbox-list scroll-fade-y" role="listbox">
             {messages.map((m) => (
               <button
                 key={m.id}

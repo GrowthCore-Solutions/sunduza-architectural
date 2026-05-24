@@ -460,6 +460,16 @@
   width: 100%;
 }
 
+@media (hover: hover) and (pointer: fine) {
+  .testimonials-scroller {
+    cursor: grab;
+  }
+  .testimonials-scroller--dragging {
+    cursor: grabbing;
+    user-select: none;
+  }
+}
+
 /* ─── Mobile nav strip ───────────────────────────────────────────────────── */
 .mob-nav-rail {
   overflow-x: auto;

@@ -83,6 +83,27 @@
   );
 }
 
+/* Horizontal counterpart — left + right edges fade for carousels and
+   horizontally scrolling rails. Same knobs as scroll-fade-y. */
+@utility scroll-fade-x {
+  --fade-start: 6%;
+  --fade-stop: 94%;
+  mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black var(--fade-start),
+    black var(--fade-stop),
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black var(--fade-start),
+    black var(--fade-stop),
+    transparent 100%
+  );
+}
+
 @import "./styles/components.css" layer(components);
 @import "./styles/pages.css" layer(components);
 
