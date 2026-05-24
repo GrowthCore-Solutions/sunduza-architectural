@@ -45,21 +45,6 @@ const FILTERED_ACTIONS = new Set<Prisma.PrismaAction>([
   "deleteMany",
 ]);
 
-// Every Prisma action that exposes a `where` clause on the target model.
-// Keep this list exhaustive — additions to Prisma's API should land here too.
-const FILTERED_ACTIONS = new Set<Prisma.PrismaAction>([
-  "findFirst",
-  "findFirstOrThrow",
-  "findMany",
-  "findUnique",
-  "findUniqueOrThrow",
-  "count",
-  "aggregate",
-  "groupBy",
-  "updateMany",
-  "deleteMany",
-]);
-
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
