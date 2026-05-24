@@ -41,7 +41,9 @@ export function ProjectsPageContent() {
   const [category, setCategory] = React.useState<Category>("All");
   const [view, setView] = React.useState<ViewMode>("grid");
 
-  const all = projects ?? [];
+  // Stable reference for downstream useMemo deps — `projects ?? []` would
+  // allocate a fresh array literal every render and invalidate every memo.
+  const all = React.useMemo(() => projects ?? [], [projects]);
   const filtered = React.useMemo(
     () => (category === "All" ? all : all.filter((p) => p.category === category)),
     [all, category]

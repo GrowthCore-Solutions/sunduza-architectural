@@ -15,16 +15,20 @@ interface CountUpProps {
  */
 export function CountUp({ end, suffix = "", duration = 1400, className }: CountUpProps) {
   const ref = React.useRef<HTMLSpanElement | null>(null);
-  const [value, setValue] = React.useState(0);
+  // Lazy initializer reads prefers-reduced-motion at mount and seeds the value
+  // with the final number when the user has opted out of motion — avoids any
+  // animation pulse and any synchronous setState inside the effect below.
+  const [value, setValue] = React.useState(() => {
+    if (typeof window === "undefined") return 0;
+    return window.matchMedia("(prefers-reduced-motion: reduce)").matches ? end : 0;
+  });
   const startedRef = React.useRef(false);
 
   React.useEffect(() => {
     const node = ref.current;
     if (!node) return;
 
-    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduceMotion) {
-      setValue(end);
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       startedRef.current = true;
       return;
     }
