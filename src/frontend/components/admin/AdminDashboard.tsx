@@ -15,21 +15,8 @@ import { useAdminBookings } from "@/frontend/hooks/admin/useAdminBookings";
 import { useAdminMessages } from "@/frontend/hooks/admin/useAdminMessages";
 import { useAdminProjects } from "@/frontend/hooks/admin/useAdminProjects";
 import { useAdminTestimonials } from "@/frontend/hooks/admin/useAdminTestimonials";
-
-function leadTone(score: number | null): "hot" | "warm" | "cold" | "dead" {
-  if (score === null) return "dead";
-  if (score >= 71) return "hot";
-  if (score >= 41) return "warm";
-  return "cold";
-}
-
-const STATUS_TONE: Record<string, "warning" | "info" | "success" | "danger" | "neutral"> = {
-  PENDING: "warning",
-  CONTACTED: "info",
-  CONFIRMED: "success",
-  COMPLETED: "neutral",
-  REJECTED: "danger",
-};
+import { leadTone } from "@/shared/lib/lead-score";
+import { BOOKING_STATUS_TONE } from "@/frontend/lib/booking-display";
 
 function formatRelative(date: Date | string): string {
   const d = new Date(date);
@@ -170,7 +157,7 @@ export function AdminDashboard() {
                     )}
                     <span
                       className="admin-pill"
-                      data-tone={STATUS_TONE[b.status] ?? "neutral"}
+                      data-tone={BOOKING_STATUS_TONE[b.status]}
                     >
                       <span className="admin-pill-dot" aria-hidden="true" />
                       {b.status}

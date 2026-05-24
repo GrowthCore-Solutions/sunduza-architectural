@@ -18,7 +18,9 @@ import {
   useUpdateBookingStatus,
 } from "@/frontend/hooks/admin/useAdminBookings";
 import { useAdminUI } from "@/frontend/stores/admin-ui";
-import { validNextStatuses } from "@/frontend/lib/booking-status";
+import { validNextStatuses } from "@/shared/lib/booking-transitions";
+import { leadTone } from "@/shared/lib/lead-score";
+import { BOOKING_STATUS_TONE } from "@/frontend/lib/booking-display";
 import { ApiClientError } from "@/frontend/lib/api-client";
 import { Button } from "@/frontend/components/ui/button";
 import { Input } from "@/frontend/components/ui/input";
@@ -32,21 +34,6 @@ const STATUS_TABS: { label: string; value: BookingStatus | "all" }[] = [
   { label: "Completed", value: BookingStatus.COMPLETED },
   { label: "Rejected", value: BookingStatus.REJECTED },
 ];
-
-const STATUS_TONE: Record<string, "warning" | "info" | "success" | "danger" | "neutral"> = {
-  PENDING: "warning",
-  CONTACTED: "info",
-  CONFIRMED: "success",
-  COMPLETED: "neutral",
-  REJECTED: "danger",
-};
-
-function leadTone(score: number | null): "hot" | "warm" | "cold" | "dead" {
-  if (score === null) return "dead";
-  if (score >= 71) return "hot";
-  if (score >= 41) return "warm";
-  return "cold";
-}
 
 function formatDate(date: Date | string): string {
   return new Date(date).toLocaleDateString(undefined, {
@@ -218,7 +205,7 @@ export function AdminBookingsPage() {
                   )}
                   <span
                     className="admin-pill"
-                    data-tone={STATUS_TONE[booking.status] ?? "neutral"}
+                    data-tone={BOOKING_STATUS_TONE[booking.status]}
                   >
                     <span className="admin-pill-dot" aria-hidden="true" />
                     {booking.status}

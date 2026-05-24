@@ -281,6 +281,7 @@ model Booking {
   // of what was submitted. `leadId` links to the aggregate Lead row for CRM
   // queries; SET NULL so the booking survives if the lead is ever purged.
   leadId String? @map("lead_id")
+  lead   Lead?   @relation(fields: [leadId], references: [id], onDelete: SetNull)
   name   String
   email  String  @db.Citext
   phone  String
