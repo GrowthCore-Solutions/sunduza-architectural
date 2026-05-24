@@ -64,6 +64,8 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  // Cursor / cloud dev previews proxy port 3000 from a different host than localhost.
+  allowedDevOrigins: ["*.agent.cvm.dev"],
   // Strip the `X-Powered-By: Next.js` header — no upside, just fingerprinting.
   poweredByHeader: false,
   images: {
