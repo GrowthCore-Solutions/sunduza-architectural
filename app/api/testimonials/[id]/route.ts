@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { apiSuccess, apiError, ErrorCode } from "@/backend/lib/api-response";
 import { TestimonialUpdateSchema } from "@/shared/types/testimonial";
 import { updateTestimonial, softDeleteTestimonial } from "@/backend/services/testimonials";

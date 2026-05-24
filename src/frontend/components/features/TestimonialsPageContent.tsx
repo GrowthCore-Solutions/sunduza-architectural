@@ -71,7 +71,9 @@ function RatingBars({ testimonials }: { testimonials: TestimonialRow[] }) {
 export function TestimonialsPageContent() {
   const { data: testimonials, isLoading, isError } = useTestimonials();
 
-  const all = testimonials ?? [];
+  // Stable reference for downstream useMemo deps — `testimonials ?? []` would
+  // allocate a fresh array literal every render and invalidate every memo.
+  const all = React.useMemo(() => testimonials ?? [], [testimonials]);
   const ratings = all.map((t) => t.rating).filter(Boolean) as number[];
   const fiveStarCount = ratings.filter((r) => r === 5).length;
 

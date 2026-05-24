@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { z } from "zod";
 import { apiSuccess, apiError, apiList, ErrorCode } from "@/backend/lib/api-response";
 import { BookingListQuerySchema, BookingUpdateSchema } from "@/shared/types/booking";
