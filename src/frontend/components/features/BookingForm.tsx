@@ -14,6 +14,7 @@ import {
 } from "@/shared/types/booking";
 import { api, ApiClientError } from "@/frontend/lib/api-client";
 import { useServices } from "@/frontend/hooks/useServices";
+import { useToast } from "@/frontend/components/ui/toast";
 import { Button } from "@/frontend/components/ui/button";
 import { Checkbox } from "@/frontend/components/ui/checkbox";
 import { FormField } from "@/frontend/components/ui/form-field";
@@ -41,6 +42,7 @@ export function BookingForm() {
   const serviceParam = searchParams.get("service");
   const [bookingId, setBookingId] = React.useState<string | null>(null);
   const [submitError, setSubmitError] = React.useState<string | null>(null);
+  const toast = useToast();
 
   const { data: liveServices } = useServices();
 
@@ -92,6 +94,7 @@ export function BookingForm() {
       const message =
         err instanceof ApiClientError ? err.message : "Something went wrong. Please try again.";
       setSubmitError(message);
+      toast.error(message, { title: "Booking could not be submitted" });
     }
   }
 

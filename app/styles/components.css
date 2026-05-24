@@ -460,6 +460,16 @@
   width: 100%;
 }
 
+@media (hover: hover) and (pointer: fine) {
+  .testimonials-scroller {
+    cursor: grab;
+  }
+  .testimonials-scroller--dragging {
+    cursor: grabbing;
+    user-select: none;
+  }
+}
+
 /* ─── Mobile nav strip ───────────────────────────────────────────────────── */
 .mob-nav-rail {
   overflow-x: auto;
@@ -469,6 +479,17 @@
 
 .mob-nav-rail::-webkit-scrollbar {
   display: none;
+}
+
+/* Cursor affordances for mouse drag-to-scroll (no-op on touch). */
+@media (hover: hover) and (pointer: fine) {
+  .mob-nav-rail {
+    cursor: grab;
+  }
+  .mob-nav-rail--dragging {
+    cursor: grabbing;
+    user-select: none;
+  }
 }
 
 .mob-nav-inner {
@@ -758,4 +779,26 @@
 
 .float-wa:active {
   transform: translateY(0);
+}
+
+/* ─── Toast entrance ─────────────────────────────────────────────────────── */
+@keyframes toast-enter {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.toast-enter {
+  animation: toast-enter var(--duration-base) var(--ease-out) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toast-enter {
+    animation: none;
+  }
 }
