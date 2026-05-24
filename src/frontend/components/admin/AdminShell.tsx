@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { Menu } from "lucide-react";
+import type { UserRole } from "@prisma/client";
 import { AdminSidebar } from "@/frontend/components/admin/AdminSidebar";
 import { useAdminUI } from "@/frontend/stores/admin-ui";
 import { Button } from "@/frontend/components/ui/button";
@@ -10,10 +11,12 @@ export function AdminShell({
   children,
   adminEmail,
   adminName,
+  adminRole,
 }: {
   children: React.ReactNode;
   adminEmail?: string;
   adminName?: string;
+  adminRole?: UserRole;
 }) {
   const { sidebarOpen, setSidebarOpen, toggleSidebar } = useAdminUI();
 
@@ -23,7 +26,7 @@ export function AdminShell({
         className="admin-sidebar-mobile-wrap"
         data-open={sidebarOpen}
       >
-        <AdminSidebar adminEmail={adminEmail} adminName={adminName} />
+        <AdminSidebar adminEmail={adminEmail} adminName={adminName} adminRole={adminRole} />
       </div>
 
       {sidebarOpen && (

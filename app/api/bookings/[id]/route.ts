@@ -6,7 +6,7 @@ import {
   updateBookingStatus,
   softDeleteBooking,
 } from "@/backend/services/bookings";
-import { withAuth } from "@/backend/lib/with-auth";
+import { withAuth, WRITE_ROLES } from "@/backend/lib/with-auth";
 import { generateRequestId, getClientIp } from "@/backend/lib/request";
 
 export const GET = withAuth(async (_req, _session, context) => {
@@ -59,7 +59,7 @@ export const PATCH = withAuth(async (req, session, context) => {
   return NextResponse.json(apiSuccess(result.booking), {
     headers: { "X-Request-ID": requestId },
   });
-});
+}, { requireRole: WRITE_ROLES });
 
 export const DELETE = withAuth(async (req, session, context) => {
   const requestId = generateRequestId();
@@ -80,4 +80,4 @@ export const DELETE = withAuth(async (req, session, context) => {
   return NextResponse.json(apiSuccess({ deleted: true }), {
     headers: { "X-Request-ID": requestId },
   });
-});
+}, { requireRole: WRITE_ROLES });

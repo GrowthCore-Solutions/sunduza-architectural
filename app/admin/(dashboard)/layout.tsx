@@ -17,6 +17,7 @@ export default async function AdminDashboardLayout({
     <AdminShell
       adminEmail={session.user.email ?? undefined}
       adminName={session.user.name ?? undefined}
+      adminRole={session.user.role}
     >
       {children}
     </AdminShell>
