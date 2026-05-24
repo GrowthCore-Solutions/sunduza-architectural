@@ -1,4 +1,4 @@
-import { AdminDashboard } from "@/src/client/components/admin/AdminDashboard";
+import { AdminDashboard } from "@/frontend/components/admin/AdminDashboard";
 
 export default function AdminDashboardPage() {
   return <AdminDashboard />;

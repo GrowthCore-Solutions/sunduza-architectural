@@ -1,4 +1,4 @@
-import { TestimonialsPageContent } from "@/src/client/components/features/TestimonialsPageContent";
+import { TestimonialsPageContent } from "@/frontend/components/features/TestimonialsPageContent";
 
 export const metadata = {
   title: "Testimonials",

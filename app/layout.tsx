@@ -1,28 +1,40 @@
-import type { Metadata } from "next";
-import { Playfair_Display, IBM_Plex_Sans } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+import { Cormorant_Garamond, DM_Sans } from "next/font/google";
 import "./globals.css";
-import { Header } from "@/src/client/components/layout/Header";
-import { Footer } from "@/src/client/components/layout/Footer";
-import { FloatingWhatsApp } from "@/src/client/components/layout/FloatingWhatsApp";
-import { Providers } from "@/src/client/components/providers";
+import { Header } from "@/frontend/components/layout/Header";
+import { Footer } from "@/frontend/components/layout/Footer";
+import { FloatingWhatsApp } from "@/frontend/components/layout/FloatingWhatsApp";
+import { Providers } from "@/frontend/components/providers";
 import { unstable_cache } from "next/cache";
-import { getSetting } from "@/server/settings";
+import { getSetting } from "@/backend/services/settings";
+import { CONTACT } from "@/shared/constants/contact";
+import { SITE_URL } from "@/shared/constants/site";
+import { WebVitals } from "@/frontend/components/seo/WebVitals";
 
-const playfair = Playfair_Display({
+const cormorant = Cormorant_Garamond({
   subsets: ["latin"],
-  weight: ["400", "700", "900"],
+  weight: ["300", "400", "500", "600", "700"],
+  style: ["normal", "italic"],
   variable: "--font-display",
   display: "swap",
 });
 
-const ibmPlex = IBM_Plex_Sans({
+const dmSans = DM_Sans({
   subsets: ["latin"],
-  weight: ["400", "500", "600"],
+  weight: ["300", "400", "500", "600", "700"],
   variable: "--font-body",
   display: "swap",
 });
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  themeColor: "#0f1a22",
+};
+
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "Sunduza Architectural & Projects | Professional Architectural Services",
     template: "%s | Sunduza Architectural",
@@ -51,9 +63,9 @@ export const metadata: Metadata = {
 const getWhatsAppNumber = unstable_cache(
   async () => {
     try {
-      return (await getSetting("whatsapp_number")) ?? "27786723364";
+      return (await getSetting("whatsapp_number")) ?? CONTACT.WHATSAPP_NUMBER;
     } catch {
-      return "27786723364";
+      return CONTACT.WHATSAPP_NUMBER;
     }
   },
   ["whatsapp-number"],
@@ -70,11 +82,10 @@ export default async function RootLayout({
   return (
     <html
       lang="en"
-      className={`${playfair.variable} ${ibmPlex.variable}`}
+      className={`${cormorant.variable} ${dmSans.variable}`}
     >
-      <body
-        className="antialiased bg-paper text-ink flex flex-col min-h-screen"
-      >
+      <body className="antialiased bg-paper text-ink flex flex-col min-h-screen">
+        <WebVitals />
         <Providers>
           <Header />
           <main className="flex-1">{children}</main>

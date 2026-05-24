@@ -1,10 +1,10 @@
-import { NextRequest, NextResponse } from "next/server";
-import { apiSuccess, apiError, ErrorCode } from "@/lib/api-response";
-import { TestimonialCreateSchema } from "@/types/testimonial";
-import { auth } from "@/lib/auth";
-import { createTestimonial, getTestimonials, getAllTestimonials } from "@/server/testimonials";
-import { withAuth } from "@/lib/with-auth";
-import { generateRequestId } from "@/lib/request";
+import { NextResponse } from "next/server";
+import { apiSuccess, apiError, ErrorCode } from "@/backend/lib/api-response";
+import { TestimonialCreateSchema } from "@/shared/types/testimonial";
+import { auth } from "@/backend/lib/auth";
+import { createTestimonial, getTestimonials, getAllTestimonials } from "@/backend/services/testimonials";
+import { withAuth, WRITE_ROLES } from "@/backend/lib/with-auth";
+import { generateRequestId } from "@/backend/lib/request";
 
 export async function GET() {
   const requestId = generateRequestId();
@@ -40,4 +40,4 @@ export const POST = withAuth(async (req, session) => {
     status: 201,
     headers: { "X-Request-ID": requestId },
   });
-});
+}, { requireRole: WRITE_ROLES });

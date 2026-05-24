@@ -1,4 +1,4 @@
-import { AdminBookingsPage } from "@/src/client/components/admin/AdminBookingsPage";
+import { AdminBookingsPage } from "@/frontend/components/admin/AdminBookingsPage";
 
 export default function AdminBookingsPageRoute() {
   return <AdminBookingsPage />;
