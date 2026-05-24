@@ -6,9 +6,10 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useRouter } from "next/navigation";
-import { Button } from "@/src/client/components/ui/button";
-import { Input } from "@/src/client/components/ui/input";
-import { Label } from "@/src/client/components/ui/label";
+import { AlertCircle, ArrowRight, Lock, ShieldCheck } from "lucide-react";
+import { Button } from "@/frontend/components/ui/button";
+import { Input } from "@/frontend/components/ui/input";
+import { Label } from "@/frontend/components/ui/label";
 
 const LoginSchema = z.object({
   email: z.string().email("Enter a valid email address"),
@@ -44,79 +45,137 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div className="paper-grain flex min-h-screen items-center justify-center px-4">
-      <div className="w-full max-w-sm">
-        <div className="text-center mb-8">
-          <div className="mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-md bg-ink text-sm font-black text-white shadow-soft">
+    <div className="admin-login-shell">
+      {/* ── Brand panel (desktop) ──────────────────────────────────────── */}
+      <aside className="admin-login-brand" aria-label="Sunduza brand">
+        <div className="admin-login-brand-mark">
+          <span className="admin-login-brand-monogram" aria-hidden="true">
             SA
-          </div>
-          <p className="text-xs font-medium uppercase tracking-[0.25em] text-primary mb-2">
-            Admin Portal
-          </p>
-          <h1 className="font-serif text-3xl font-bold text-ink">
-            Sign In
-          </h1>
-          <p className="mt-2 text-sm text-muted">
-            Sunduza Architectural & Projects
+          </span>
+          <span>Sunduza Architectural</span>
+        </div>
+
+        <div className="admin-login-brand-body">
+          <p className="admin-login-brand-eyebrow">Studio operations</p>
+          <h2 className="admin-login-brand-headline">
+            Manage every brief,<br />
+            <em>booking, and brick.</em>
+          </h2>
+          <p className="admin-login-brand-quote">
+            The control panel for projects, consultations, testimonials, and
+            site settings &mdash; built for the studio team.
           </p>
         </div>
 
-        {error && (
-          <div className="mb-6 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
-            {error}
-          </div>
-        )}
+        <div className="admin-login-brand-foot">
+          <strong>Sunduza Architectural &amp; Projects (Pty) Ltd</strong>
+          <span>© {new Date().getFullYear()} &middot; Polokwane, South Africa</span>
+        </div>
+      </aside>
 
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="space-y-5 rounded-md border border-rule/75 bg-white/95 p-8 shadow-soft"
-          noValidate
-        >
-          <div className="space-y-1.5">
-            <Label htmlFor="email" required>
-              Email address
-            </Label>
-            <Input
-              id="email"
-              type="email"
-              autoComplete="email"
-              placeholder="admin@sunduza.co.za"
-              {...register("email")}
-            />
-            {errors.email && (
-              <p className="text-xs font-medium text-red-700">{errors.email.message}</p>
-            )}
+      {/* ── Form panel ────────────────────────────────────────────────── */}
+      <section className="admin-login-form-panel" aria-label="Sign in">
+        <div className="admin-login-form-wrap">
+          {/* Mobile-only brand */}
+          <div className="admin-login-mobile-brand">
+            <span className="admin-login-brand-monogram" aria-hidden="true">
+              SA
+            </span>
+            <span style={{ fontFamily: "var(--font-serif)", fontSize: "1rem", color: "var(--color-ink)" }}>
+              Sunduza Architectural
+            </span>
           </div>
 
-          <div className="space-y-1.5">
-            <Label htmlFor="password" required>
-              Password
-            </Label>
-            <Input
-              id="password"
-              type="password"
-              autoComplete="current-password"
-              placeholder="Enter your password"
-              {...register("password")}
-            />
-            {errors.password && (
-              <p className="text-xs font-medium text-red-700">{errors.password.message}</p>
-            )}
-          </div>
+          <header className="admin-login-head">
+            <p className="admin-login-eyebrow">
+              <ShieldCheck size={12} strokeWidth={2.25} aria-hidden="true" />
+              Admin portal
+            </p>
+            <h1 className="admin-login-title">
+              Welcome<br />
+              <em>back.</em>
+            </h1>
+            <p className="admin-login-sub">
+              Sign in to manage projects, bookings, messages, and site
+              settings.
+            </p>
+          </header>
 
-          <Button
-            type="submit"
-            className="w-full"
-            disabled={isSubmitting}
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="admin-login-card"
+            noValidate
           >
-            {isSubmitting ? "Signing in..." : "Sign In"}
-          </Button>
-        </form>
+            {error && (
+              <div className="admin-login-error" role="alert">
+                <AlertCircle
+                  size={15}
+                  strokeWidth={2.25}
+                  className="admin-login-error-icon"
+                  aria-hidden="true"
+                />
+                <span>{error}</span>
+              </div>
+            )}
 
-        <p className="mt-6 text-center text-xs text-muted">
-          This portal is for authorised staff only.
-        </p>
-      </div>
+            <div className="admin-login-field">
+              <Label htmlFor="email" required>
+                Email address
+              </Label>
+              <Input
+                id="email"
+                type="email"
+                autoComplete="email"
+                placeholder="you@sunduza.co.za"
+                aria-invalid={errors.email ? "true" : "false"}
+                {...register("email")}
+              />
+              {errors.email && (
+                <p className="admin-login-field-error">{errors.email.message}</p>
+              )}
+            </div>
+
+            <div className="admin-login-field">
+              <div className="admin-login-field-label-row">
+                <Label htmlFor="password" required>
+                  Password
+                </Label>
+              </div>
+              <Input
+                id="password"
+                type="password"
+                autoComplete="current-password"
+                placeholder="••••••••"
+                aria-invalid={errors.password ? "true" : "false"}
+                {...register("password")}
+              />
+              {errors.password && (
+                <p className="admin-login-field-error">{errors.password.message}</p>
+              )}
+            </div>
+
+            <Button
+              type="submit"
+              className="admin-login-submit"
+              size="lg"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? (
+                "Signing in…"
+              ) : (
+                <>
+                  Sign in <ArrowRight size={15} />
+                </>
+              )}
+            </Button>
+          </form>
+
+          <p className="admin-login-foot">
+            <Lock size={11} style={{ display: "inline", verticalAlign: "-1px", marginRight: "0.35rem" }} aria-hidden="true" />
+            Authorised studio staff only.
+          </p>
+        </div>
+      </section>
     </div>
   );
 }

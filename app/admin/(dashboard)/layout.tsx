@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
-import { auth } from "@/lib/auth";
-import { AdminShell } from "@/src/client/components/admin/AdminShell";
+import { auth } from "@/backend/lib/auth";
+import { AdminShell } from "@/frontend/components/admin/AdminShell";
 
 export default async function AdminDashboardLayout({
   children,
@@ -17,6 +17,7 @@ export default async function AdminDashboardLayout({
     <AdminShell
       adminEmail={session.user.email ?? undefined}
       adminName={session.user.name ?? undefined}
+      adminRole={session.user.role}
     >
       {children}
     </AdminShell>

@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { BookingStatus } from "@prisma/client";
-import { canTransition, validNextStatuses } from "@/server/booking-transitions";
+import { canTransition, validNextStatuses } from "@/shared/lib/booking-transitions";
 
 describe("booking transitions", () => {
   it("allows PENDING to CONTACTED", () => {

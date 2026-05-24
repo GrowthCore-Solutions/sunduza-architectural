@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { db } from "@/lib/db";
-import { apiSuccess, apiError, ErrorCode } from "@/lib/api-response";
+import { db } from "@/backend/lib/db";
+import { apiSuccess, apiError, ErrorCode } from "@/backend/lib/api-response";
 
 export const dynamic = "force-dynamic";
 

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/db";
-import { apiSuccess, apiError, ErrorCode } from "@/lib/api-response";
-import { notifyAdminNewBooking, notifyAdminNewContact } from "@/lib/email";
+import { db } from "@/backend/lib/db";
+import { apiSuccess, apiError, ErrorCode } from "@/backend/lib/api-response";
+import { notifyAdminNewBooking, notifyAdminNewContact } from "@/backend/lib/email";
 
 const MAX_ATTEMPTS = 3;
 

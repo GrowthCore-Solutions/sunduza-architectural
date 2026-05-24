@@ -1,4 +1,4 @@
-import { ProjectsPageContent } from "@/src/client/components/features/ProjectsPageContent";
+import { ProjectsPageContent } from "@/frontend/components/features/ProjectsPageContent";
 
 export const metadata = {
   title: "Projects",

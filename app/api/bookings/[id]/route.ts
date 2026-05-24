@@ -1,13 +1,13 @@
-import { NextRequest, NextResponse } from "next/server";
-import { apiSuccess, apiError, ErrorCode } from "@/lib/api-response";
-import { BookingUpdateSchema } from "@/types/booking";
+import { NextResponse } from "next/server";
+import { apiSuccess, apiError, ErrorCode } from "@/backend/lib/api-response";
+import { BookingUpdateSchema } from "@/shared/types/booking";
 import {
   getBookingById,
   updateBookingStatus,
   softDeleteBooking,
-} from "@/server/bookings";
-import { withAuth } from "@/lib/with-auth";
-import { generateRequestId, getClientIp } from "@/lib/request";
+} from "@/backend/services/bookings";
+import { withAuth, WRITE_ROLES } from "@/backend/lib/with-auth";
+import { generateRequestId, getClientIp } from "@/backend/lib/request";
 
 export const GET = withAuth(async (_req, _session, context) => {
   const requestId = generateRequestId();
@@ -59,7 +59,7 @@ export const PATCH = withAuth(async (req, session, context) => {
   return NextResponse.json(apiSuccess(result.booking), {
     headers: { "X-Request-ID": requestId },
   });
-});
+}, { requireRole: WRITE_ROLES });
 
 export const DELETE = withAuth(async (req, session, context) => {
   const requestId = generateRequestId();
@@ -80,4 +80,4 @@ export const DELETE = withAuth(async (req, session, context) => {
   return NextResponse.json(apiSuccess({ deleted: true }), {
     headers: { "X-Request-ID": requestId },
   });
-});
+}, { requireRole: WRITE_ROLES });

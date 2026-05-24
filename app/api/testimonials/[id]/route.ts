@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from "next/server";
-import { apiSuccess, apiError, ErrorCode } from "@/lib/api-response";
-import { TestimonialUpdateSchema } from "@/types/testimonial";
-import { updateTestimonial, softDeleteTestimonial } from "@/server/testimonials";
-import { withAuth } from "@/lib/with-auth";
-import { generateRequestId } from "@/lib/request";
+import { NextResponse } from "next/server";
+import { apiSuccess, apiError, ErrorCode } from "@/backend/lib/api-response";
+import { TestimonialUpdateSchema } from "@/shared/types/testimonial";
+import { updateTestimonial, softDeleteTestimonial } from "@/backend/services/testimonials";
+import { withAuth, WRITE_ROLES } from "@/backend/lib/with-auth";
+import { generateRequestId } from "@/backend/lib/request";
 
 export const PATCH = withAuth(async (req, session, context) => {
   const requestId = generateRequestId();
@@ -36,7 +36,7 @@ export const PATCH = withAuth(async (req, session, context) => {
   return NextResponse.json(apiSuccess(testimonial), {
     headers: { "X-Request-ID": requestId },
   });
-});
+}, { requireRole: WRITE_ROLES });
 
 export const DELETE = withAuth(async (_req, session, context) => {
   const requestId = generateRequestId();
@@ -53,4 +53,4 @@ export const DELETE = withAuth(async (_req, session, context) => {
   return NextResponse.json(apiSuccess({ deleted: true }), {
     headers: { "X-Request-ID": requestId },
   });
-});
+}, { requireRole: WRITE_ROLES });
