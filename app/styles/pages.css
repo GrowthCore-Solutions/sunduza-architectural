@@ -402,6 +402,77 @@
   opacity: 0.7;
 }
 
+/* Rail wrapper so the scroll arrows can anchor to the items' edges. */
+.press-strip-rail {
+  position: relative;
+  min-width: 0;
+}
+
+/* Arrows are hidden by default. They are only surfaced on fine-pointer (mouse)
+   devices, where the scrollbar is hidden and there is no swipe — touch users
+   keep scrolling natively. */
+.press-strip-arrow {
+  display: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .press-strip-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 9999px;
+    border: 1px solid var(--color-rule);
+    background-color: #ffffff;
+    color: var(--color-ink);
+    box-shadow: 0 1px 3px rgba(17, 17, 17, 0.08);
+    cursor: pointer;
+    transition: opacity 0.2s ease, border-color 0.2s ease,
+      background-color 0.2s ease, color 0.2s ease;
+  }
+
+  .press-strip-arrow--prev {
+    left: 0;
+  }
+
+  .press-strip-arrow--next {
+    right: 0;
+  }
+
+  .press-strip-arrow:hover {
+    border-color: var(--color-ink);
+    background-color: var(--color-paper);
+  }
+
+  .press-strip-arrow:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+
+  /* When a direction can no longer scroll, fade the control out but keep it in
+     the layout so the row doesn't shift. */
+  .press-strip-arrow:disabled {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .press-strip-arrow svg {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  /* Keep the first/last items clear of the arrow caps. */
+  .press-strip-rail .press-strip-items {
+    padding-left: 2.25rem;
+    padding-right: 2.25rem;
+  }
+}
+
 /* ─── Approach / process section ─────────────────────────────────────────── */
 .approach-section {
   background-color: var(--color-paper);
