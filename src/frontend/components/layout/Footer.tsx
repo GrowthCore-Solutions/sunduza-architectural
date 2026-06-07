@@ -1,6 +1,6 @@
 import * as React from "react";
 import Link from "next/link";
-import { ArrowRight, Clock, Mail, MapPin, Phone } from "lucide-react";
+import { ArrowRight, Clock, Lock, Mail, MapPin, Phone } from "lucide-react";
 import { CONTACT } from "@/shared/constants/contact";
 
 // Brand icons (lucide doesn't ship brand marks; inline simple paths)
@@ -192,7 +192,16 @@ export function Footer() {
             &copy; {new Date().getFullYear()} Sunduza Architectural &amp; Projects (Pty) Ltd.
             All rights reserved.
           </p>
-          <p>Design &amp; Build by GrowthCore-Solutions</p>
+          <div className="flex items-center gap-5">
+            <p>Design &amp; Build by GrowthCore-Solutions</p>
+            <Link
+              href="/admin/login"
+              className="inline-flex items-center gap-1.5 text-white/35 transition-colors hover:text-primary"
+            >
+              <Lock className="h-3 w-3" aria-hidden="true" />
+              Admin
+            </Link>
+          </div>
         </div>
       </div>
     </footer>
