@@ -7,6 +7,8 @@ import {
   ArrowUpRight,
   Building2,
   CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
   ClipboardCheck,
   Compass,
   FileText,
@@ -23,6 +25,7 @@ import {
 import { Button } from "@/frontend/components/ui/button";
 import { Skeleton } from "@/frontend/components/ui/skeleton";
 import { useProjects } from "@/frontend/hooks/useProjects";
+import { useScrollArrows } from "@/frontend/hooks/useScrollArrows";
 import { useTestimonials } from "@/frontend/hooks/useTestimonials";
 import { ProjectCard } from "@/frontend/components/features/ProjectCard";
 import { TestimonialsCarousel } from "@/frontend/components/features/TestimonialsCarousel";
@@ -120,6 +123,16 @@ export function HomePageContent() {
   const { data: testimonials, isLoading: testimonialsLoading } = useTestimonials();
   const spotlight = featured?.[0];
 
+  // Arrow controls for the "What we deliver" strip — lets mouse users on
+  // non-touch desktops page through the hidden-scrollbar row.
+  const {
+    ref: pressStripRef,
+    canPrev: pressCanPrev,
+    canNext: pressCanNext,
+    scrollPrev: pressScrollPrev,
+    scrollNext: pressScrollNext,
+  } = useScrollArrows<HTMLDivElement>();
+
   return (
     <>
       {/* ─── Hero ─────────────────────────────────────────────────────── */}
@@ -209,12 +222,32 @@ export function HomePageContent() {
       <section className="press-strip" aria-label="What we deliver">
         <div className="press-strip-inner">
           <p className="press-strip-label">What we deliver</p>
-          <div className="press-strip-items">
-            <span className="press-strip-item">House plans <span>Residential</span></span>
-            <span className="press-strip-item">Council submissions <span>Municipal</span></span>
-            <span className="press-strip-item">Working drawings <span>Construction</span></span>
-            <span className="press-strip-item">Development plans <span>Multi-unit</span></span>
-            <span className="press-strip-item">As-built drawings <span>Compliance</span></span>
+          <div className="press-strip-rail">
+            <button
+              type="button"
+              className="press-strip-arrow press-strip-arrow--prev"
+              aria-label="Scroll deliverables left"
+              onClick={pressScrollPrev}
+              disabled={!pressCanPrev}
+            >
+              <ChevronLeft aria-hidden="true" />
+            </button>
+            <div className="press-strip-items" ref={pressStripRef}>
+              <span className="press-strip-item">House plans <span>Residential</span></span>
+              <span className="press-strip-item">Council submissions <span>Municipal</span></span>
+              <span className="press-strip-item">Working drawings <span>Construction</span></span>
+              <span className="press-strip-item">Development plans <span>Multi-unit</span></span>
+              <span className="press-strip-item">As-built drawings <span>Compliance</span></span>
+            </div>
+            <button
+              type="button"
+              className="press-strip-arrow press-strip-arrow--next"
+              aria-label="Scroll deliverables right"
+              onClick={pressScrollNext}
+              disabled={!pressCanNext}
+            >
+              <ChevronRight aria-hidden="true" />
+            </button>
           </div>
         </div>
       </section>
