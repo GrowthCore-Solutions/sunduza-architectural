@@ -42,12 +42,18 @@ function buildCsp(): string {
     "base-uri 'self'",
     "form-action 'self'",
     "object-src 'none'",
-    "upgrade-insecure-requests",
-  ].join("; ");
+    // Only force HTTPS in production. In local dev the server is HTTP-only, so
+    // upgrading subrequests to https breaks RSC navigation (ERR_SSL_PROTOCOL_ERROR).
+    !isDev && "upgrade-insecure-requests",
+  ]
+    .filter(Boolean)
+    .join("; ");
 }
 
 const securityHeaders = [
-  {
+  // HSTS only in production. On http://localhost it would pin the browser to
+  // HTTPS-only (max-age 2y), breaking local testing well after dev stops.
+  !isDev && {
     key: "Strict-Transport-Security",
     value: "max-age=63072000; includeSubDomains; preload",
   },
@@ -61,7 +67,7 @@ const securityHeaders = [
   },
   { key: "X-DNS-Prefetch-Control", value: "on" },
   { key: "Content-Security-Policy", value: buildCsp() },
-];
+].filter(Boolean) as { key: string; value: string }[];
 
 const nextConfig: NextConfig = {
   // Strip the `X-Powered-By: Next.js` header — no upside, just fingerprinting.
