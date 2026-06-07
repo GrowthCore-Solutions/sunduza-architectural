@@ -1,23 +1,16 @@
 import "server-only";
 
 import { AuditAction } from "@prisma/client";
-import { db } from "@/backend/lib/db";
-import { settingRowSelect, type SettingRow } from "@/shared/types/db";
+import type { SettingRow } from "@/shared/types/db";
+import { siteSettingsRepository } from "@/backend/repositories/site-settings.repository";
 import { writeAuditLog } from "@/backend/services/audit";
 
-export async function getSettings(): Promise<SettingRow[]> {
-  return db.siteSettings.findMany({
-    orderBy: { key: "asc" },
-    select: settingRowSelect,
-  });
+export function getSettings(): Promise<SettingRow[]> {
+  return siteSettingsRepository.findMany();
 }
 
-export async function getSetting(key: string): Promise<string | null> {
-  const row = await db.siteSettings.findUnique({
-    where: { key },
-    select: { value: true },
-  });
-  return row?.value ?? null;
+export function getSetting(key: string): Promise<string | null> {
+  return siteSettingsRepository.findValueByKey(key);
 }
 
 export async function updateSetting(
@@ -25,13 +18,11 @@ export async function updateSetting(
   value: string,
   context: { userId: string }
 ): Promise<SettingRow | null> {
-  const existing = await db.siteSettings.findUnique({ where: { key } });
-  if (!existing) return null;
+  if (!(await siteSettingsRepository.exists(key))) return null;
 
-  const updated = await db.siteSettings.update({
-    where: { key },
-    data: { value, updatedBy: context.userId },
-    select: settingRowSelect,
+  const updated = await siteSettingsRepository.update(key, {
+    value,
+    updatedBy: context.userId,
   });
 
   await writeAuditLog({

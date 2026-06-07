@@ -104,8 +104,8 @@ export default function BookingPage() {
               <a href={`tel:${CONTACT.PHONE_E164}`} className="booking-contact-link">
                 {CONTACT.PHONE_DISPLAY}
               </a>
-              <a href="mailto:info@sunduza.co.za" className="booking-contact-link">
-                info@sunduza.co.za
+              <a href={`mailto:${CONTACT.EMAIL}`} className="booking-contact-link">
+                {CONTACT.EMAIL}
               </a>
             </address>
           </aside>
