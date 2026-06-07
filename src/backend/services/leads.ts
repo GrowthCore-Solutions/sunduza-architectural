@@ -1,12 +1,9 @@
 import "server-only";
 
-import { db } from "@/backend/lib/db";
-import {
-  bookingRowSelect,
-  leadRowSelect,
-  type BookingRow,
-  type LeadRow,
-} from "@/shared/types/db";
+import type { BookingRow, LeadRow } from "@/shared/types/db";
+import { leadsRepository } from "@/backend/repositories/leads.repository";
+import { bookingsRepository } from "@/backend/repositories/bookings.repository";
+import type { DbClient } from "@/backend/repositories/types";
 
 export type { LeadRow };
 
@@ -23,26 +20,18 @@ export type { LeadRow };
  * row are committed atomically.
  */
 export async function upsertLead(
-  tx: Parameters<Parameters<typeof db.$transaction>[0]>[0],
+  tx: DbClient,
   input: { email: string; name: string; phone: string }
 ): Promise<LeadRow> {
   const now = new Date();
 
-  const existing = await tx.lead.findUnique({
-    where: { email: input.email },
-    select: leadRowSelect,
-  });
-
+  const existing = await leadsRepository.findByEmail(input.email, tx);
   if (existing) {
-    return tx.lead.update({
-      where: { email: input.email },
-      data: { lastSeenAt: now },
-      select: leadRowSelect,
-    });
+    return leadsRepository.touchLastSeen(input.email, now, tx);
   }
 
-  return tx.lead.create({
-    data: {
+  return leadsRepository.create(
+    {
       email: input.email,
       name: input.name,
       phone: input.phone,
@@ -50,8 +39,8 @@ export async function upsertLead(
       lastSeenAt: now,
       bookingCount: 0,
     },
-    select: leadRowSelect,
-  });
+    tx
+  );
 }
 
 /** Admin: paginated lead list, sorted by most recent activity. */
@@ -65,15 +54,7 @@ export async function getLeads(opts: { page?: number; limit?: number } = {}): Pr
   const limit = opts.limit ?? 20;
   const skip = (page - 1) * limit;
 
-  const [rows, total] = await db.$transaction([
-    db.lead.findMany({
-      skip,
-      take: limit,
-      orderBy: { lastSeenAt: "desc" },
-      select: leadRowSelect,
-    }),
-    db.lead.count(),
-  ]);
+  const { rows, total } = await leadsRepository.findPage({ skip, take: limit });
 
   return {
     leads: rows,
@@ -87,17 +68,10 @@ export async function getLeads(opts: { page?: number; limit?: number } = {}): Pr
 export async function getLeadWithBookings(
   id: string
 ): Promise<{ lead: LeadRow; bookings: BookingRow[] } | null> {
-  const lead = await db.lead.findUnique({
-    where: { id },
-    select: leadRowSelect,
-  });
+  const lead = await leadsRepository.findById(id);
   if (!lead) return null;
 
-  const bookings = await db.booking.findMany({
-    where: { leadId: id },
-    orderBy: { createdAt: "desc" },
-    select: bookingRowSelect,
-  });
+  const bookings = await bookingsRepository.findByLeadId(id);
 
   return { lead, bookings };
 }

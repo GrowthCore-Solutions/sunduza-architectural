@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { db } from "@/backend/lib/db";
+import { getProjectRefs } from "@/backend/services/projects";
 import { SITE_URL } from "@/shared/constants/site";
 
 // Force server-rendering so the sitemap reflects the live DB state on every
@@ -56,11 +56,7 @@ const STATIC_PAGES: MetadataRoute.Sitemap = [
 ];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const projects = await db.project.findMany({
-    where: { deletedAt: null },
-    select: { id: true, updatedAt: true },
-    orderBy: { sortOrder: "asc" },
-  });
+  const projects = await getProjectRefs();
 
   const projectPages: MetadataRoute.Sitemap = projects.map((p) => ({
     url: url(`/projects/${p.id}`),

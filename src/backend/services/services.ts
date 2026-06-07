@@ -4,11 +4,12 @@
 // so a process-local cache with a short TTL absorbs the load without any
 // external dependency. The cache is invalidated on every write through this
 // module; out-of-band edits via psql are reflected after the TTL expires.
+// All persistence is delegated to servicesRepository.
 
 import "server-only";
 
-import { db } from "@/backend/lib/db";
-import { serviceRowSelect, type ServiceRow } from "@/shared/types/db";
+import { servicesRepository } from "@/backend/repositories/services.repository";
+import type { ServiceRow } from "@/shared/types/db";
 
 export type { ServiceRow };
 
@@ -29,11 +30,7 @@ function invalidate() {
 export async function getActiveServices(): Promise<ServiceRow[]> {
   if (isFresh(cache)) return cache.value;
 
-  const rows = await db.service.findMany({
-    where: { isActive: true },
-    orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
-    select: serviceRowSelect,
-  });
+  const rows = await servicesRepository.findActive();
 
   cache = { value: rows, expiresAt: Date.now() + CACHE_TTL_MS };
   return rows;
@@ -44,9 +41,7 @@ export async function getActiveServices(): Promise<ServiceRow[]> {
  * Used by createBooking to populate `serviceId` and to reject bookings whose
  * service has been retired between page render and form submission.
  */
-export async function getActiveServiceBySlug(
-  slug: string
-): Promise<ServiceRow | null> {
+export async function getActiveServiceBySlug(slug: string): Promise<ServiceRow | null> {
   const active = await getActiveServices();
   return active.find((s) => s.slug === slug) ?? null;
 }
@@ -62,15 +57,12 @@ export async function createService(input: {
   icon?: string | null;
   sortOrder?: number;
 }): Promise<ServiceRow> {
-  const row = await db.service.create({
-    data: {
-      slug: input.slug,
-      name: input.name,
-      description: input.description ?? null,
-      icon: input.icon ?? null,
-      sortOrder: input.sortOrder ?? 0,
-    },
-    select: serviceRowSelect,
+  const row = await servicesRepository.create({
+    slug: input.slug,
+    name: input.name,
+    description: input.description ?? null,
+    icon: input.icon ?? null,
+    sortOrder: input.sortOrder ?? 0,
   });
   invalidate();
   return row;
@@ -86,26 +78,17 @@ export async function updateService(
     sortOrder: number;
   }>
 ): Promise<ServiceRow | null> {
-  const existing = await db.service.findUnique({ where: { id }, select: { id: true } });
-  if (!existing) return null;
+  if (!(await servicesRepository.exists(id))) return null;
 
-  const row = await db.service.update({
-    where: { id },
-    data: patch,
-    select: serviceRowSelect,
-  });
+  const row = await servicesRepository.update(id, patch);
   invalidate();
   return row;
 }
 
 export async function softDeleteService(id: string): Promise<boolean> {
-  const existing = await db.service.findUnique({ where: { id }, select: { id: true } });
-  if (!existing) return false;
+  if (!(await servicesRepository.exists(id))) return false;
 
-  await db.service.update({
-    where: { id },
-    data: { deletedAt: new Date(), isActive: false },
-  });
+  await servicesRepository.softDelete(id);
   invalidate();
   return true;
 }
