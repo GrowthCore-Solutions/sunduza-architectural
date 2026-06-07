@@ -1,34 +1,27 @@
 import "server-only";
 
 import { AuditAction } from "@prisma/client";
-import { db } from "@/backend/lib/db";
-import type { TestimonialCreateInput, TestimonialUpdateInput } from "@/shared/types/testimonial";
-import { testimonialRowSelect, type TestimonialRow } from "@/shared/types/db";
+import type {
+  TestimonialCreateInput,
+  TestimonialUpdateInput,
+} from "@/shared/types/testimonial";
+import type { TestimonialRow } from "@/shared/types/db";
+import { testimonialsRepository } from "@/backend/repositories/testimonials.repository";
 import { writeAuditLog } from "@/backend/services/audit";
 
-export async function getTestimonials(): Promise<TestimonialRow[]> {
-  return db.testimonial.findMany({
-    where: { isActive: true },
-    orderBy: { createdAt: "desc" },
-    select: testimonialRowSelect,
-  });
+export function getTestimonials(): Promise<TestimonialRow[]> {
+  return testimonialsRepository.findActive();
 }
 
-export async function getAllTestimonials(): Promise<TestimonialRow[]> {
-  return db.testimonial.findMany({
-    orderBy: { createdAt: "desc" },
-    select: testimonialRowSelect,
-  });
+export function getAllTestimonials(): Promise<TestimonialRow[]> {
+  return testimonialsRepository.findAll();
 }
 
 export async function createTestimonial(
   data: TestimonialCreateInput,
   context: { userId: string }
 ): Promise<TestimonialRow> {
-  const testimonial = await db.testimonial.create({
-    data,
-    select: testimonialRowSelect,
-  });
+  const testimonial = await testimonialsRepository.create(data);
 
   await writeAuditLog({
     action: AuditAction.TESTIMONIAL_CREATE,
@@ -45,14 +38,9 @@ export async function updateTestimonial(
   data: TestimonialUpdateInput,
   context: { userId: string }
 ): Promise<TestimonialRow | null> {
-  const existing = await db.testimonial.findUnique({ where: { id }, select: { id: true } });
-  if (!existing) return null;
+  if (!(await testimonialsRepository.exists(id))) return null;
 
-  const testimonial = await db.testimonial.update({
-    where: { id },
-    data,
-    select: testimonialRowSelect,
-  });
+  const testimonial = await testimonialsRepository.update(id, data);
 
   await writeAuditLog({
     action: AuditAction.TESTIMONIAL_UPDATE,
@@ -68,13 +56,9 @@ export async function softDeleteTestimonial(
   id: string,
   context: { userId: string }
 ): Promise<boolean> {
-  const existing = await db.testimonial.findUnique({ where: { id }, select: { id: true } });
-  if (!existing) return false;
+  if (!(await testimonialsRepository.exists(id))) return false;
 
-  await db.testimonial.update({
-    where: { id },
-    data: { deletedAt: new Date() },
-  });
+  await testimonialsRepository.softDelete(id);
 
   await writeAuditLog({
     action: AuditAction.TESTIMONIAL_DELETE,
