@@ -1,5 +1,7 @@
 // Sunduza Auth Configuration — NextAuth v5
-// Strategy : database sessions via PrismaAdapter (S3.5 — never JWT)
+// Strategy : JWT sessions — required for the Credentials provider in Auth.js v5
+//            (credentials sign-ins cannot persist a database session). The
+//            PrismaAdapter is retained for user lookup / future OAuth linking.
 // Provider : Credentials only (email + bcrypt password)
 // Security : account lockout after 10 failures (S3.4 Layer 2)
 //            in-memory IP rate limiting Layer 1 (Redis in v2)
@@ -105,18 +107,34 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     }),
   ],
 
+  // The Credentials provider cannot create database sessions in Auth.js v5 —
+  // a credentials sign-in always mints a JWT, never a `sessions` row. Pairing
+  // it with `strategy: "database"` made /api/auth/session fail the DB lookup
+  // and clear the cookie on the first request after login, bouncing the user
+  // straight back to /admin/login. JWT sessions are the supported strategy for
+  // credentials auth.
   session: {
-    strategy: "database",
+    strategy: "jwt",
     maxAge: parseInt(process.env.SESSION_MAX_AGE_SECONDS ?? "2592000", 10),
     updateAge: 24 * 60 * 60,
   },
 
   callbacks: {
-    async session({ session, user }) {
-      if (user && session.user) {
-        session.user.id = user.id;
-        (session.user as typeof session.user & { role: string }).role =
-          (user as typeof user & { role: string }).role;
+    // Persist id + role onto the token at sign-in (the `user` arg is only
+    // present on the initial sign-in call).
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+        token.role = user.role;
+      }
+      return token;
+    },
+    // Surface id + role from the token onto the session the app reads.
+    async session({ session, token }) {
+      if (session.user) {
+        if (token.id) session.user.id = token.id as string;
+        if (token.role)
+          session.user.role = token.role as typeof session.user.role;
       }
       return session;
     },
