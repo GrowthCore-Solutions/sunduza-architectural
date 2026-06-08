@@ -1,0 +1,71 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [Dev, main]
+  push:
+    branches: [Dev]
+
+# Cancel superseded runs on the same ref.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: typecheck · lint · test · build
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: sunduza_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      # CI-only values — never used in production.
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/sunduza_ci
+      DIRECT_URL: postgresql://postgres:postgres@localhost:5432/sunduza_ci
+      AUTH_SECRET: ci-only-secret-min-32-chars-0123456789abcd
+      NEXTAUTH_URL: http://localhost:3000
+      ADMIN_EMAIL: admin@sunduza.co.za
+      ADMIN_PASSWORD: ci-only-password
+      BCRYPT_ROUNDS: "4"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+
+      - name: Apply migrations
+        run: npx prisma migrate deploy
+
+      - name: Typecheck
+        run: npx tsc --noEmit
+
+      - name: Lint
+        run: npx eslint .
+
+      - name: Unit tests
+        run: npx vitest run
+
+      - name: Build
+        run: npm run build

@@ -4,6 +4,7 @@ import type { BookingRow, LeadRow } from "@/shared/types/db";
 import { leadsRepository } from "@/backend/repositories/leads.repository";
 import { bookingsRepository } from "@/backend/repositories/bookings.repository";
 import type { DbClient } from "@/backend/repositories/types";
+import { pageMeta, pageOffset } from "@/shared/lib/pagination";
 
 export type { LeadRow };
 
@@ -52,16 +53,13 @@ export async function getLeads(opts: { page?: number; limit?: number } = {}): Pr
 }> {
   const page = opts.page ?? 1;
   const limit = opts.limit ?? 20;
-  const skip = (page - 1) * limit;
 
-  const { rows, total } = await leadsRepository.findPage({ skip, take: limit });
+  const { rows, total } = await leadsRepository.findPage({
+    skip: pageOffset(page, limit),
+    take: limit,
+  });
 
-  return {
-    leads: rows,
-    total,
-    page,
-    totalPages: Math.ceil(total / limit) || 1,
-  };
+  return { leads: rows, ...pageMeta(total, page, limit) };
 }
 
 /** Admin: a single lead with its full booking history (most recent first). */
