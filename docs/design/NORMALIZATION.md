@@ -10,6 +10,12 @@
 > A database that violates this will eventually contradict itself.
 > We normalize so the data cannot lie.
 
+> 📐 See the visual data model first: **[ERD.md](./ERD.md)** (mermaid
+> entity-relationship diagram, cardinality and delete rules). This document is
+> the formal 1NF→BCNF analysis behind it. The original write-up covered 9
+> entities; the v1 schema has 15 — the analysis and justified denormalizations
+> below still hold, and [ERD.md](./ERD.md) reflects the full current model.
+
 ---
 
 ## HOW WE WORK

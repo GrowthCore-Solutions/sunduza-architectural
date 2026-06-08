@@ -23,7 +23,7 @@ A full-stack lead-generation site for Sunduza Architectural:
 | UI | React 19, Tailwind CSS v4 |
 | Language | TypeScript (strict) |
 | Database | PostgreSQL via Prisma 5 |
-| Auth | NextAuth v5 — **database sessions** (not JWT) |
+| Auth | NextAuth v5 — **JWT sessions** (Credentials provider) |
 | Client data | TanStack Query, Zustand (admin UI) |
 | Forms | react-hook-form + Zod |
 | Email | Resend (Sprint 3 worker) |
@@ -37,11 +37,10 @@ A full-stack lead-generation site for Sunduza Architectural:
 
 ```
 app/              Next.js routes (public, admin, API)
-server/           Business logic (server-only)
-src/client/       Browser UI, hooks, stores
-lib/              Infrastructure (db, auth, email, rate-limit, env)
-types/            Zod schemas and shared types
-prisma/           Schema, migrations, seed.ts, seed.prod.ts
+src/frontend/     Browser UI, hooks, stores
+src/backend/      lib (db, auth, …) · services · repositories
+src/shared/       Zod schemas, types, constants, pure lib
+prisma/           Schema, migrations, seed.ts
 tests/            Unit + E2E
 docs/             Setup, deploy, architecture, design specs (see docs/README.md)
 ```
@@ -137,9 +136,11 @@ All maintained docs are under **`docs/`** — see [docs/README.md](docs/README.m
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Current layout, auth, `proxy.ts` |
 | [docs/deployment.md](docs/deployment.md) | Vercel + Neon/Railway + cron |
 | [docs/PRODUCTION_CHECKLIST.md](docs/PRODUCTION_CHECKLIST.md) | Pre–go-live checklist |
-| [docs/INTEGRATION_STATUS.md](docs/INTEGRATION_STATUS.md) | What's verified on `Dev` |
-| [docs/design/LOCKED_DESIGN.md](docs/design/LOCKED_DESIGN.md) | Product authority |
-| `CONSTITUTION-INDEX.md` | Session governance, sprint status |
+| [docs/design/ERD.md](docs/design/ERD.md) | Data model — mermaid ERD |
+| [docs/design/DATA_ACCESS.md](docs/design/DATA_ACCESS.md) | Layering: UI → API → service → repository → DB |
+| [docs/requirements/](docs/requirements/) | Functional & non-functional requirements |
+| [docs/design/LOCKED_DESIGN.md](docs/design/LOCKED_DESIGN.md) | Product authority (historical spec) |
+| `CONSTITUTION-INDEX.md` | Session orientation |
 
 ---
 
@@ -153,4 +154,4 @@ All maintained docs are under **`docs/`** — see [docs/README.md](docs/README.m
 
 ---
 
-*Design & Build by KSDRILL SA*
+*Design & Build by GrowthCore-Solutions*

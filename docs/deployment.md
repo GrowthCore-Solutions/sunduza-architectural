@@ -1,6 +1,6 @@
 # Sunduza — Deployment Guide
 
-> **Status:** Application code for Sprints 0–4 is on `Dev`. Use this guide for staging/preview and production. See `INTEGRATION_STATUS.md` for verification checklist.
+> **Status:** v1 application code is on `Dev`. Use this guide for staging/preview and production. See [PRODUCTION_CHECKLIST.md](./PRODUCTION_CHECKLIST.md) for the pre–go-live checklist.
 
 ## Stack
 
