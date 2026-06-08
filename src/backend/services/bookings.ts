@@ -8,6 +8,7 @@ import { BookingListQuerySchema, type BookingInput } from "@/shared/types/bookin
 import type { BookingConfirm, BookingRow } from "@/shared/types/db";
 import { bookingsRepository } from "@/backend/repositories/bookings.repository";
 import { notificationsRepository } from "@/backend/repositories/notifications.repository";
+import { pageMeta, pageOffset } from "@/shared/lib/pagination";
 import { writeAuditLog } from "@/backend/services/audit";
 import { calculateLeadScore } from "@/backend/services/lead-score";
 import { canTransition, validNextStatuses } from "@/shared/lib/booking-transitions";
@@ -118,21 +119,15 @@ export async function getAdminBookings(query: BookingListQuery): Promise<{
   page: number;
   totalPages: number;
 }> {
-  const skip = (query.page - 1) * query.limit;
   const where = query.status ? { status: query.status as BookingStatus } : undefined;
 
   const { rows, total } = await bookingsRepository.findPage({
     where,
-    skip,
+    skip: pageOffset(query.page, query.limit),
     take: query.limit,
   });
 
-  return {
-    bookings: rows,
-    total,
-    page: query.page,
-    totalPages: Math.ceil(total / query.limit) || 1,
-  };
+  return { bookings: rows, ...pageMeta(total, query.page, query.limit) };
 }
 
 export function getBookingById(id: string): Promise<BookingRow | null> {

@@ -5,6 +5,7 @@ import {
   auditLogsRepository,
   type AuditLogRow,
 } from "@/backend/repositories/audit-logs.repository";
+import { pageMeta, pageOffset } from "@/shared/lib/pagination";
 
 export type { AuditLogRow };
 
@@ -48,14 +49,17 @@ export async function getAuditLog(opts: {
 }> {
   const page = opts.page ?? 1;
   const limit = opts.limit ?? 50;
-  const skip = (page - 1) * limit;
 
   const where: Prisma.AuditLogWhereInput = {
     ...(opts.action && { action: opts.action }),
     ...(opts.entityType && { entityType: opts.entityType }),
   };
 
-  const { rows, total } = await auditLogsRepository.findPage({ where, skip, take: limit });
+  const { rows, total } = await auditLogsRepository.findPage({
+    where,
+    skip: pageOffset(page, limit),
+    take: limit,
+  });
 
-  return { entries: rows, total, page, totalPages: Math.ceil(total / limit) || 1 };
+  return { entries: rows, ...pageMeta(total, page, limit) };
 }

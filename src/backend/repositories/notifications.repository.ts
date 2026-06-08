@@ -15,8 +15,46 @@ interface NotificationCreateData {
   payload: Prisma.InputJsonValue;
 }
 
+/** A pending outbox row, projected to what the delivery worker needs. */
+export interface PendingNotification {
+  id: string;
+  type: string;
+  payload: Prisma.JsonValue;
+}
+
 export const notificationsRepository = {
   async create(data: NotificationCreateData, client: DbClient = db): Promise<void> {
     await client.notification.create({ data });
+  },
+
+  /** Oldest undelivered, unfailed rows first — the worker scan order. */
+  findPending(take: number, client: DbClient = db): Promise<PendingNotification[]> {
+    return client.notification.findMany({
+      where: { sentAt: null, failedAt: null },
+      orderBy: { createdAt: "asc" },
+      take,
+      select: { id: true, type: true, payload: true },
+    });
+  },
+
+  async markSent(id: string, client: DbClient = db): Promise<void> {
+    await client.notification.update({ where: { id }, data: { sentAt: new Date() } });
+  },
+
+  async markFailed(id: string, error: string, client: DbClient = db): Promise<void> {
+    await client.notification.update({
+      where: { id },
+      data: { failedAt: new Date(), error },
+    });
+  },
+
+  /** Record a failed delivery attempt without giving up (retry later). */
+  async recordAttempt(
+    id: string,
+    payload: Prisma.InputJsonValue,
+    error: string,
+    client: DbClient = db
+  ): Promise<void> {
+    await client.notification.update({ where: { id }, data: { payload, error } });
   },
 };
