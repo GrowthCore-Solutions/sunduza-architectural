@@ -1,6 +1,6 @@
 # Production readiness checklist
 
-Use on staging or a production-like preview **before** merging `Dev` → `main`. See [INTEGRATION_STATUS.md](./INTEGRATION_STATUS.md) for what is already verified locally.
+Use on staging or a production-like preview **before** merging `Dev` → `main`. See [ARCHITECTURE.md](./ARCHITECTURE.md) and the [requirements](./requirements/) for what the system is expected to do.
 
 ## Security
 
