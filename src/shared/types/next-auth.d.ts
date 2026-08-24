@@ -16,3 +16,11 @@ declare module "next-auth" {
     role: UserRole;
   }
 }
+
+declare module "next-auth/jwt" {
+  // JWT sessions carry id + role on the token (set in the `jwt` callback).
+  interface JWT {
+    id?: string;
+    role?: UserRole;
+  }
+}

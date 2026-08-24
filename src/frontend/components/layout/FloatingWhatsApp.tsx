@@ -41,11 +41,11 @@ export function FloatingWhatsApp({
       aria-label="Chat with us on WhatsApp"
       className="float-wa"
     >
-      <span className="float-wa-ping" aria-hidden="true" />
+      <span className="float-wa-label">Chat on WhatsApp</span>
       <span className="float-wa-button">
+        <span className="float-wa-ping" aria-hidden="true" />
         <WhatsAppGlyph className="float-wa-icon" />
       </span>
-      <span className="float-wa-label">Chat on WhatsApp</span>
     </a>
   );
 }

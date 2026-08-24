@@ -4,12 +4,9 @@ import { AuditAction } from "@prisma/client";
 import { db } from "@/backend/lib/db";
 import { getAdminEmail } from "@/backend/lib/env";
 import type { ContactMessageInput } from "@/shared/types/contact";
-import {
-  contactConfirmSelect,
-  contactMessageRowSelect,
-  type ContactConfirm,
-  type ContactMessageRow,
-} from "@/shared/types/db";
+import type { ContactConfirm, ContactMessageRow } from "@/shared/types/db";
+import { contactMessagesRepository } from "@/backend/repositories/contact-messages.repository";
+import { notificationsRepository } from "@/backend/repositories/notifications.repository";
 import { writeAuditLog } from "@/backend/services/audit";
 
 export async function createContactMessage(
@@ -18,18 +15,22 @@ export async function createContactMessage(
 ): Promise<ContactConfirm> {
   const adminEmail = getAdminEmail();
 
-  const [message] = await db.$transaction([
-    db.contactMessage.create({
-      data: {
+  // The message row and its notification-outbox row commit together so the
+  // admin is never notified about a message that failed to persist (or vice
+  // versa).
+  const message = await db.$transaction(async (tx) => {
+    const created = await contactMessagesRepository.create(
+      {
         name: data.name,
         email: data.email,
         phone: data.phone ?? null,
         message: data.message,
       },
-      select: contactConfirmSelect,
-    }),
-    db.notification.create({
-      data: {
+      tx
+    );
+
+    await notificationsRepository.create(
+      {
         type: "CONTACT_NEW",
         channel: "email",
         recipient: adminEmail,
@@ -39,8 +40,11 @@ export async function createContactMessage(
           message: data.message.slice(0, 200),
         },
       },
-    }),
-  ]);
+      tx
+    );
+
+    return created;
+  });
 
   await writeAuditLog({
     action: AuditAction.CONTACT_MESSAGE_CREATE,
@@ -52,29 +56,17 @@ export async function createContactMessage(
   return message;
 }
 
-export async function getContactMessages(unreadOnly?: boolean): Promise<ContactMessageRow[]> {
-  return db.contactMessage.findMany({
-    where: unreadOnly ? { read: false } : undefined,
-    orderBy: { createdAt: "desc" },
-    select: contactMessageRowSelect,
-  });
+export function getContactMessages(unreadOnly?: boolean): Promise<ContactMessageRow[]> {
+  return contactMessagesRepository.findMany(unreadOnly);
 }
 
 export async function markMessageRead(
   id: string,
   context: { userId: string }
 ): Promise<ContactMessageRow | null> {
-  const existing = await db.contactMessage.findUnique({
-    where: { id },
-    select: { id: true },
-  });
-  if (!existing) return null;
+  if (!(await contactMessagesRepository.exists(id))) return null;
 
-  const updated = await db.contactMessage.update({
-    where: { id },
-    data: { read: true, readAt: new Date() },
-    select: contactMessageRowSelect,
-  });
+  const updated = await contactMessagesRepository.markRead(id);
 
   await writeAuditLog({
     action: AuditAction.CONTACT_MESSAGE_READ,

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { apiSuccess, apiError, ErrorCode } from "@/backend/lib/api-response";
 import { getSettings, updateSetting } from "@/backend/services/settings";
 import { withAuth, ADMIN_ONLY } from "@/backend/lib/with-auth";
@@ -45,6 +46,12 @@ export const PATCH = withAuth(async (req, session) => {
       { status: 404, headers: { "X-Request-ID": requestId } }
     );
   }
+
+  // Public pages read settings (contact details, marketing stats) at render
+  // time; without this, an edit here would not reach the public site until
+  // the layout's hourly cache and each static page's own revalidate window
+  // both happen to expire.
+  revalidatePath("/", "layout");
 
   return NextResponse.json(apiSuccess(updated), {
     headers: { "X-Request-ID": requestId },

@@ -1,119 +1,67 @@
-# CONSTITUTION-INDEX — Sunduza Architectural & Projects
+# Project Index — Sunduza Architectural & Projects
 
-> **This file is required in this workspace before any Claude Code (Cursor) build session begins.**
-> **Per S10.21 — load this file into Cursor context at the start of every session.**
-> **Per S10.23 — update this file at the start of every sprint.**
+A fast orientation for anyone (human or AI) starting a session in this repo.
+Keep it current; a stale index is worse than none.
 
----
+| Attribute | Value |
+|-----------|-------|
+| System | Sunduza Architectural & Projects |
+| Client | Xivutiso Kevin Sunduza |
+| Stack | Next.js 16 (App Router), React 19, TypeScript, PostgreSQL/Prisma |
+| Phase | **v1 complete on `Dev`** — release-readiness & hardening |
+| Branch model | feature branches → `Dev`; release PRs `Dev` → `main` |
+| Operating mode | Solo, single-admin system |
 
-| Attribute        | Value |
-|------------------|-------|
-| **System**       | Sunduza Architectural & Projects |
-| **Client**       | Xivutiso Kevin Sunduza |
-| **Stack**        | Next.js 16 (App Router), React 19, TypeScript |
-| **Build Phase**  | Phase 3 — Release readiness (Sprints 0–4 complete on `Dev`) |
-| **Active Group** | G3 — Integration, staging, production |
-| **Operating Mode** | SOLO |
-| **Overlay**      | `system-design-template/overlays/solo-dev-overlay.md` |
-| **Last Updated** | 2026-05-21 |
-| **Sprint**       | Sprints 0–4 merged to `Dev` — see `docs/INTEGRATION_STATUS.md` |
+## Read first
 
----
+| File | Why |
+|------|-----|
+| [docs/README.md](./docs/README.md) | Map of all documentation |
+| [docs/governance/SYSTEM_CONTEXT.md](./docs/governance/SYSTEM_CONTEXT.md) | Why the system exists; POPIA constraints; launch criteria |
+| [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) | Current layout, auth model, request flow (with diagrams) |
+| [docs/design/DATA_ACCESS.md](./docs/design/DATA_ACCESS.md) | The layering rule: only repositories touch Prisma |
+| [docs/design/LOCKED_DESIGN.md](./docs/design/LOCKED_DESIGN.md) | Product authority (historical spec; see v1 reality notes) |
+| [AGENTS.md](./AGENTS.md) | Next.js 16 breaking-change note — read before writing code |
 
-## Governance Files (Read Before Every Session)
+## Current architecture
 
-| File | When |
+```
+app/                 Routes — public, /admin/*, /api/*
+src/
+  frontend/          Browser only — components, hooks, stores
+  backend/
+    lib/             db, auth, csrf, rate-limit, email, env
+    services/        Business logic (validation, scoring, transitions, audit)
+    repositories/    The only layer that imports the Prisma client
+  shared/            types · zod schemas · constants · pure lib
+prisma/              schema, migrations, seed.ts
+tests/               Vitest (unit) + Playwright (e2e)
+proxy.ts             Admin cookie guard + API CSRF origin check
+```
+
+## Status — what's done (v1)
+
+- Public site (home, services, projects, testimonials, booking, contact, privacy) + SEO.
+- Admin console (auth with lockout, dashboard, projects, bookings, messages, leads, testimonials, settings).
+- Lead capture with POPIA consent, lead scoring, UTM attribution, idempotency, rate limiting.
+- Append-only audit log; notification outbox (delivery worker is v2).
+- **Hardening pass:** repository layer enforcing the data-access boundary; repo hygiene; full documentation overhaul with diagrams.
+
+## Auth model (important)
+
+Sessions are **JWT** (Auth.js v5 Credentials provider cannot use database
+sessions). The `sessions`/`accounts` tables remain as adapter scaffolding for
+future OAuth. Any older doc that says "database sessions, never JWT" predates
+PR #60 — see [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md).
+
+## Open items (v2 / founder input)
+
+| Item | Type |
 |------|------|
-| `system-design-template/AI-INSTRUCTIONS.md` | Every session — first |
-| `system-design-template/system-contexts/sunduza-context.md` | Every build session |
-| `system-design-template/overlays/solo-dev-overlay.md` | Every session — operating mode is SOLO |
-| **`docs/design/LOCKED_DESIGN.md`** | **Every build session — authoritative product spec** |
-| `docs/design/API_DESIGN.md` | API contract details |
-| `docs/design/PHYSICAL_SCHEMA.md` | Database schema details |
-| `docs/ARCHITECTURE.md` | Current codebase layout and auth |
-| `docs/PRODUCTION_CHECKLIST.md` | Pre–go-live checklist |
-| `docs/deployment.md` | Staging / production deploy |
-| `docs/INTEGRATION_STATUS.md` | Current verification status on `Dev` |
-| `docs/README.md` | Index of all project documentation |
+| Notification delivery worker (drain the outbox via Resend) | Feature (v2) |
+| API versioning under `/api/v1/*` (only health is versioned today) | Decision |
+| CI pipeline | DevOps |
+| GA4 property + real testimonial content | Content/config |
+| Image hosting strategy (local vs CDN) | Content |
 
----
-
-## Active Feature — Release Readiness
-
-**Feature:** Staging verification → controlled `Dev` → `main` releases
-**Goal:** Pass build plan §14 checklist on staging; prove booking/contact email path; keep `main` stable until founder sign-off.
-**Branch:** `Dev` (integration); release PRs target `main` when ready.
-**Merged PRs:** #13 (S0), #14 (S1), #15 (S2), #16 (S3), #17 (S4)
-
----
-
-## Sprint Delivery Log (Dev)
-
-| Sprint | Scope | PR | Status |
-|--------|--------|-----|--------|
-| 0 | `server/`, API fixes, audit, notifications, soft-delete | #13 | ✅ Merged |
-| 1 | Public site (7 pages + privacy), hooks, FormField | #14 | ✅ Merged |
-| 2 | Admin dashboard (6 sections), mobile sidebar | #15 | ✅ Merged |
-| 3 | Upstash, Resend, notify cron, deploy docs | #16 | ✅ Merged |
-| 4 | Vitest, Playwright, OG metadata, Sentry (optional) | #17 | ✅ Merged |
-
----
-
-## Resolved (formerly open)
-
-| Issue | Resolution |
-|-------|------------|
-| JWT session strategy | ✅ `lib/auth.ts` — `strategy: "database"` |
-| SQLite in production | ✅ `prisma/schema.prisma` — PostgreSQL |
-| Schema gap (9 tables) | ✅ Full schema + migrations |
-| No `server/` layer | ✅ `server/*.ts` with `server-only` |
-| No `POST /api/contact` | ✅ Implemented |
-| Audit / notification writes | ✅ Wired in Sprint 0 |
-| Public/admin pages stubbed | ✅ Sprints 1–2 |
-
----
-
-## Open Issues — Requires Founder Attention
-
-| Issue | Type | Status | Notes |
-|-------|------|--------|-------|
-| API routes use `/api/*` not `/api/v1/*` (except health) | `S2.76` | 🟡 Decision | Health at `/api/v1/health`; versioning TBD |
-| Image strategy — local vs Cloudinary | Content | 🟡 Open | Client input |
-| Real testimonials in production | Content | 🟡 Open | Replace seed placeholders |
-| Kevin's GA4 property ID | Config | 🟡 Open | Not in v1 build |
-| API integration + admin E2E tests | Testing | 🟡 Partial | Unit tests only; see build plan #57–#64 |
-| Per-page SEO + Lighthouse ≥85 | Polish | 🟡 Partial | Root OG done; page-level metadata TBD |
-| CI pipeline | DevOps | 🟡 Open | Not configured |
-| `Dev` → `main` release | Release | 🟡 Pending | After §14 + staging proof |
-
----
-
-## Target Architecture (current)
-
-```
-src/client/  → hooks + UI (browser only)
-app/api/     → thin handlers → server/
-server/      → business logic (server-only)
-types/       → Zod + inferred types
-lib/         → db, auth, rate-limit, email, env, api-response
-prisma/      → PostgreSQL schema, migrations, seed.ts, seed.prod.ts
-tests/       → unit (Vitest) + e2e (Playwright)
-```
-
----
-
-## Relay Status
-
-| Step | Engineer | Status | Notes |
-|------|----------|--------|-------|
-| Design (Phase 0) | Claude | ✅ Complete | `docs/design/` |
-| Build Sprints 0–4 | Cursor | ✅ Complete | Merged to `Dev` |
-| Integration / staging | Founder + Cursor | 🟡 In progress | `docs/INTEGRATION_STATUS.md` |
-| `Dev` → `main` release | Founder | ⬜ Pending | Not started |
-| Debug/Style | ChatGPT | ⬜ Optional | Post-staging |
-
----
-
-> *Update this file at the start of every sprint and every session.*
-> *Per S10.21 — Claude Code does not begin a build session without this file loaded in Cursor.*
-> *Per S10.23 — A stale index is equivalent to no index.*
+> Update this file when the architecture or status materially changes.

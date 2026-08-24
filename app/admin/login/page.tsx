@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import { signIn } from "next-auth/react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -30,17 +29,23 @@ export default function AdminLoginPage() {
 
   const onSubmit = async (data: LoginInput) => {
     setError(null);
-    const result = await signIn("credentials", {
-      email: data.email,
-      password: data.password,
-      redirect: false,
-    });
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      const body = await res.json().catch(() => null);
 
-    if (result?.error) {
-      setError("Invalid email or password. Please try again.");
-    } else {
+      if (!res.ok || !body?.success) {
+        setError(body?.error?.message ?? "Invalid email or password. Please try again.");
+        return;
+      }
+
       router.push("/admin");
       router.refresh();
+    } catch {
+      setError("Something went wrong. Please try again.");
     }
   };
 
@@ -69,7 +74,7 @@ export default function AdminLoginPage() {
 
         <div className="admin-login-brand-foot">
           <strong>Sunduza Architectural &amp; Projects (Pty) Ltd</strong>
-          <span>© {new Date().getFullYear()} &middot; Polokwane, South Africa</span>
+          <span>© {new Date().getFullYear()} &middot; Malamulele, Limpopo</span>
         </div>
       </aside>
 

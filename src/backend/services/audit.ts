@@ -1,7 +1,13 @@
 import "server-only";
 
-import { AuditAction, Prisma } from "@prisma/client";
-import { db } from "@/backend/lib/db";
+import type { AuditAction, Prisma } from "@prisma/client";
+import {
+  auditLogsRepository,
+  type AuditLogRow,
+} from "@/backend/repositories/audit-logs.repository";
+import { pageMeta, pageOffset } from "@/shared/lib/pagination";
+
+export type { AuditLogRow };
 
 export interface WriteAuditLogParams {
   action: AuditAction;
@@ -13,28 +19,17 @@ export interface WriteAuditLogParams {
   metadata?: Prisma.InputJsonValue;
 }
 
+/**
+ * Fire-and-forget audit write. A failure here must never break the user
+ * operation that triggered it, so the error is swallowed after logging.
+ */
 export async function writeAuditLog(params: WriteAuditLogParams): Promise<void> {
   try {
-    await db.auditLog.create({ data: params });
+    await auditLogsRepository.create(params);
   } catch (err) {
     console.error("[audit] Failed to write audit log:", { params, err });
   }
 }
-
-const auditLogRowSelect = {
-  id: true,
-  action: true,
-  entityType: true,
-  entityId: true,
-  userId: true,
-  ipAddress: true,
-  metadata: true,
-  createdAt: true,
-} as const;
-
-export type AuditLogRow = Prisma.AuditLogGetPayload<{
-  select: typeof auditLogRowSelect;
-}>;
 
 /**
  * Admin: paginated audit log, newest first. Optional filters by action and
@@ -54,28 +49,17 @@ export async function getAuditLog(opts: {
 }> {
   const page = opts.page ?? 1;
   const limit = opts.limit ?? 50;
-  const skip = (page - 1) * limit;
 
   const where: Prisma.AuditLogWhereInput = {
     ...(opts.action && { action: opts.action }),
     ...(opts.entityType && { entityType: opts.entityType }),
   };
 
-  const [entries, total] = await db.$transaction([
-    db.auditLog.findMany({
-      where,
-      skip,
-      take: limit,
-      orderBy: { createdAt: "desc" },
-      select: auditLogRowSelect,
-    }),
-    db.auditLog.count({ where }),
-  ]);
+  const { rows, total } = await auditLogsRepository.findPage({
+    where,
+    skip: pageOffset(page, limit),
+    take: limit,
+  });
 
-  return {
-    entries,
-    total,
-    page,
-    totalPages: Math.ceil(total / limit) || 1,
-  };
+  return { entries: rows, ...pageMeta(total, page, limit) };
 }

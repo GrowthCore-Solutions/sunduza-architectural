@@ -1,34 +1,29 @@
 import "server-only";
 
 import { AuditAction } from "@prisma/client";
-import { db } from "@/backend/lib/db";
 import type { ProjectCreateInput, ProjectUpdateInput } from "@/shared/types/project";
-import { projectRowSelect, type ProjectRow } from "@/shared/types/db";
+import type { ProjectRow } from "@/shared/types/db";
+import { projectsRepository } from "@/backend/repositories/projects.repository";
 import { writeAuditLog } from "@/backend/services/audit";
 
-export async function getProjects(featured?: boolean): Promise<ProjectRow[]> {
-  return db.project.findMany({
-    where: featured ? { isFeatured: true } : undefined,
-    orderBy: { sortOrder: "asc" },
-    select: projectRowSelect,
-  });
+export function getProjects(featured?: boolean): Promise<ProjectRow[]> {
+  return projectsRepository.findMany(featured);
 }
 
-export async function getProjectById(id: string): Promise<ProjectRow | null> {
-  return db.project.findUnique({
-    where: { id },
-    select: projectRowSelect,
-  });
+export function getProjectById(id: string): Promise<ProjectRow | null> {
+  return projectsRepository.findById(id);
+}
+
+/** Active project references (id + updatedAt) for the sitemap. */
+export function getProjectRefs(): Promise<{ id: string; updatedAt: Date }[]> {
+  return projectsRepository.findRefs();
 }
 
 export async function createProject(
   data: ProjectCreateInput,
   context: { userId: string }
 ): Promise<ProjectRow> {
-  const project = await db.project.create({
-    data,
-    select: projectRowSelect,
-  });
+  const project = await projectsRepository.create(data);
 
   await writeAuditLog({
     action: AuditAction.PROJECT_CREATE,
@@ -45,14 +40,9 @@ export async function updateProject(
   data: ProjectUpdateInput,
   context: { userId: string }
 ): Promise<ProjectRow | null> {
-  const existing = await db.project.findUnique({ where: { id }, select: { id: true } });
-  if (!existing) return null;
+  if (!(await projectsRepository.exists(id))) return null;
 
-  const project = await db.project.update({
-    where: { id },
-    data,
-    select: projectRowSelect,
-  });
+  const project = await projectsRepository.update(id, data);
 
   await writeAuditLog({
     action: AuditAction.PROJECT_UPDATE,
@@ -68,13 +58,9 @@ export async function softDeleteProject(
   id: string,
   context: { userId: string }
 ): Promise<boolean> {
-  const existing = await db.project.findUnique({ where: { id }, select: { id: true } });
-  if (!existing) return false;
+  if (!(await projectsRepository.exists(id))) return false;
 
-  await db.project.update({
-    where: { id },
-    data: { deletedAt: new Date() },
-  });
+  await projectsRepository.softDelete(id);
 
   await writeAuditLog({
     action: AuditAction.PROJECT_DELETE,

@@ -1,0 +1,128 @@
+name: CI
+
+# Lint, test, and build on every pull request. Runs alongside the
+# governance gate (governance.yml) rather than replacing it.
+#
+# No database is provisioned here — public pages that read SiteSettings
+# fall back to static defaults when the database is unreachable (see
+# getPublicSiteSettings in src/backend/services/settings.ts), and env
+# validation is lazy (src/backend/lib/env.ts), so `next build` succeeds
+# without secrets. This matches what docs/deployment.md already documents.
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  lint-test-build:
+    name: Lint, test, build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies (frozen lockfile)
+        run: npm ci
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Unit tests
+        run: npm run test
+
+      - name: Build
+        run: npm run build
+
+  e2e:
+    name: E2E tests
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: sunduza_e2e
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/sunduza_e2e
+      DIRECT_URL: postgresql://postgres:postgres@localhost:5432/sunduza_e2e
+      NEXTAUTH_URL: http://localhost:3000
+      NEXTAUTH_SECRET: e2e-test-secret-at-least-32-characters-long-000
+      AUTH_SECRET: e2e-test-secret-at-least-32-characters-long-000
+      ADMIN_EMAIL: admin@sunduza.co.za
+      ADMIN_PASSWORD: E2ETestPassword!123
+      BCRYPT_ROUNDS: "10"
+      SESSION_MAX_AGE_SECONDS: "2592000"
+      PLAYWRIGHT_BASE_URL: http://localhost:3000
+      CI: "true"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies (frozen lockfile)
+        run: npm ci
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+
+      - name: Apply migrations
+        run: npx prisma migrate deploy
+
+      - name: Seed database
+        run: npm run db:seed
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Build
+        run: npm run build
+
+      - name: Start production server
+        run: npm run start &
+
+      - name: Wait for server to be ready
+        run: |
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:3000/api/v1/health > /dev/null; then
+              echo "Server is up"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Server did not become ready in time"
+          exit 1
+
+      - name: Run E2E tests
+        run: npx playwright test --reporter=list,html
+
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
