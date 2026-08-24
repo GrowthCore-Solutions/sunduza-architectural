@@ -112,8 +112,21 @@ export async function POST(request: Request) {
     userAgent,
   });
 
-  const isProd = process.env.NODE_ENV === "production";
-  const cookieName = isProd ? "__Secure-authjs.session-token" : "authjs.session-token";
+  // Match @auth/core's own secure-cookie determination exactly (see
+  // node_modules/@auth/core/lib/init.js: `useSecureCookies ?? url.protocol
+  // === "https:"`) - it decides per-request from the actual protocol, never
+  // from NODE_ENV. A build+start production run served over plain HTTP
+  // (e.g. CI, or a reverse proxy that doesn't forward x-forwarded-proto)
+  // has NODE_ENV=production but no TLS - a NODE_ENV-based check would set
+  // Secure on the cookie, the browser silently drops it over HTTP, and
+  // login bounces back with no error (found via CI running a real
+  // production build over HTTP - passed identical local `next dev` tests).
+  // Getting this wrong the other way (never secure) would ship an
+  // unencrypted session cookie to production, so mirror Auth.js exactly
+  // rather than hardcode either direction.
+  const forwardedProto = request.headers.get("x-forwarded-proto")?.split(",")[0]?.trim();
+  const isSecure = forwardedProto ? forwardedProto === "https" : new URL(request.url).protocol === "https:";
+  const cookieName = isSecure ? "__Secure-authjs.session-token" : "authjs.session-token";
 
   const response = NextResponse.json({
     success: true,
@@ -123,7 +136,7 @@ export async function POST(request: Request) {
     httpOnly: true,
     sameSite: "lax",
     path: "/",
-    secure: isProd,
+    secure: isSecure,
     expires,
   });
   return response;
