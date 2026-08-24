@@ -32,7 +32,7 @@ npx tsx prisma/seed.prod.ts
 
 ## Vercel Cron
 
-`vercel.json` runs `/api/internal/notify` every 5 minutes. Set `CRON_SECRET` and configure Vercel to send `Authorization: Bearer <CRON_SECRET>` on cron invocations (or use Vercel cron headers per your plan).
+`vercel.json` runs `/api/internal/notify` once daily (`0 8 * * *`, i.e. 08:00 UTC) — the Hobby plan's cron limit is once per day. A booking or contact message can wait up to ~24h for its admin email under this schedule. If that's too slow for the business (it likely is — the site promises "we respond within one business day"), upgrade to a Vercel Pro plan and tighten the schedule (e.g. `*/15 * * * *` for every 15 minutes). Set `CRON_SECRET` and configure Vercel to send `Authorization: Bearer <CRON_SECRET>` on cron invocations.
 
 ## Build
 
