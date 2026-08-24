@@ -511,7 +511,7 @@
   font-size: 0.8125rem;
   font-weight: 500;
   letter-spacing: 0.005em;
-  color: var(--color-graphite);
+  color: rgb(255 255 255 / 0.7);
   min-height: 2.75rem;
   text-decoration: none;
   transition:
@@ -520,8 +520,8 @@
 }
 
 .mob-nav-link:hover {
-  background-color: var(--color-paper2);
-  color: var(--color-ink);
+  background-color: rgb(255 255 255 / 0.08);
+  color: white;
 }
 
 .mob-nav-link--active {
@@ -543,7 +543,7 @@
   right: 0;
   background: linear-gradient(
     to left,
-    color-mix(in srgb, var(--color-paper) 96%, transparent),
+    color-mix(in srgb, var(--color-ink) 96%, transparent),
     transparent
   );
 }
@@ -552,7 +552,7 @@
   left: 0;
   background: linear-gradient(
     to right,
-    color-mix(in srgb, var(--color-paper) 96%, transparent),
+    color-mix(in srgb, var(--color-ink) 96%, transparent),
     transparent
   );
 }

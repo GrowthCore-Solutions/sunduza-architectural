@@ -59,11 +59,11 @@ export function Header() {
   return (
     <header
       className={cn(
-        "sticky top-0 z-50 w-full transition-[transform,background-color,box-shadow,border-color] duration-300 will-change-transform",
+        "sticky top-0 z-50 w-full bg-ink transition-[transform,box-shadow,border-color] duration-300 will-change-transform",
         hidden ? "-translate-y-full" : "translate-y-0",
         scrolled
-          ? "border-b border-rule/60 bg-paper2/96 shadow-[0_1px_16px_-3px_rgb(15_26_34/0.09)] backdrop-blur-md"
-          : "border-b border-rule/35 bg-paper2/92 backdrop-blur-sm"
+          ? "border-b border-white/10 shadow-[0_4px_24px_-4px_rgb(15_26_34/0.35)]"
+          : "border-b border-white/5"
       )}
     >
       {/* Gold accent line */}
@@ -76,14 +76,14 @@ export function Header() {
           className="flex shrink-0 items-center gap-2.5 group"
           aria-label="Sunduza Architectural home"
         >
-          <span className="flex h-10 w-10 items-center justify-center rounded bg-ink text-[0.65rem] font-black tracking-[0.2em] text-white shadow-sm transition-colors group-hover:bg-graphite md:h-[2.6rem] md:w-[2.6rem]">
+          <span className="flex h-10 w-10 items-center justify-center rounded bg-primary text-[0.65rem] font-black tracking-[0.2em] text-ink shadow-sm transition-colors group-hover:brightness-110 md:h-[2.6rem] md:w-[2.6rem]">
             SA
           </span>
           <span className="leading-none">
-            <span className="block font-serif text-[1.15rem] font-semibold tracking-tight text-ink leading-none md:text-[1.3rem]">
+            <span className="block font-serif text-[1.15rem] font-semibold tracking-tight text-white leading-none md:text-[1.3rem]">
               Sunduza
             </span>
-            <span className="hidden text-[0.6rem] font-medium uppercase tracking-[0.22em] text-muted sm:block mt-[3px]">
+            <span className="hidden text-[0.6rem] font-medium uppercase tracking-[0.22em] text-white/50 sm:block mt-[3px]">
               Architectural &amp; Projects
             </span>
           </span>
@@ -102,7 +102,7 @@ export function Header() {
                 href={item.href}
                 className={cn(
                   "relative px-3.5 py-2 text-[0.8125rem] font-medium tracking-[0.005em] transition-colors duration-200",
-                  active ? "text-primary" : "text-graphite hover:text-ink"
+                  active ? "text-primary" : "text-white/70 hover:text-white"
                 )}
               >
                 {item.label}
@@ -130,7 +130,7 @@ export function Header() {
 
       {/* ── Mobile nav strip (horizontal scroll, hidden on md+) ── */}
       <div className="relative md:hidden">
-        <div className="h-px w-full bg-rule/25" />
+        <div className="h-px w-full bg-white/10" />
         <nav
           ref={mobNavRef}
           className={cn("mob-nav-rail", mobNavDragging && "mob-nav-rail--dragging")}
