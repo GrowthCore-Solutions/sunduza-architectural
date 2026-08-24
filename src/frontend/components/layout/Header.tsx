@@ -62,8 +62,8 @@ export function Header() {
         "sticky top-0 z-50 w-full transition-[transform,background-color,box-shadow,border-color] duration-300 will-change-transform",
         hidden ? "-translate-y-full" : "translate-y-0",
         scrolled
-          ? "border-b border-rule/60 bg-paper/96 shadow-[0_1px_16px_-3px_rgb(15_26_34/0.09)] backdrop-blur-md"
-          : "border-b border-rule/35 bg-paper/92 backdrop-blur-sm"
+          ? "border-b border-rule/60 bg-paper2/96 shadow-[0_1px_16px_-3px_rgb(15_26_34/0.09)] backdrop-blur-md"
+          : "border-b border-rule/35 bg-paper2/92 backdrop-blur-sm"
       )}
     >
       {/* Gold accent line */}
