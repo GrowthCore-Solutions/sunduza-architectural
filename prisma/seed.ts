@@ -137,70 +137,10 @@ async function main() {
   console.log(`✅ Site settings seeded: ${settings.length} entries`);
 
   // ── 3. PORTFOLIO PROJECTS ──────────────────────────────────────────────────
-  // Replace imagePath values with real project images before launch
-  // imagePath format: /images/projects/filename.webp
-  const projects = [
-    {
-      title: "Modern Family Residence — Sandton",
-      description:
-        "A contemporary 4-bedroom family home designed for a 600sqm plot in Sandton. The design prioritises open-plan living, natural light, and seamless indoor-outdoor flow. Full council submission package included.",
-      imagePath: "/images/projects/sandton-residence.webp",
-      category: "Residential",
-      sortOrder: 1,
-      isFeatured: true,
-    },
-    {
-      title: "Mixed-Use Development — Pretoria East",
-      description:
-        "A 12-unit mixed-use development combining ground-floor retail with residential apartments above. Full architectural drawings, structural coordination, and development planning documentation.",
-      imagePath: "/images/projects/pretoria-mixed-use.webp",
-      category: "Development",
-      sortOrder: 2,
-      isFeatured: true,
-    },
-    {
-      title: "Commercial Office Fitout — Midrand",
-      description:
-        "Architectural drawings and drafting services for a 400sqm commercial office space. Includes space planning, mechanical coordination, and full documentation package.",
-      imagePath: "/images/projects/midrand-office.webp",
-      category: "Commercial",
-      sortOrder: 3,
-      isFeatured: true,
-    },
-    {
-      title: "Residential Extension — Centurion",
-      description:
-        "A double-storey extension to an existing home, adding two bedrooms, a study, and an entertainment deck. Full council submission drawings and approval management.",
-      imagePath: "/images/projects/centurion-extension.webp",
-      category: "Residential",
-      sortOrder: 4,
-      isFeatured: false,
-    },
-    {
-      title: "Townhouse Complex — Johannesburg South",
-      description:
-        "Site planning and architectural drawings for a 6-unit townhouse complex. Includes unit layouts, site coverage calculations, and full drafting documentation.",
-      imagePath: "/images/projects/jhb-townhouses.webp",
-      category: "Development",
-      sortOrder: 5,
-      isFeatured: false,
-    },
-  ];
-
-  let projectCount = 0;
-  for (const project of projects) {
-    const exists = await prisma.project.findFirst({
-      where: { title: project.title, deletedAt: null },
-      select: { id: true },
-    });
-    if (!exists) {
-      await prisma.project.create({
-        data: { id: createId(), ...project },
-      });
-      projectCount++;
-    }
-  }
-  console.log(`✅ Projects seeded: ${projectCount} new (${projects.length - projectCount} already existed)`);
+  // Intentionally not seeded with demo data. Projects are real client work,
+  // added through /admin/projects — fictional placeholder rows here would
+  // sit alongside real ones with no way to tell them apart, and duplicate
+  // images once the real project count exceeds the placeholder image count.
 
   // ── 4. TESTIMONIALS ────────────────────────────────────────────────────────
   // Replace with real client reviews before launch
