@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { BookingForm } from "@/frontend/components/features/BookingForm";
 import { Skeleton } from "@/frontend/components/ui/skeleton";
-import { CONTACT } from "@/shared/constants/contact";
+import { getPublicSiteSettings } from "@/backend/services/settings";
 
 export const metadata = {
   title: "Book a Consultation",
@@ -32,13 +32,21 @@ const PROCESS_STEPS = [
   },
 ];
 
-const TRUST_SIGNALS = [
-  { label: "Response time", value: "< 1 day" },
-  { label: "Projects delivered", value: "200+" },
-  { label: "Years in practice", value: "10+" },
-];
+export default async function BookingPage() {
+  const settings = await getPublicSiteSettings();
 
-export default function BookingPage() {
+  const TRUST_SIGNALS = [
+    { label: "Response time", value: "< 1 day" },
+    {
+      label: "Projects delivered",
+      value: settings.projectsCompleted ? `${settings.projectsCompleted}+` : "—",
+    },
+    {
+      label: "Years in practice",
+      value: settings.yearsExperience ? `${settings.yearsExperience}+` : "—",
+    },
+  ];
+
   return (
     <>
       {/* Hero */}
@@ -96,11 +104,11 @@ export default function BookingPage() {
 
             <address className="booking-contact-note" aria-label="Direct contact options">
               <p className="booking-contact-note-label">Prefer to call?</p>
-              <a href={`tel:${CONTACT.PHONE_E164}`} className="booking-contact-link">
-                {CONTACT.PHONE_DISPLAY}
+              <a href={`tel:${settings.phoneE164}`} className="booking-contact-link">
+                {settings.phone}
               </a>
-              <a href="mailto:info@sunduza.co.za" className="booking-contact-link">
-                info@sunduza.co.za
+              <a href={`mailto:${settings.email}`} className="booking-contact-link">
+                {settings.email}
               </a>
             </address>
           </aside>

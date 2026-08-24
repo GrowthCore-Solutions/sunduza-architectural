@@ -2,6 +2,7 @@ import * as React from "react";
 import Link from "next/link";
 import { ArrowRight, Clock, Mail, MapPin, Phone } from "lucide-react";
 import { CONTACT } from "@/shared/constants/contact";
+import type { PublicSiteSettings } from "@/backend/services/settings";
 
 // Brand icons (lucide doesn't ship brand marks; inline simple paths)
 function InstagramIcon(props: React.SVGProps<SVGSVGElement>) {
@@ -52,7 +53,7 @@ const SOCIALS = [
   { label: "LinkedIn", href: "https://linkedin.com/", Icon: LinkedinIcon },
 ];
 
-export function Footer() {
+export function Footer({ settings }: { settings: PublicSiteSettings }) {
   return (
     <footer className="bg-ink text-white">
       <div className="h-[2px] w-full bg-primary" />
@@ -161,22 +162,22 @@ export function Footer() {
             <ul className="space-y-3 text-sm">
               <li className="flex gap-2.5">
                 <Phone className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                <a href={`tel:${CONTACT.PHONE_E164}`} className="text-white/60 transition-colors hover:text-primary">
-                  {CONTACT.PHONE_DISPLAY}
+                <a href={`tel:${settings.phoneE164}`} className="text-white/60 transition-colors hover:text-primary">
+                  {settings.phone}
                 </a>
               </li>
               <li className="flex gap-2.5">
                 <Mail className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
                 <a
-                  href={`mailto:${CONTACT.EMAIL}`}
+                  href={`mailto:${settings.email}`}
                   className="break-all text-white/60 transition-colors hover:text-primary"
                 >
-                  {CONTACT.EMAIL}
+                  {settings.email}
                 </a>
               </li>
               <li className="flex gap-2.5">
                 <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                <span className="text-white/60">{CONTACT.LOCATION}</span>
+                <span className="text-white/60">{settings.address}</span>
               </li>
               <li className="flex gap-2.5">
                 <Clock className="mt-0.5 h-4 w-4 shrink-0 text-primary" />

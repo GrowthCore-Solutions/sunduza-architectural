@@ -28,15 +28,9 @@ import { ProjectCard } from "@/frontend/components/features/ProjectCard";
 import { TestimonialsCarousel } from "@/frontend/components/features/TestimonialsCarousel";
 import { CountUp } from "@/frontend/components/ui/CountUp";
 import { SERVICES } from "@/frontend/data/services";
-import { CONTACT } from "@/shared/constants/contact";
+import type { PublicSiteSettings } from "@/backend/services/settings";
 
 const SERVICE_ICONS = [Building2, PenTool, Ruler, Layers] as const;
-
-const STATS = [
-  { label: "Projects completed", end: 50, suffix: "+", detail: "Residential & commercial" },
-  { label: "Years of practice", end: 5, suffix: "+", detail: "Industry expertise" },
-  { label: "Core services", end: 4, suffix: "", detail: "End-to-end delivery" },
-];
 
 const TRUST_POINTS = [
   { label: "Council-ready documentation", icon: ShieldCheck },
@@ -115,10 +109,26 @@ const FAQS = [
   },
 ];
 
-export function HomePageContent() {
+export function HomePageContent({ settings }: { settings: PublicSiteSettings }) {
   const { data: featured, isLoading: projectsLoading, isError: projectsError } = useProjects({ featured: true });
   const { data: testimonials, isLoading: testimonialsLoading } = useTestimonials();
   const spotlight = featured?.[0];
+
+  const STATS = [
+    {
+      label: "Projects completed",
+      end: settings.projectsCompleted ? Number(settings.projectsCompleted) : 0,
+      suffix: "+",
+      detail: "Residential & commercial",
+    },
+    {
+      label: "Years of practice",
+      end: settings.yearsExperience ? Number(settings.yearsExperience) : 0,
+      suffix: "+",
+      detail: "Industry expertise",
+    },
+    { label: "Core services", end: SERVICES.length, suffix: "", detail: "End-to-end delivery" },
+  ];
 
   return (
     <>
@@ -477,7 +487,10 @@ export function HomePageContent() {
               <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3">
                 {[
                   { label: "Council submissions", value: "50+" },
-                  { label: "Years in practice", value: "5+" },
+                  {
+                    label: "Years in practice",
+                    value: settings.yearsExperience ? `${settings.yearsExperience}+` : "—",
+                  },
                   { label: "Provinces served", value: "4+" },
                 ].map((item) => (
                   <div
@@ -695,21 +708,21 @@ export function HomePageContent() {
               <p className="contact-tile-label">Book a consultation</p>
               <p className="contact-tile-value">Free 30-minute call</p>
             </Link>
-            <a href={`tel:${CONTACT.PHONE_E164}`} className="contact-tile">
+            <a href={`tel:${settings.phoneE164}`} className="contact-tile">
               <div className="contact-tile-head">
                 <Phone className="h-5 w-5" />
                 <ArrowUpRight className="h-4 w-4" />
               </div>
               <p className="contact-tile-label">Call the studio</p>
-              <p className="contact-tile-value">{CONTACT.PHONE_DISPLAY}</p>
+              <p className="contact-tile-value">{settings.phone}</p>
             </a>
-            <a href={`mailto:${CONTACT.EMAIL}`} className="contact-tile">
+            <a href={`mailto:${settings.email}`} className="contact-tile">
               <div className="contact-tile-head">
                 <Mail className="h-5 w-5" />
                 <ArrowUpRight className="h-4 w-4" />
               </div>
               <p className="contact-tile-label">Email us</p>
-              <p className="contact-tile-value">{CONTACT.EMAIL}</p>
+              <p className="contact-tile-value">{settings.email}</p>
             </a>
             <Link href="/projects" className="contact-tile">
               <div className="contact-tile-head">

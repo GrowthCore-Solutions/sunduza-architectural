@@ -11,7 +11,7 @@ import {
   Lock,
 } from "lucide-react";
 import { Button } from "@/frontend/components/ui/button";
-import { CONTACT } from "@/shared/constants/contact";
+import { getPublicSiteSettings } from "@/backend/services/settings";
 
 export const metadata = {
   title: "Privacy Policy",
@@ -243,7 +243,8 @@ const SECTIONS = [
   },
 ];
 
-export default function PrivacyPage() {
+export default async function PrivacyPage() {
+  const settings = await getPublicSiteSettings();
   return (
     <>
       {/* ── Hero ──────────────────────────────────────────────────────── */}
@@ -352,8 +353,8 @@ export default function PrivacyPage() {
               <div>
                 <p className="privacy-contact-row-label">Email</p>
                 <p className="privacy-contact-row-value">
-                  <a href={`mailto:${CONTACT.EMAIL}`}>
-                    {CONTACT.EMAIL}
+                  <a href={`mailto:${settings.email}`}>
+                    {settings.email}
                   </a>
                 </p>
               </div>
