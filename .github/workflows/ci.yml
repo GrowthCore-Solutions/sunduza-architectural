@@ -1,0 +1,45 @@
+name: CI
+
+# Lint, test, and build on every pull request. Runs alongside the
+# governance gate (governance.yml) rather than replacing it.
+#
+# No database is provisioned here — public pages that read SiteSettings
+# fall back to static defaults when the database is unreachable (see
+# getPublicSiteSettings in src/backend/services/settings.ts), and env
+# validation is lazy (src/backend/lib/env.ts), so `next build` succeeds
+# without secrets. This matches what docs/deployment.md already documents.
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  lint-test-build:
+    name: Lint, test, build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies (frozen lockfile)
+        run: npm ci
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Unit tests
+        run: npm run test
+
+      - name: Build
+        run: npm run build
