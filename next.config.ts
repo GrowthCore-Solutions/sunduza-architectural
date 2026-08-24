@@ -42,15 +42,26 @@ function buildCsp(): string {
     "base-uri 'self'",
     "form-action 'self'",
     "object-src 'none'",
-    "upgrade-insecure-requests",
-  ].join("; ");
+    // Forcing HTTPS upgrades in dev breaks the HTTP-only dev server (RSC
+    // fetches get upgraded to https://localhost and fail with
+    // ERR_SSL_PROTOCOL_ERROR) — production only.
+    !isDev && "upgrade-insecure-requests",
+  ]
+    .filter(Boolean)
+    .join("; ");
 }
 
 const securityHeaders = [
-  {
-    key: "Strict-Transport-Security",
-    value: "max-age=63072000; includeSubDomains; preload",
-  },
+  // HSTS forces HTTPS for the domain; on the HTTP dev server this bounces
+  // every request (including post-login RSC fetches) — production only.
+  ...(isDev
+    ? []
+    : [
+        {
+          key: "Strict-Transport-Security",
+          value: "max-age=63072000; includeSubDomains; preload",
+        },
+      ]),
   { key: "X-Frame-Options", value: "DENY" },
   { key: "X-Content-Type-Options", value: "nosniff" },
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
