@@ -23,7 +23,12 @@ export async function createContactMessage(
       {
         name: data.name,
         email: data.email,
-        phone: data.phone ?? null,
+        // `||` not `??`: an unfilled optional text input submits "", and an
+        // empty string must not reach the database unchanged - it violates
+        // the phone_min_length CHECK constraint (phone IS NULL OR length >=
+        // 10), a 500 that silently dropped the visitor's message. See
+        // 2026-08-24 incident (tests/e2e/contact-flow.spec.ts).
+        phone: data.phone || null,
         message: data.message,
       },
       tx
