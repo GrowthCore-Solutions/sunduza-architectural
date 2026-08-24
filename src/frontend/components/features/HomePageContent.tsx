@@ -134,22 +134,22 @@ export function HomePageContent({ settings }: { settings: PublicSiteSettings }) 
     <>
       {/* ─── Hero ─────────────────────────────────────────────────────── */}
       <section className="hero-band" aria-label="Introduction">
-        <Image
-          src="/images/hero/hero-mobile.png"
-          alt=""
-          fill
-          priority
-          sizes="100vw"
-          className="hero-band-media md:hidden"
-          aria-hidden="true"
-        />
+        {/*
+          hero-mobile.png, hero-desktop.png and hero-fallback.png are
+          currently byte-identical (no real distinct mobile crop exists yet)
+          - rendering two <Image priority> elements and CSS-toggling their
+          visibility made every homepage load fetch the same image twice.
+          One image with `sizes="100vw"` lets Next generate the right
+          responsive srcset automatically; swap in a real mobile-specific
+          crop here if one is ever produced.
+        */}
         <Image
           src="/images/hero/hero-desktop.png"
           alt=""
           fill
           priority
           sizes="100vw"
-          className="hero-band-media hidden md:block"
+          className="hero-band-media"
           aria-hidden="true"
         />
         <div className="hero-overlay" />
@@ -359,6 +359,7 @@ export function HomePageContent({ settings }: { settings: PublicSiteSettings }) 
                   fill
                   sizes="(min-width: 1024px) 55vw, 100vw"
                   className="object-cover img-project"
+                  priority
                 />
               ) : (
                 <div className="flex h-full w-full items-center justify-center text-white/30">

@@ -80,6 +80,9 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [{ protocol: "https", hostname: "**" }],
     unoptimized: false,
+    // AVIF first (smaller than WebP on photos when the browser supports
+    // it), WebP fallback. Next tries formats in this order per Accept header.
+    formats: ["image/avif", "image/webp"],
   },
   serverExternalPackages: ["@prisma/client", "bcryptjs"],
   async headers() {
