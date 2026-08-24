@@ -23,7 +23,7 @@ export async function createContactMessage(
       data: {
         name: data.name,
         email: data.email,
-        phone: data.phone ?? null,
+        phone: data.phone || null,
         message: data.message,
       },
       select: contactConfirmSelect,

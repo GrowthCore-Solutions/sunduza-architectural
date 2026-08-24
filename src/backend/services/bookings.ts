@@ -61,7 +61,12 @@ export async function createBooking(
           description: data.description,
           meetingDate: data.meetingDate ? new Date(data.meetingDate) : null,
           // Legacy free-text snapshot kept verbatim for historical attribution.
-          budget: data.budget ?? null,
+          // `||` not `??`: an unfilled optional text input submits "", and
+          // an empty string should be stored as "not provided" too, not as
+          // a literal empty string (see the contact-form phone incident,
+          // 2026-08-24 — this field has no CHECK constraint so it wasn't
+          // crashing, but it's the same class of bug).
+          budget: data.budget || null,
           // Whole-Rand inputs converted to cents for the structured columns.
           budgetMinCents: data.budgetMinRand != null ? BigInt(data.budgetMinRand) * 100n : null,
           budgetMaxCents: data.budgetMaxRand != null ? BigInt(data.budgetMaxRand) * 100n : null,
