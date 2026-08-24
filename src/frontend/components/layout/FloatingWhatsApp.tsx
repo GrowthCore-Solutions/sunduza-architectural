@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { usePathname } from "next/navigation";
+import * as Sentry from "@sentry/nextjs";
 
 interface FloatingWhatsAppProps {
   phoneNumber: string;
@@ -33,6 +34,15 @@ export function FloatingWhatsApp({
 
   const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
 
+  // Per docs/design/COMPONENT_ARCHITECTURE.md - the button's one required
+  // behaviour beyond the link itself: record every click, tagged by the
+  // page it was clicked from, as `whatsapp_click`.
+  const handleClick = () => {
+    Sentry.metrics.count("whatsapp_click", 1, {
+      attributes: { page: pathname },
+    });
+  };
+
   return (
     <a
       href={url}
@@ -40,6 +50,7 @@ export function FloatingWhatsApp({
       rel="noopener noreferrer"
       aria-label="Chat with us on WhatsApp"
       className="float-wa"
+      onClick={handleClick}
     >
       <span className="float-wa-label">Chat on WhatsApp</span>
       <span className="float-wa-button">
