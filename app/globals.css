@@ -61,6 +61,49 @@
   box-shadow: inset 0 0 0 1px rgb(16 24 32 / 0.06);
 }
 
+/* Vertical edge-fade for scrollable lists — top + bottom are softened so
+   content appears to bleed into the surrounding section instead of stopping
+   on a hard line. Tune --fade-start / --fade-stop to control the fade band. */
+@utility scroll-fade-y {
+  --fade-start: 12%;
+  --fade-stop: 88%;
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    black var(--fade-start),
+    black var(--fade-stop),
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    black var(--fade-start),
+    black var(--fade-stop),
+    transparent 100%
+  );
+}
+
+/* Horizontal counterpart — left + right edges fade for carousels and
+   horizontally scrolling rails. Same knobs as scroll-fade-y. */
+@utility scroll-fade-x {
+  --fade-start: 6%;
+  --fade-stop: 94%;
+  mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black var(--fade-start),
+    black var(--fade-stop),
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black var(--fade-start),
+    black var(--fade-stop),
+    transparent 100%
+  );
+}
+
 @import "./styles/components.css" layer(components);
 @import "./styles/pages.css" layer(components);
 

@@ -7,6 +7,8 @@ import {
   ArrowUpRight,
   Building2,
   CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
   ClipboardCheck,
   Compass,
   FileText,
@@ -23,25 +25,20 @@ import {
 import { Button } from "@/frontend/components/ui/button";
 import { Skeleton } from "@/frontend/components/ui/skeleton";
 import { useProjects } from "@/frontend/hooks/useProjects";
+import { useScrollArrows } from "@/frontend/hooks/useScrollArrows";
 import { useTestimonials } from "@/frontend/hooks/useTestimonials";
 import { ProjectCard } from "@/frontend/components/features/ProjectCard";
 import { TestimonialsCarousel } from "@/frontend/components/features/TestimonialsCarousel";
 import { CountUp } from "@/frontend/components/ui/CountUp";
 import { SERVICES } from "@/frontend/data/services";
-import { CONTACT } from "@/shared/constants/contact";
+import type { PublicSiteSettings } from "@/backend/services/settings";
 
 const SERVICE_ICONS = [Building2, PenTool, Ruler, Layers] as const;
-
-const STATS = [
-  { label: "Projects completed", end: 50, suffix: "+", detail: "Residential & commercial" },
-  { label: "Years of practice", end: 5, suffix: "+", detail: "Industry expertise" },
-  { label: "Core services", end: 4, suffix: "", detail: "End-to-end delivery" },
-];
 
 const TRUST_POINTS = [
   { label: "Council-ready documentation", icon: ShieldCheck },
   { label: "Residential & development work", icon: Building2 },
-  { label: "Serving South Africa", icon: MapPin },
+  { label: "Based in Malamulele, Limpopo", icon: MapPin },
 ];
 
 const APPROACH = [
@@ -102,8 +99,8 @@ const FAQS = [
     a: "Yes. We prepare the full submission package, lodge it with the municipality, and manage revisions through to approval — so you don't have to navigate council yourself.",
   },
   {
-    q: "What areas of South Africa do you serve?",
-    a: "We work across several provinces, with most projects in Gauteng, Limpopo, Mpumalanga, and KwaZulu-Natal. Remote consultations are available country-wide.",
+    q: "What areas do you serve?",
+    a: "We are based in Malamulele and most of our work is across the Vhembe District — Mhinga, Makuleke, Saselamani, Xikundu, Maphophe and the Malamulele town blocks among others. We travel beyond the district for development-scale projects and offer remote consultations countrywide.",
   },
   {
     q: "Can you work with my existing builder or contractor?",
@@ -115,31 +112,57 @@ const FAQS = [
   },
 ];
 
-export function HomePageContent() {
+export function HomePageContent({ settings }: { settings: PublicSiteSettings }) {
   const { data: featured, isLoading: projectsLoading, isError: projectsError } = useProjects({ featured: true });
   const { data: testimonials, isLoading: testimonialsLoading } = useTestimonials();
   const spotlight = featured?.[0];
+
+  const STATS = [
+    {
+      label: "Projects completed",
+      end: settings.projectsCompleted ? Number(settings.projectsCompleted) : 0,
+      suffix: "+",
+      detail: "Residential & commercial",
+    },
+    {
+      label: "Years of practice",
+      end: settings.yearsExperience ? Number(settings.yearsExperience) : 0,
+      suffix: "+",
+      detail: "Industry expertise",
+    },
+    { label: "Core services", end: SERVICES.length, suffix: "", detail: "End-to-end delivery" },
+  ];
+
+  // Arrow controls for the "What we deliver" strip — lets mouse users on
+  // non-touch desktops page through the hidden-scrollbar row.
+  const {
+    ref: pressStripRef,
+    canPrev: pressCanPrev,
+    canNext: pressCanNext,
+    scrollPrev: pressScrollPrev,
+    scrollNext: pressScrollNext,
+  } = useScrollArrows<HTMLDivElement>();
 
   return (
     <>
       {/* ─── Hero ─────────────────────────────────────────────────────── */}
       <section className="hero-band" aria-label="Introduction">
-        <Image
-          src="/images/hero/hero-mobile.png"
-          alt=""
-          fill
-          priority
-          sizes="100vw"
-          className="hero-band-media md:hidden"
-          aria-hidden="true"
-        />
+        {/*
+          hero-mobile.png, hero-desktop.png and hero-fallback.png are
+          currently byte-identical (no real distinct mobile crop exists yet)
+          - rendering two <Image priority> elements and CSS-toggling their
+          visibility made every homepage load fetch the same image twice.
+          One image with `sizes="100vw"` lets Next generate the right
+          responsive srcset automatically; swap in a real mobile-specific
+          crop here if one is ever produced.
+        */}
         <Image
           src="/images/hero/hero-desktop.png"
           alt=""
           fill
           priority
           sizes="100vw"
-          className="hero-band-media hidden md:block"
+          className="hero-band-media"
           aria-hidden="true"
         />
         <div className="hero-overlay" />
@@ -151,7 +174,7 @@ export function HomePageContent() {
               <span className="hero-status-pill">Now booking 2026 consultations</span>
               <span className="hero-meta-rule" aria-hidden="true" />
               <span className="text-[0.6875rem] font-medium uppercase tracking-[0.22em] text-white/55">
-                Est. 2020 · South Africa
+                Est. 2020 · Malamulele, Limpopo
               </span>
             </div>
 
@@ -209,12 +232,32 @@ export function HomePageContent() {
       <section className="press-strip" aria-label="What we deliver">
         <div className="press-strip-inner">
           <p className="press-strip-label">What we deliver</p>
-          <div className="press-strip-items">
-            <span className="press-strip-item">House plans <span>Residential</span></span>
-            <span className="press-strip-item">Council submissions <span>Municipal</span></span>
-            <span className="press-strip-item">Working drawings <span>Construction</span></span>
-            <span className="press-strip-item">Development plans <span>Multi-unit</span></span>
-            <span className="press-strip-item">As-built drawings <span>Compliance</span></span>
+          <div className="press-strip-rail">
+            <button
+              type="button"
+              className="press-strip-arrow press-strip-arrow--prev"
+              aria-label="Scroll deliverables left"
+              onClick={pressScrollPrev}
+              disabled={!pressCanPrev}
+            >
+              <ChevronLeft aria-hidden="true" />
+            </button>
+            <div className="press-strip-items" ref={pressStripRef}>
+              <span className="press-strip-item">House plans <span>Residential</span></span>
+              <span className="press-strip-item">Council submissions <span>Municipal</span></span>
+              <span className="press-strip-item">Working drawings <span>Construction</span></span>
+              <span className="press-strip-item">Development plans <span>Multi-unit</span></span>
+              <span className="press-strip-item">As-built drawings <span>Compliance</span></span>
+            </div>
+            <button
+              type="button"
+              className="press-strip-arrow press-strip-arrow--next"
+              aria-label="Scroll deliverables right"
+              onClick={pressScrollNext}
+              disabled={!pressCanNext}
+            >
+              <ChevronRight aria-hidden="true" />
+            </button>
           </div>
         </div>
       </section>
@@ -349,6 +392,7 @@ export function HomePageContent() {
                   fill
                   sizes="(min-width: 1024px) 55vw, 100vw"
                   className="object-cover img-project"
+                  priority
                 />
               ) : (
                 <div className="flex h-full w-full items-center justify-center text-white/30">
@@ -382,7 +426,7 @@ export function HomePageContent() {
                 </div>
                 <div>
                   <p className="spotlight-meta-key">Region</p>
-                  <p className="spotlight-meta-value">South Africa</p>
+                  <p className="spotlight-meta-value">Vhembe District, Limpopo</p>
                 </div>
                 <div>
                   <p className="spotlight-meta-key">Status</p>
@@ -477,7 +521,10 @@ export function HomePageContent() {
               <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3">
                 {[
                   { label: "Council submissions", value: "50+" },
-                  { label: "Years in practice", value: "5+" },
+                  {
+                    label: "Years in practice",
+                    value: settings.yearsExperience ? `${settings.yearsExperience}+` : "—",
+                  },
                   { label: "Provinces served", value: "4+" },
                 ].map((item) => (
                   <div
@@ -695,21 +742,21 @@ export function HomePageContent() {
               <p className="contact-tile-label">Book a consultation</p>
               <p className="contact-tile-value">Free 30-minute call</p>
             </Link>
-            <a href={`tel:${CONTACT.PHONE_E164}`} className="contact-tile">
+            <a href={`tel:${settings.phoneE164}`} className="contact-tile">
               <div className="contact-tile-head">
                 <Phone className="h-5 w-5" />
                 <ArrowUpRight className="h-4 w-4" />
               </div>
               <p className="contact-tile-label">Call the studio</p>
-              <p className="contact-tile-value">{CONTACT.PHONE_DISPLAY}</p>
+              <p className="contact-tile-value">{settings.phone}</p>
             </a>
-            <a href={`mailto:${CONTACT.EMAIL}`} className="contact-tile">
+            <a href={`mailto:${settings.email}`} className="contact-tile">
               <div className="contact-tile-head">
                 <Mail className="h-5 w-5" />
                 <ArrowUpRight className="h-4 w-4" />
               </div>
               <p className="contact-tile-label">Email us</p>
-              <p className="contact-tile-value">{CONTACT.EMAIL}</p>
+              <p className="contact-tile-value">{settings.email}</p>
             </a>
             <Link href="/projects" className="contact-tile">
               <div className="contact-tile-head">

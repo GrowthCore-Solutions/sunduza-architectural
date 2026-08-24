@@ -6,8 +6,7 @@ import { Footer } from "@/frontend/components/layout/Footer";
 import { FloatingWhatsApp } from "@/frontend/components/layout/FloatingWhatsApp";
 import { Providers } from "@/frontend/components/providers";
 import { unstable_cache } from "next/cache";
-import { getSetting } from "@/backend/services/settings";
-import { CONTACT } from "@/shared/constants/contact";
+import { getPublicSiteSettings } from "@/backend/services/settings";
 import { SITE_URL } from "@/shared/constants/site";
 import { WebVitals } from "@/frontend/components/seo/WebVitals";
 
@@ -60,28 +59,21 @@ export const metadata: Metadata = {
   },
 };
 
-const getWhatsAppNumber = unstable_cache(
-  async () => {
-    try {
-      return (await getSetting("whatsapp_number")) ?? CONTACT.WHATSAPP_NUMBER;
-    } catch {
-      return CONTACT.WHATSAPP_NUMBER;
-    }
-  },
-  ["whatsapp-number"],
-  { revalidate: 3600 }
-);
+const getSiteSettings = unstable_cache(getPublicSiteSettings, ["public-site-settings"], {
+  revalidate: 3600,
+});
 
 export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const whatsAppNumber = await getWhatsAppNumber();
+  const settings = await getSiteSettings();
 
   return (
     <html
       lang="en"
+      data-scroll-behavior="smooth"
       className={`${cormorant.variable} ${dmSans.variable}`}
     >
       <body className="antialiased bg-paper text-ink flex flex-col min-h-screen">
@@ -89,8 +81,8 @@ export default async function RootLayout({
         <Providers>
           <Header />
           <main className="flex-1">{children}</main>
-          <Footer />
-          <FloatingWhatsApp phoneNumber={whatsAppNumber} />
+          <Footer settings={settings} />
+          <FloatingWhatsApp phoneNumber={settings.whatsappNumber} />
         </Providers>
       </body>
     </html>

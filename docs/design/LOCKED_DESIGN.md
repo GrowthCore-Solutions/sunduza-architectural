@@ -10,6 +10,17 @@
 > This document supersedes all prior design documents for build purposes.
 > Do not deviate from any decision here without a constitutional amendment.
 
+> **v1 reality note (2026-06).** This is the *pre-build* locked spec, preserved
+> as the historical product authority. Two decisions were refined during the
+> build and the shipped system is the source of truth:
+> 1. **Auth uses JWT sessions, not database sessions** — Auth.js v5's Credentials
+>    provider cannot create DB sessions (PR #60). See
+>    [../ARCHITECTURE.md](../ARCHITECTURE.md).
+> 2. **The data model grew from 9 to 15 models** (added Lead, Service, Tag/
+>    ProjectTag, Attachment, and the NextAuth adapter tables). See
+>    [./ERD.md](./ERD.md).
+> Where this document and the code disagree, the code wins.
+
 > **Implementation note (2026-05):** Route protection uses root `proxy.ts` (Next.js 16) instead of `middleware.ts`. Behaviour matches S3.7 double-layer auth — see [ARCHITECTURE.md](../ARCHITECTURE.md).
 
 ---

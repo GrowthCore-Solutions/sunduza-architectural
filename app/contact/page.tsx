@@ -1,48 +1,13 @@
 import { Clock, Mail, MapPin, MessageCircle, Phone } from "lucide-react";
 import { ContactForm } from "@/frontend/components/features/ContactForm";
 import { CONTACT } from "@/shared/constants/contact";
+import { getPublicSiteSettings } from "@/backend/services/settings";
 
 export const metadata = {
   title: "Contact",
   description:
     "Get in touch with Sunduza Architectural & Projects. We respond to all enquiries within 24 hours.",
 };
-
-const CHANNELS = [
-  {
-    icon: Phone,
-    label: "Call",
-    value: CONTACT.PHONE_DISPLAY,
-    hint: CONTACT.HOURS,
-    href: `tel:${CONTACT.PHONE_E164}`,
-  },
-  {
-    icon: MessageCircle,
-    label: "WhatsApp",
-    value: CONTACT.PHONE_DISPLAY,
-    hint: "Fastest response",
-    href: `https://wa.me/${CONTACT.WHATSAPP_NUMBER}`,
-  },
-  {
-    icon: Mail,
-    label: "Email",
-    value: CONTACT.EMAIL,
-    hint: "Reply within 24 hours",
-    href: `mailto:${CONTACT.EMAIL}`,
-  },
-  {
-    icon: MapPin,
-    label: "Studio",
-    value: CONTACT.LOCATION,
-    hint: "By appointment",
-    href: null,
-  },
-] as const;
-
-const META = [
-  { icon: Clock, label: "Response time", value: "Within 24 hours" },
-  { icon: Mail, label: "Office hours", value: CONTACT.HOURS_FULL },
-];
 
 const WHAT_TO_INCLUDE = [
   "A short summary of your project or enquiry",
@@ -51,7 +16,45 @@ const WHAT_TO_INCLUDE = [
   "Links to references or inspiration, if available",
 ];
 
-export default function ContactPage() {
+export default async function ContactPage() {
+  const settings = await getPublicSiteSettings();
+
+  const CHANNELS = [
+    {
+      icon: Phone,
+      label: "Call",
+      value: settings.phone,
+      hint: CONTACT.HOURS,
+      href: `tel:${settings.phoneE164}`,
+    },
+    {
+      icon: MessageCircle,
+      label: "WhatsApp",
+      value: settings.phone,
+      hint: "Fastest response",
+      href: `https://wa.me/${settings.whatsappNumber}`,
+    },
+    {
+      icon: Mail,
+      label: "Email",
+      value: settings.email,
+      hint: "Reply within 24 hours",
+      href: `mailto:${settings.email}`,
+    },
+    {
+      icon: MapPin,
+      label: "Studio",
+      value: settings.address,
+      hint: "By appointment",
+      href: null,
+    },
+  ] as const;
+
+  const META = [
+    { icon: Clock, label: "Response time", value: "Within 24 hours" },
+    { icon: Mail, label: "Office hours", value: CONTACT.HOURS_FULL },
+  ];
+
   return (
     <>
       {/* Hero */}

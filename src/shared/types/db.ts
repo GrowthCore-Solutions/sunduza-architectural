@@ -123,3 +123,19 @@ export const settingRowSelect = {
 export type SettingRow = Prisma.SiteSettingsGetPayload<{
   select: typeof settingRowSelect;
 }>;
+
+// Credentials-auth projection — includes the password hash and lockout
+// fields, so this must never leave the auth service/repository boundary
+// (never returned from an API route or put in a session).
+export const userAuthSelect = {
+  id: true,
+  email: true,
+  name: true,
+  password: true,
+  role: true,
+  failedAttempts: true,
+  lockedUntil: true,
+  deletedAt: true,
+} satisfies Prisma.UserSelect;
+
+export type UserAuthRow = Prisma.UserGetPayload<{ select: typeof userAuthSelect }>;
